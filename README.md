@@ -2,7 +2,7 @@
 
 Application web du foyer : les courses en un tap, les choses à faire sans rien oublier, tout le foyer suivi au même endroit (maison, voitures, enfants, papiers, voyages).
 
-> **Statut : les quatre briques (Liste, Tâche, Fiche, Projet) fonctionnent**, sur un téléphone à la fois (données dans le navigateur, hors ligne). Prochaines étapes : dépôt GitHub et mise en ligne sur accord, puis synchronisation entre les deux téléphones (ADR 0002). Specs : [001, les quatre briques](docs/specs/001-quatre-briques.md), [002, animaux, finances, sorties](docs/specs/002-animaux-finances-sorties.md).
+> **Statut : les quatre briques (Liste, Tâche, Fiche, Projet) fonctionnent**, sur un téléphone à la fois (données dans le navigateur, hors ligne). **En ligne : https://gharel.github.io/nid/** (sur iPhone : Partager, puis « Sur l’écran d’accueil »). Prochaine étape : synchronisation entre les deux téléphones (ADR 0002). Specs : [001, les quatre briques](docs/specs/001-quatre-briques.md), [002, animaux, finances, sorties](docs/specs/002-animaux-finances-sorties.md).
 
 ## Lancer l’application
 
