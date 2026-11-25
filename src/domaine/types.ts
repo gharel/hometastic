@@ -34,7 +34,7 @@ export interface Liste extends Rattachement {
   id: string;
   nom: string;
   type: TypeListe;
-  /** Illustration choisie (sinon celle du type : chariot, presse-papiers, clap). */
+  /** Pictogramme choisi (sinon celui du type : panier, presse-papiers, film). */
   icone?: string | undefined;
   ordre: number;
   creeLe: string;

@@ -36,7 +36,7 @@ export function ListesRattachees({
             return (
               <li key={l.id}>
                 <a class="ligne" href={`#/courses/${l.id}`}>
-                  <Illustration nom={iconeListe(l)} />
+                  <Icone nom={iconeListe(l)} />
                   <span>
                     <strong>{l.nom}</strong>
                     <span class="sous">{l.type === 'courses' ? 'Courses' : 'À cocher'}</span>

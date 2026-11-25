@@ -397,7 +397,7 @@ export function Courses({ id }: { id?: string | undefined }) {
               href={`#/courses/${l.id}`}
               aria-current={l.id === liste?.id ? 'page' : undefined}
             >
-              <Illustration nom={iconeListe(l)} />
+              <Icone nom={iconeListe(l)} />
               {l.nom} {n}
             </a>
           );

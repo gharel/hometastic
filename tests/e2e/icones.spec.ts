@@ -111,21 +111,21 @@ test('Liste : choisir son icône en la modifiant', async ({ page }) => {
   await page.getByRole('radio', { name: 'À cocher (valise, préparatifs)' }).check();
   await enregistrer(page);
   const pastille = page.getByRole('group', { name: 'Listes' }).getByRole('link', { name: /Valise d’Hélène/ });
-  await expect(pastille.locator('use')).toHaveAttribute('href', '#f-clipboard');
+  await expect(pastille.locator('svg[data-icone="presse-papiers"]')).toHaveCount(1);
 
   await page.getByRole('button', { name: 'Modifier la liste' }).click();
   const feuille = page.getByRole('dialog', { name: 'Modifier la liste' });
   await feuille.getByRole('button', { name: 'Changer l’icône' }).click();
-  await expect(feuille.getByRole('region', { name: 'Pour les listes' })).toBeVisible();
-  await feuille.getByRole('searchbox', { name: 'Chercher une icône' }).fill('valise');
-  await feuille.getByRole('button', { name: 'Valise', exact: true }).click();
-  await expect(feuille.locator('.icone-actuelle use')).toHaveAttribute('href', '#f-luggage');
+  const pictos = feuille.getByRole('list', { name: 'Icônes pour la liste' });
+  await expect(pictos.getByRole('button', { name: 'À cocher' })).toHaveAttribute('aria-pressed', 'true');
+  await pictos.getByRole('button', { name: 'Valise' }).click();
+  await expect(feuille.locator('.icone-actuelle svg[data-icone="valise"]')).toHaveCount(1);
   await enregistrer(page);
-  await expect(pastille.locator('use')).toHaveAttribute('href', '#f-luggage');
+  await expect(pastille.locator('svg[data-icone="valise"]')).toHaveCount(1);
 
   // Retour à l’icône d’origine.
   await page.getByRole('button', { name: 'Modifier la liste' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Icône d’origine' }).click();
   await enregistrer(page);
-  await expect(pastille.locator('use')).toHaveAttribute('href', '#f-clipboard');
+  await expect(pastille.locator('svg[data-icone="presse-papiers"]')).toHaveCount(1);
 });

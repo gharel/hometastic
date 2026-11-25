@@ -455,7 +455,9 @@ function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Pa
             Icône
           </span>
           <div class="icone-actuelle" aria-labelledby="liste-icone">
-            <Illustration nom={iconeListe({ type, icone })} />
+            <span class="picto-liste">
+              <Icone nom={iconeListe({ type, icone })} />
+            </span>
             <button
               type="button"
               class="bouton"
@@ -471,14 +473,25 @@ function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Pa
             )}
           </div>
           {choixOuvert && (
-            <ChoixIcones
-              choisie={iconeListe({ type, icone })}
-              entete={{ titre: 'Pour les listes', icones: ICONES_LISTE }}
-              choisir={(i) => {
-                setIcone(i);
-                setChoixOuvert(false);
-              }}
-            />
+            <ul class="grille-pictos" aria-label="Icônes pour la liste">
+              {ICONES_LISTE.map((p) => (
+                <li key={p.icone}>
+                  <button
+                    type="button"
+                    class="picto-choix"
+                    aria-label={p.nom}
+                    title={p.nom}
+                    aria-pressed={p.icone === iconeListe({ type, icone }) ? 'true' : 'false'}
+                    onClick={() => {
+                      setIcone(p.icone);
+                      setChoixOuvert(false);
+                    }}
+                  >
+                    <Icone nom={p.icone} />
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
         <Champ id="liste-lien" libelle="Rattachée à">

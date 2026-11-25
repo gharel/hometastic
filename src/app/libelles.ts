@@ -1,3 +1,4 @@
+import type { NomIcone } from './icones';
 import { normaliser } from '../domaine/catalogue';
 import type { TypeFiche, TypeListe, TypeProjet } from '../domaine/types';
 
@@ -91,45 +92,51 @@ export const iconeFiche = (fiche: { type: TypeFiche; infos?: Record<string, stri
       ? iconeEspece(fiche.infos?.espece)
       : TYPES_FICHE[fiche.type].icone;
 
-/** Illustration par défaut d’une liste, selon son type. */
-const ICONE_TYPE_LISTE: Record<TypeListe, string> = {
-  courses: 'shopping-cart',
-  checklist: 'clipboard',
-  sorties: 'clapper-board',
+/** Pictogramme par défaut d’une liste, selon son type. */
+const ICONE_TYPE_LISTE: Record<TypeListe, NomIcone> = {
+  courses: 'panier',
+  checklist: 'presse-papiers',
+  sorties: 'film',
 };
 
-export const iconeListe = (liste: { type: TypeListe; icone?: string | undefined }): string =>
-  liste.icone ?? ICONE_TYPE_LISTE[liste.type];
-
-/** Illustrations proposées en tête du choix d’icône d’une liste (avant celles du catalogue). */
-export const ICONES_LISTE: readonly { icone: string; nom: string; mots: string }[] = [
-  { icone: 'shopping-cart', nom: 'Courses', mots: 'supermarche chariot' },
-  { icone: 'basket', nom: 'Marché', mots: 'panier' },
-  { icone: 'shopping-bags', nom: 'Magasins', mots: 'shopping vetements' },
-  { icone: 'clipboard', nom: 'À cocher', mots: 'liste preparatifs' },
-  { icone: 'spiral-notepad', nom: 'Notes', mots: 'bloc idees' },
-  { icone: 'luggage', nom: 'Valise', mots: 'bagages voyage' },
-  { icone: 'backpack', nom: 'Sac à dos', mots: 'ecole rentree randonnee' },
-  { icone: 'desert-island', nom: 'Vacances', mots: 'ile' },
-  { icone: 'beach-with-umbrella', nom: 'Plage', mots: 'mer baignade' },
-  { icone: 'camping', nom: 'Camping', mots: 'tente' },
-  { icone: 'airplane', nom: 'Voyage', mots: 'avion' },
-  { icone: 'automobile', nom: 'Voiture', mots: 'route' },
-  { icone: 'house', nom: 'Maison', mots: 'logement' },
-  { icone: 'hammer-and-wrench', nom: 'Bricolage', mots: 'travaux outils' },
-  { icone: 'seedling', nom: 'Jardin', mots: 'plantes' },
-  { icone: 'broom', nom: 'Ménage', mots: 'entretien' },
-  { icone: 'pot-of-food', nom: 'Repas', mots: 'menus cuisine' },
-  { icone: 'party-popper', nom: 'Fête', mots: 'soiree' },
-  { icone: 'birthday-cake', nom: 'Anniversaire', mots: 'gateau' },
-  { icone: 'wrapped-gift', nom: 'Cadeaux', mots: 'idees cadeau' },
-  { icone: 'christmas-tree', nom: 'Noël', mots: 'sapin fetes' },
-  { icone: 'baby-bottle', nom: 'Bébé', mots: 'enfant' },
-  { icone: 'pill', nom: 'Pharmacie', mots: 'medicaments sante' },
-  { icone: 'paw-prints', nom: 'Animaux', mots: 'chat chien' },
-  { icone: 'clapper-board', nom: 'Films', mots: 'cinema series a voir' },
-  { icone: 'books', nom: 'Livres', mots: 'lecture' },
-  { icone: 'red-heart', nom: 'Envies', mots: 'favoris coeur' },
+/** Pictogrammes proposés pour une liste (au trait, comme le reste de l’interface). */
+export const ICONES_LISTE: readonly { icone: NomIcone; nom: string }[] = [
+  { icone: 'panier', nom: 'Courses' },
+  { icone: 'sac', nom: 'Magasins' },
+  { icone: 'presse-papiers', nom: 'À cocher' },
+  { icone: 'valise', nom: 'Valise' },
+  { icone: 'sac-a-dos', nom: 'Sac à dos' },
+  { icone: 'avion', nom: 'Voyage' },
+  { icone: 'tente', nom: 'Camping' },
+  { icone: 'voiture', nom: 'Voiture' },
+  { icone: 'velo', nom: 'Vélo' },
+  { icone: 'maison', nom: 'Maison' },
+  { icone: 'marteau', nom: 'Bricolage' },
+  { icone: 'pousse', nom: 'Jardin' },
+  { icone: 'etincelles', nom: 'Ménage' },
+  { icone: 'couverts', nom: 'Repas' },
+  { icone: 'gateau', nom: 'Anniversaire' },
+  { icone: 'cadeau', nom: 'Cadeaux' },
+  { icone: 'sapin', nom: 'Noël' },
+  { icone: 'bebe', nom: 'Bébé' },
+  { icone: 'pilule', nom: 'Pharmacie' },
+  { icone: 'patte', nom: 'Animaux' },
+  { icone: 'vetement', nom: 'Vêtements' },
+  { icone: 'ecole', nom: 'École' },
+  { icone: 'livre', nom: 'Livres' },
+  { icone: 'film', nom: 'Films' },
+  { icone: 'musique', nom: 'Musique' },
+  { icone: 'billet', nom: 'Sorties' },
+  { icone: 'coeur', nom: 'Envies' },
+  { icone: 'etoile', nom: 'Favoris' },
 ];
+
+const NOMS_ICONES_LISTE = new Set<string>(ICONES_LISTE.map((i) => i.icone));
+
+/** Pictogramme d’une liste : celui choisi, sinon celui de son type. */
+export const iconeListe = (liste: { type: TypeListe; icone?: string | undefined }): NomIcone =>
+  liste.icone && NOMS_ICONES_LISTE.has(liste.icone)
+    ? (liste.icone as NomIcone)
+    : ICONE_TYPE_LISTE[liste.type];
 
 export const pluriel = (n: number, un: string, plusieurs: string) => `${n} ${n > 1 ? plusieurs : un}`;

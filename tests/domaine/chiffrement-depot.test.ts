@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   chiffrer,
   dechiffrer,
@@ -105,8 +105,8 @@ describe('dépôt', () => {
     const recus: number[] = [];
     depot.ecouter('taches', (ts) => recus.push(ts.length));
     await depot.mettre('taches', { ...tacheSante, id: 't2', sante: false });
-    await new Promise((r) => setTimeout(r, 10));
-    expect(recus.at(-1)).toBe(1);
+    // Le rappel passe par un déchiffrement asynchrone : attendre qu’il arrive (machine chargée).
+    await vi.waitFor(() => expect(recus.at(-1)).toBe(1));
   });
 
   it('exporte puis réimporte ; refuse une sauvegarde invalide sans rien écraser', async () => {

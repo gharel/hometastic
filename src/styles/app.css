@@ -770,9 +770,41 @@ dialog .icone-choix {
   hyphens: auto;
 }
 
-/* Icône d’une liste dans sa pastille (illustration en couleur, un peu plus grande que les pictos). */
-.pilule svg.ico {
-  width: 22px;
-  height: 22px;
-  margin: 0;
+/* Pictogramme d’une liste : aperçu et grille de choix dans sa feuille. */
+.icone-actuelle > .picto-liste {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 14px;
+  background: var(--primaire-doux);
+  color: var(--primaire);
+}
+.picto-liste svg,
+.picto-choix svg {
+  width: 24px;
+  height: 24px;
+}
+.grille-pictos {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 8px;
+}
+.picto-choix {
+  width: 100%;
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--texte);
+}
+.picto-choix[aria-pressed='true'] {
+  background: var(--primaire);
+  color: var(--sur-primaire);
 }

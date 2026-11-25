@@ -37,12 +37,12 @@ describe('illustrations des fiches et des sorties', () => {
 describe('icône d’une liste', () => {
   it('celle choisie, sinon celle du type', async () => {
     const { iconeListe, ICONES_LISTE } = await import('../../src/app/libelles');
-    const fluent = (await import('../../src/icones/fluent.json')).default;
-    expect(iconeListe({ type: 'courses' })).toBe('shopping-cart');
-    expect(iconeListe({ type: 'checklist' })).toBe('clipboard');
-    expect(iconeListe({ type: 'sorties' })).toBe('clapper-board');
-    expect(iconeListe({ type: 'checklist', icone: 'luggage' })).toBe('luggage');
-    for (const { icone } of ICONES_LISTE) expect(fluent.icones, icone).toHaveProperty(icone);
+    expect(iconeListe({ type: 'courses' })).toBe('panier');
+    expect(iconeListe({ type: 'checklist' })).toBe('presse-papiers');
+    expect(iconeListe({ type: 'sorties' })).toBe('film');
+    expect(iconeListe({ type: 'checklist', icone: 'valise' })).toBe('valise');
+    // Une icône inconnue (ancienne illustration en couleur) revient à celle du type.
+    expect(iconeListe({ type: 'checklist', icone: 'luggage' })).toBe('presse-papiers');
     expect(new Set(ICONES_LISTE.map((i) => i.icone)).size).toBe(ICONES_LISTE.length);
   });
 });

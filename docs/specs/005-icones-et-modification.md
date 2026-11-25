@@ -12,7 +12,7 @@ Demande du 26 novembre 2026 : « Permet de modifier un article de course ou une 
 - [x] Icônes Fluent Emoji Flat quand l’objet existe, sinon dessinées pour Nid dans le même style (`src/icones/nid.ts`).
 - [x] Feuille « Modifier l’article » : changer l’icône (recherche dans toutes les icônes, rangées par rayon), revenir à l’icône d’origine, changer le rayon ; Nid retient ce choix pour ce nom d’article et le réapplique à chaque ajout, sur les deux téléphones.
 - [x] Écran « Toutes les icônes » (Courses, lien sous la saisie) : tout le catalogue par rayon, recherche, un toucher ajoute le produit à la liste ; sans défilement horizontal à 360 px, sans erreur axe.
-- [x] Feuille d’une liste : choisir son icône (sélection « Pour les listes » puis tout le catalogue, recherche), revenir à l’icône d’origine ; l’icône apparaît dans les pastilles des listes et dans les listes rattachées aux fiches et projets (test `icones.spec.ts`).
+- [x] Feuille d’une liste : choisir son icône parmi des pictogrammes au trait (grille, « À cocher » pour VoiceOver, état pressé), revenir à l’icône d’origine (panier, presse-papiers, film selon le type) ; l’icône apparaît dans les pastilles des listes et dans les listes rattachées aux fiches et projets (test `icones.spec.ts`).
 
 ## Hors périmètre
 
