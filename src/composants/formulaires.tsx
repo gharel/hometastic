@@ -1,0 +1,1356 @@
+import type { ComponentChildren } from 'preact';
+import { useState } from 'preact/hooks';
+import {
+  creerFoyer,
+  enregistrerDepense,
+  enregistrerEntree,
+  enregistrerFiche,
+  enregistrerListe,
+  enregistrerProjet,
+  enregistrerSortie,
+  enregistrerTache,
+  modifierArticle,
+  modifierFoyer,
+  nouveauProjet,
+  nouvelleFiche,
+  nouvelleListe,
+  nouvelleTache,
+  releverKm,
+  supprimerArticle,
+  supprimerDepense,
+  supprimerEntree,
+  supprimerFiche,
+  supprimerListe,
+  supprimerProjet,
+  supprimerTache,
+} from '../app/actions';
+import {
+  aujourdhui,
+  autre,
+  devise,
+  feuille,
+  fermer,
+  fiches,
+  foyer,
+  listes,
+  moi,
+  ouvrir,
+  projets,
+  taches,
+  type Feuille as TypeFeuille,
+} from '../app/etat';
+import { Icone, Illustration } from '../app/icones';
+import { CHAMPS_FICHE, TYPES_FICHE, TYPES_PROJET } from '../app/libelles';
+import { nouvelId } from '../domaine/id';
+import { modelePour } from '../domaine/modeles';
+import { formatMontant, lireMontant } from '../domaine/montants';
+import { CATEGORIES_SORTIE, dateAchatBillets } from '../domaine/sorties';
+import type {
+  Article,
+  Assignation,
+  CategorieSortie,
+  EtatBillet,
+  Depense,
+  Entree,
+  Fiche,
+  Liste,
+  Projet,
+  Recurrence,
+  Sante,
+  Tache,
+  TypeFiche,
+  TypeListe,
+  TypeProjet,
+} from '../domaine/types';
+import { Feuille } from './communs';
+
+const lireEntier = (texte: string): number | undefined => {
+  const n = Number(texte.replace(/[\s\u202f\u00a0]/g, ''));
+  return texte.trim() && Number.isFinite(n) && n >= 0 ? Math.round(n) : undefined;
+};
+
+function Champ({ id, libelle, children }: { id: string; libelle: string; children: ComponentChildren }) {
+  return (
+    <div class="champ-groupe">
+      <label for={id}>{libelle}</label>
+      {children}
+    </div>
+  );
+}
+
+function Choix<T extends string>({
+  nom,
+  legende,
+  valeur,
+  options,
+  changer,
+}: {
+  nom: string;
+  legende: string;
+  valeur: T;
+  options: readonly (readonly [T, ComponentChildren])[];
+  changer: (v: T) => void;
+}) {
+  return (
+    <fieldset class="choix">
+      <legend class="legende">{legende}</legend>
+      {options.map(([v, libelle]) => (
+        <label key={v}>
+          <input type="radio" name={nom} value={v} checked={valeur === v} onChange={() => changer(v)} />
+          {libelle}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+
+function Boutons({ supprimer }: { supprimer?: (() => void) | undefined }) {
+  return (
+    <div class="boutons-feuille">
+      <button type="submit" class="bouton bouton-plein">
+        Enregistrer
+      </button>
+      {supprimer && (
+        <button type="button" class="bouton bouton-danger" onClick={supprimer}>
+          <Icone nom="corbeille" />
+          Supprimer
+        </button>
+      )}
+    </div>
+  );
+}
+
+const confirmer = (question: string) => window.confirm(question);
+
+// ---------- Tâche ----------
+type TypeRecurrence = 'aucune' | 'jour' | 'semaine' | 'mois' | 'an' | 'apres' | 'km';
+
+function versTypeRecurrence(r: Recurrence | undefined): TypeRecurrence {
+  if (!r) return 'aucune';
+  if (r.type === 'calendaire') return r.unite;
+  return r.type === 'apres' ? 'apres' : 'km';
+}
+
+function FormTache({ tache, defauts }: { tache?: Tache | undefined; defauts?: Partial<Tache> | undefined }) {
+  const base = tache ?? nouvelleTache(defauts);
+  const [titre, setTitre] = useState(base.titre);
+  const [note, setNote] = useState(base.note ?? '');
+  const [echeance, setEcheance] = useState(base.echeance ?? '');
+  const [heure, setHeure] = useState(base.heure ?? '');
+  const [assignation, setAssignation] = useState<Assignation>(base.assignation);
+  const [typeRec, setTypeRec] = useState<TypeRecurrence>(versTypeRecurrence(base.recurrence));
+  const r = base.recurrence;
+  const [intervalle, setIntervalle] = useState(String(r?.type === 'calendaire' ? r.intervalle : 1));
+  const [jours, setJours] = useState(String(r?.type === 'apres' ? r.jours : 30));
+  const [km, setKm] = useState(String(r?.type === 'kilometrage' ? r.km : 15000));
+  const [ouMois, setOuMois] = useState(String(r?.type === 'kilometrage' ? (r.ouMois ?? '') : 12));
+  const [echeanceKm, setEcheanceKm] = useState(base.echeanceKm === undefined ? '' : String(base.echeanceKm));
+  const [rattache, setRattache] = useState(
+    base.ficheId ? `f:${base.ficheId}` : base.projetId ? `p:${base.projetId}` : '',
+  );
+  const [sante, setSante] = useState(!!base.sante);
+  const [montant, setMontant] = useState(base.montant === undefined ? '' : String(base.montant));
+
+  const ficheChoisie = rattache.startsWith('f:')
+    ? fiches.value.find((f) => `f:${f.id}` === rattache)
+    : undefined;
+  const vehicule = ficheChoisie?.type === 'vehicule';
+  const options: (readonly [Assignation, string])[] = [];
+  if (moi.value) options.push([moi.value.id, moi.value.nom]);
+  if (autre.value) options.push([autre.value.id, autre.value.nom]);
+  options.push(['nous', 'Nous deux'], ['libre', 'Au premier libre']);
+
+  const enregistrer = (e: Event) => {
+    e.preventDefault();
+    if (!titre.trim()) return;
+    let recurrence: Recurrence | undefined;
+    if (typeRec === 'apres') recurrence = { type: 'apres', jours: lireEntier(jours) || 30 };
+    else if (typeRec === 'km' && vehicule)
+      recurrence = {
+        type: 'kilometrage',
+        km: lireEntier(km) || 15000,
+        ouMois: lireEntier(ouMois) || undefined,
+      };
+    else if (typeRec !== 'aucune' && typeRec !== 'km')
+      recurrence = { type: 'calendaire', unite: typeRec, intervalle: lireEntier(intervalle) || 1 };
+    let date = echeance || undefined;
+    if (!date && recurrence && recurrence.type !== 'kilometrage') date = aujourdhui.value;
+    let kmEcheance = vehicule ? lireEntier(echeanceKm) : undefined;
+    if (kmEcheance === undefined && recurrence?.type === 'kilometrage' && ficheChoisie?.km)
+      kmEcheance = ficheChoisie.km.valeur + recurrence.km;
+    void enregistrerTache({
+      ...base,
+      titre: titre.trim(),
+      note: note.trim() || undefined,
+      echeance: date,
+      heure: date && heure ? heure : undefined,
+      echeanceKm: kmEcheance,
+      assignation,
+      recurrence,
+      ficheId: rattache.startsWith('f:') ? rattache.slice(2) : undefined,
+      projetId: rattache.startsWith('p:') ? rattache.slice(2) : undefined,
+      sante: sante || undefined,
+      montant: lireMontant(montant),
+    });
+    fermer();
+  };
+
+  return (
+    <Feuille titre={tache ? 'Modifier la tâche' : 'Nouvelle tâche'}>
+      <form class="formulaire" onSubmit={enregistrer}>
+        <Champ id="tache-titre" libelle="Quoi">
+          <input
+            id="tache-titre"
+            class="champ"
+            required
+            value={titre}
+            placeholder="Prendre rendez-vous au garage"
+            onInput={(e) => setTitre(e.currentTarget.value)}
+          />
+        </Champ>
+        <div class="ligne-champs">
+          <Champ id="tache-date" libelle="Quand">
+            <input
+              id="tache-date"
+              class="champ"
+              type="date"
+              value={echeance}
+              onInput={(e) => setEcheance(e.currentTarget.value)}
+            />
+          </Champ>
+          <Champ id="tache-heure" libelle="Heure">
+            <input
+              id="tache-heure"
+              class="champ"
+              type="time"
+              value={heure}
+              onInput={(e) => setHeure(e.currentTarget.value)}
+            />
+          </Champ>
+        </div>
+        <Choix
+          nom="tache-pour"
+          legende="Pour"
+          valeur={assignation}
+          options={options}
+          changer={setAssignation}
+        />
+        <Champ id="tache-lien" libelle="Rattachée à">
+          <select
+            id="tache-lien"
+            class="champ"
+            value={rattache}
+            onChange={(e) => setRattache(e.currentTarget.value)}
+          >
+            <option value="">Rien (tâche du foyer)</option>
+            {fiches.value.length > 0 && (
+              <optgroup label="Fiches">
+                {fiches.value.map((f) => (
+                  <option key={f.id} value={`f:${f.id}`}>
+                    {f.nom}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            {projets.value.filter((p) => !p.archive).length > 0 && (
+              <optgroup label="Projets">
+                {projets.value
+                  .filter((p) => !p.archive)
+                  .map((p) => (
+                    <option key={p.id} value={`p:${p.id}`}>
+                      {p.nom}
+                    </option>
+                  ))}
+              </optgroup>
+            )}
+          </select>
+        </Champ>
+        <Champ id="tache-repeter" libelle="Répéter">
+          <select
+            id="tache-repeter"
+            class="champ"
+            value={typeRec}
+            onChange={(e) => setTypeRec(e.currentTarget.value as TypeRecurrence)}
+          >
+            <option value="aucune">Jamais</option>
+            <option value="jour">Tous les jours</option>
+            <option value="semaine">Toutes les semaines</option>
+            <option value="mois">Tous les mois</option>
+            <option value="an">Tous les ans</option>
+            <option value="apres">Un certain temps après la dernière fois</option>
+            {vehicule && <option value="km">Au kilométrage</option>}
+          </select>
+        </Champ>
+        {['jour', 'semaine', 'mois', 'an'].includes(typeRec) && (
+          <Champ id="tache-intervalle" libelle="Tous les combien">
+            <input
+              id="tache-intervalle"
+              class="champ"
+              inputMode="numeric"
+              value={intervalle}
+              onInput={(e) => setIntervalle(e.currentTarget.value)}
+            />
+          </Champ>
+        )}
+        {typeRec === 'apres' && (
+          <Champ id="tache-jours" libelle="Nombre de jours après la dernière fois">
+            <input
+              id="tache-jours"
+              class="champ"
+              inputMode="numeric"
+              value={jours}
+              onInput={(e) => setJours(e.currentTarget.value)}
+            />
+          </Champ>
+        )}
+        {typeRec === 'km' && vehicule && (
+          <div class="ligne-champs">
+            <Champ id="tache-km" libelle="Tous les (km)">
+              <input
+                id="tache-km"
+                class="champ"
+                inputMode="numeric"
+                value={km}
+                onInput={(e) => setKm(e.currentTarget.value)}
+              />
+            </Champ>
+            <Champ id="tache-mois" libelle="Ou tous les (mois)">
+              <input
+                id="tache-mois"
+                class="champ"
+                inputMode="numeric"
+                value={ouMois}
+                onInput={(e) => setOuMois(e.currentTarget.value)}
+              />
+            </Champ>
+          </div>
+        )}
+        {vehicule && (
+          <Champ id="tache-echeance-km" libelle="À faire à (km), facultatif">
+            <input
+              id="tache-echeance-km"
+              class="champ"
+              inputMode="numeric"
+              value={echeanceKm}
+              placeholder={ficheChoisie?.km ? `Compteur actuel : ${ficheChoisie.km.valeur} km` : ''}
+              onInput={(e) => setEcheanceKm(e.currentTarget.value)}
+            />
+          </Champ>
+        )}
+        <Champ
+          id="tache-montant"
+          libelle={`Montant (${devise.value === 'XPF' ? 'F' : '€'}), facultatif${ficheChoisie ? ' : noté dans l’historique à chaque fois' : ''}`}
+        >
+          <input
+            id="tache-montant"
+            class="champ"
+            inputMode="decimal"
+            value={montant}
+            placeholder={ficheChoisie?.type === 'compte' ? 'Montant du virement' : ''}
+            onInput={(e) => setMontant(e.currentTarget.value)}
+          />
+        </Champ>
+        <Champ id="tache-note" libelle="Note">
+          <textarea
+            id="tache-note"
+            class="champ"
+            value={note}
+            onInput={(e) => setNote(e.currentTarget.value)}
+          />
+        </Champ>
+        <label class="case-a-cocher">
+          <input type="checkbox" checked={sante} onChange={(e) => setSante(e.currentTarget.checked)} />
+          <span>
+            Santé : titre et note chiffrés sur le téléphone
+            <small>La notification dira seulement « Rappel santé ».</small>
+          </span>
+        </label>
+        <Boutons
+          supprimer={
+            tache
+              ? () => {
+                  if (confirmer(`Supprimer « ${tache.titre} » ?`)) {
+                    void supprimerTache(tache);
+                    fermer();
+                  }
+                }
+              : undefined
+          }
+        />
+      </form>
+    </Feuille>
+  );
+}
+
+// ---------- Liste et article ----------
+function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Partial<Liste> | undefined }) {
+  const base = liste ?? nouvelleListe(defauts);
+  const [nom, setNom] = useState(base.nom);
+  const [type, setType] = useState<TypeListe>(base.type);
+  const [rattache, setRattache] = useState(
+    base.ficheId ? `f:${base.ficheId}` : base.projetId ? `p:${base.projetId}` : '',
+  );
+  const enregistrer = (e: Event) => {
+    e.preventDefault();
+    if (!nom.trim()) return;
+    void enregistrerListe({
+      ...base,
+      nom: nom.trim(),
+      type,
+      ficheId: rattache.startsWith('f:') ? rattache.slice(2) : undefined,
+      projetId: rattache.startsWith('p:') ? rattache.slice(2) : undefined,
+    });
+    fermer();
+    if (!liste && !base.ficheId && !base.projetId) location.hash = `#/courses/${base.id}`;
+  };
+  return (
+    <Feuille titre={liste ? 'Modifier la liste' : 'Nouvelle liste'}>
+      <form class="formulaire" onSubmit={enregistrer}>
+        <Champ id="liste-nom" libelle="Nom">
+          <input
+            id="liste-nom"
+            class="champ"
+            required
+            value={nom}
+            placeholder="Marché, Valise de Sam, Bricolage…"
+            onInput={(e) => setNom(e.currentTarget.value)}
+          />
+        </Champ>
+        <Choix
+          nom="liste-type"
+          legende="Type"
+          valeur={type}
+          options={[
+            ['courses', 'Courses (tuiles, rayons)'],
+            ['checklist', 'À cocher (valise, préparatifs)'],
+            ['sorties', 'À voir (films, spectacles, soirées)'],
+          ]}
+          changer={setType}
+        />
+        <Champ id="liste-lien" libelle="Rattachée à">
+          <select
+            id="liste-lien"
+            class="champ"
+            value={rattache}
+            onChange={(e) => setRattache(e.currentTarget.value)}
+          >
+            <option value="">Rien</option>
+            {fiches.value.map((f) => (
+              <option key={f.id} value={`f:${f.id}`}>
+                Fiche : {f.nom}
+              </option>
+            ))}
+            {projets.value
+              .filter((p) => !p.archive)
+              .map((p) => (
+                <option key={p.id} value={`p:${p.id}`}>
+                  Projet : {p.nom}
+                </option>
+              ))}
+          </select>
+        </Champ>
+        <Boutons
+          supprimer={
+            liste
+              ? () => {
+                  if (confirmer(`Supprimer la liste « ${liste.nom} » et ses articles ?`)) {
+                    void supprimerListe(liste);
+                    fermer();
+                    location.hash = '#/courses';
+                  }
+                }
+              : undefined
+          }
+        />
+      </form>
+    </Feuille>
+  );
+}
+
+function FormArticle({ article }: { article: Article }) {
+  const [precision, setPrecision] = useState(article.precision ?? '');
+  const [urgent, setUrgent] = useState(!!article.urgent);
+  const enregistrer = (e: Event) => {
+    e.preventDefault();
+    void modifierArticle({
+      ...article,
+      precision: precision.trim() || undefined,
+      urgent: urgent || undefined,
+    });
+    fermer();
+  };
+  return (
+    <Feuille titre={article.nom}>
+      <form class="formulaire" onSubmit={enregistrer}>
+        <Champ id="article-precision" libelle="Quantité ou précision">
+          <input
+            id="article-precision"
+            class="champ"
+            value={precision}
+            placeholder="2 l, x6, demi-écrémé…"
+            onInput={(e) => setPrecision(e.currentTarget.value)}
+          />
+        </Champ>
+        <label class="case-a-cocher">
+          <input type="checkbox" checked={urgent} onChange={(e) => setUrgent(e.currentTarget.checked)} />
+          <span>Urgent</span>
+        </label>
+        <Boutons
+          supprimer={() => {
+            void supprimerArticle(article);
+            fermer();
+          }}
+        />
+      </form>
+    </Feuille>
+  );
+}
+
+// ---------- Fiche ----------
+function FormFiche({ fiche }: { fiche?: Fiche | undefined }) {
+  const [type, setType] = useState<TypeFiche>(fiche?.type ?? 'vehicule');
+  const [nom, setNom] = useState(fiche?.nom ?? '');
+  const [infos, setInfos] = useState<Record<string, string>>(fiche?.infos ?? {});
+  const [km, setKm] = useState('');
+  const [avecModele, setAvecModele] = useState(true);
+  const modele = fiche ? undefined : modelePour(type);
+  const enregistrer = (e: Event) => {
+    e.preventDefault();
+    if (!nom.trim()) return;
+    const base = fiche ?? nouvelleFiche(type);
+    const propres = Object.fromEntries(Object.entries(infos).filter(([, v]) => v.trim()));
+    const kmInitial = lireEntier(km);
+    const resultat: Fiche = {
+      ...base,
+      type,
+      nom: nom.trim(),
+      infos: propres,
+      km:
+        !fiche && kmInitial !== undefined
+          ? { valeur: kmInitial, le: aujourdhui.value, par: moi.value?.id }
+          : base.km,
+      sante:
+        type === 'personne'
+          ? (base.sante ?? { allergies: '', traitements: '', vaccins: '', notes: '' })
+          : undefined,
+    };
+    void enregistrerFiche(resultat, !!modele && avecModele, aujourdhui.value);
+    fermer();
+    if (!fiche) location.hash = `#/fiche/${resultat.id}`;
+  };
+  const exemples: Record<TypeFiche, string> = {
+    maison: 'Maison',
+    vehicule: 'Voiture d’Alex',
+    personne: 'Léo',
+    animal: 'Filou',
+    compte: 'Compte commun',
+    papiers: 'Papiers du foyer',
+    autre: 'Piscine',
+  };
+  return (
+    <Feuille titre={fiche ? 'Modifier la fiche' : 'Nouvelle fiche'}>
+      <form class="formulaire" onSubmit={enregistrer}>
+        {!fiche && (
+          <Choix
+            nom="fiche-type"
+            legende="Ce que vous suivez"
+            valeur={type}
+            options={(Object.keys(TYPES_FICHE) as TypeFiche[]).map((t) => [
+              t,
+              <>
+                <Illustration nom={TYPES_FICHE[t].icone} />
+                {TYPES_FICHE[t].nom}
+              </>,
+            ])}
+            changer={setType}
+          />
+        )}
+        <Champ id="fiche-nom" libelle="Nom">
+          <input
+            id="fiche-nom"
+            class="champ"
+            required
+            value={nom}
+            placeholder={exemples[type]}
+            onInput={(e) => setNom(e.currentTarget.value)}
+          />
+        </Champ>
+        {CHAMPS_FICHE[type].map((c) => (
+          <Champ key={c.cle} id={`fiche-${c.cle}`} libelle={c.libelle}>
+            {c.type === 'textarea' ? (
+              <textarea
+                id={`fiche-${c.cle}`}
+                class="champ"
+                value={infos[c.cle] ?? ''}
+                onInput={(e) => setInfos({ ...infos, [c.cle]: e.currentTarget.value })}
+              />
+            ) : c.type === 'date' ? (
+              <input
+                id={`fiche-${c.cle}`}
+                class="champ"
+                type="date"
+                value={infos[c.cle] ?? ''}
+                onInput={(e) => setInfos({ ...infos, [c.cle]: e.currentTarget.value })}
+              />
+            ) : (
+              <input
+                id={`fiche-${c.cle}`}
+                class="champ"
+                inputMode={c.numerique ? 'numeric' : undefined}
+                value={infos[c.cle] ?? ''}
+                onInput={(e) => setInfos({ ...infos, [c.cle]: e.currentTarget.value })}
+              />
+            )}
+          </Champ>
+        ))}
+        {!fiche && type === 'vehicule' && (
+          <Champ id="fiche-km" libelle="Kilométrage actuel">
+            <input
+              id="fiche-km"
+              class="champ"
+              inputMode="numeric"
+              value={km}
+              onInput={(e) => setKm(e.currentTarget.value)}
+            />
+          </Champ>
+        )}
+        {modele && (
+          <label class="case-a-cocher">
+            <input
+              type="checkbox"
+              checked={avecModele}
+              onChange={(e) => setAvecModele(e.currentTarget.checked)}
+            />
+            <span>
+              Créer les échéances habituelles (modèle « {modele.nom} »)
+              <small>{modele.description}. Modifiables ensuite.</small>
+            </span>
+          </label>
+        )}
+        <Boutons
+          supprimer={
+            fiche
+              ? () => {
+                  if (
+                    confirmer(
+                      `Supprimer la fiche « ${fiche.nom} » et son historique ? Ses tâches et listes seront gardées.`,
+                    )
+                  ) {
+                    void supprimerFiche(fiche);
+                    fermer();
+                    location.hash = '#/foyer';
+                  }
+                }
+              : undefined
+          }
+        />
+      </form>
+    </Feuille>
+  );
+}
+
+function FormSante({ fiche }: { fiche: Fiche }) {
+  const [sante, setSante] = useState<Sante>(
+    fiche.sante ?? { allergies: '', traitements: '', vaccins: '', notes: '' },
+  );
+  const champs: readonly (readonly [keyof Sante, string])[] = [
+    ['allergies', 'Allergies'],
+    ['traitements', 'Traitements en cours'],
+    ['vaccins', 'Vaccins (faits et à venir)'],
+    ['notes', 'Notes de santé'],
+  ];
+  return (
+    <Feuille titre={`Santé de ${fiche.nom}`}>
+      <form
+        class="formulaire"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void enregistrerFiche({ ...fiche, sante });
+          fermer();
+        }}
+      >
+        <p class="chiffre">
+          <Icone nom="cadenas" />
+          <span>
+            Chiffré sur ce téléphone avant d’être enregistré. Informations saisies par vous : Nid n’est pas un
+            avis médical.
+          </span>
+        </p>
+        {champs.map(([cle, libelle]) => (
+          <Champ key={cle} id={`sante-${cle}`} libelle={libelle}>
+            <textarea
+              id={`sante-${cle}`}
+              class="champ"
+              value={sante[cle]}
+              onInput={(e) => setSante({ ...sante, [cle]: e.currentTarget.value })}
+            />
+          </Champ>
+        ))}
+        <Boutons />
+      </form>
+    </Feuille>
+  );
+}
+
+function FormKm({ fiche }: { fiche: Fiche }) {
+  const [valeur, setValeur] = useState(fiche.km ? String(fiche.km.valeur) : '');
+  return (
+    <Feuille titre="Kilométrage">
+      <form
+        class="formulaire"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const km = lireEntier(valeur);
+          if (km === undefined) return;
+          void releverKm(fiche, km);
+          fermer();
+        }}
+      >
+        <Champ id="km-valeur" libelle="Compteur (km)">
+          <input
+            id="km-valeur"
+            class="champ"
+            inputMode="numeric"
+            required
+            value={valeur}
+            onInput={(e) => setValeur(e.currentTarget.value)}
+          />
+        </Champ>
+        <Boutons />
+      </form>
+    </Feuille>
+  );
+}
+
+function FormEntree({ ficheId, entree }: { ficheId: string; entree?: Entree | undefined }) {
+  const fiche = fiches.value.find((f) => f.id === ficheId);
+  const [date, setDate] = useState(entree?.date ?? aujourdhui.value);
+  const [titre, setTitre] = useState(entree?.titre ?? '');
+  const [cout, setCout] = useState(entree?.cout === undefined ? '' : String(entree.cout));
+  const [km, setKm] = useState(
+    entree?.km === undefined ? (fiche?.km ? String(fiche.km.valeur) : '') : String(entree.km),
+  );
+  const [prestataire, setPrestataire] = useState(entree?.prestataire ?? '');
+  const [note, setNote] = useState(entree?.note ?? '');
+  const [sante, setSante] = useState(entree?.sante ?? false);
+  const enregistrer = (e: Event) => {
+    e.preventDefault();
+    if (!titre.trim() || !date) return;
+    void enregistrerEntree({
+      id: entree?.id ?? nouvelId(),
+      ficheId,
+      date,
+      titre: titre.trim(),
+      cout: lireMontant(cout),
+      km: fiche?.type === 'vehicule' ? lireEntier(km) : undefined,
+      prestataire: prestataire.trim() || undefined,
+      note: note.trim() || undefined,
+      sante: sante || undefined,
+      par: entree?.par ?? moi.value?.id,
+    });
+    fermer();
+  };
+  return (
+    <Feuille titre={entree ? 'Modifier l’entrée' : 'Ajouter à l’historique'}>
+      <form class="formulaire" onSubmit={enregistrer}>
+        <Champ id="entree-titre" libelle="Quoi">
+          <input
+            id="entree-titre"
+            class="champ"
+            required
+            value={titre}
+            placeholder="Vidange, fuite réparée, vaccin…"
+            onInput={(e) => setTitre(e.currentTarget.value)}
+          />
+        </Champ>
+        <div class="ligne-champs">
+          <Champ id="entree-date" libelle="Date">
+            <input
+              id="entree-date"
+              class="champ"
+              type="date"
+              required
+              value={date}
+              onInput={(e) => setDate(e.currentTarget.value)}
+            />
+          </Champ>
+          <Champ id="entree-cout" libelle={`Coût (${devise.value === 'XPF' ? 'F' : '€'})`}>
+            <input
+              id="entree-cout"
+              class="champ"
+              inputMode="decimal"
+              value={cout}
+              onInput={(e) => setCout(e.currentTarget.value)}
+            />
+          </Champ>
+        </div>
+        {fiche?.type === 'vehicule' && (
+          <Champ id="entree-km" libelle="Kilométrage">
+            <input
+              id="entree-km"
+              class="champ"
+              inputMode="numeric"
+              value={km}
+              onInput={(e) => setKm(e.currentTarget.value)}
+            />
+          </Champ>
+        )}
+        <Champ id="entree-prestataire" libelle="Qui est intervenu">
+          <input
+            id="entree-prestataire"
+            class="champ"
+            value={prestataire}
+            placeholder="Garage du centre, plombier…"
+            onInput={(e) => setPrestataire(e.currentTarget.value)}
+          />
+        </Champ>
+        <Champ id="entree-note" libelle="Note">
+          <textarea
+            id="entree-note"
+            class="champ"
+            value={note}
+            onInput={(e) => setNote(e.currentTarget.value)}
+          />
+        </Champ>
+        {fiche?.type === 'personne' && (
+          <label class="case-a-cocher">
+            <input type="checkbox" checked={sante} onChange={(e) => setSante(e.currentTarget.checked)} />
+            <span>Santé : chiffré sur le téléphone</span>
+          </label>
+        )}
+        <Boutons
+          supprimer={
+            entree
+              ? () => {
+                  void supprimerEntree(entree);
+                  fermer();
+                }
+              : undefined
+          }
+        />
+      </form>
+    </Feuille>
+  );
+}
+
+// ---------- Projet ----------
+function FormProjet({ projet }: { projet?: Projet | undefined }) {
+  const [type, setType] = useState<TypeProjet>(projet?.type ?? 'voyage');
+  const [nom, setNom] = useState(projet?.nom ?? '');
+  const [lieu, setLieu] = useState(projet?.lieu ?? '');
+  const [debut, setDebut] = useState(projet?.debut ?? '');
+  const [fin, setFin] = useState(projet?.fin ?? '');
+  const [budget, setBudget] = useState(projet?.budget === undefined ? '' : String(projet.budget));
+  const [note, setNote] = useState(projet?.note ?? '');
+  const [archive, setArchive] = useState(projet?.archive ?? false);
+  const enregistrer = (e: Event) => {
+    e.preventDefault();
+    if (!nom.trim()) return;
+    const base = projet ?? nouveauProjet(type);
+    void enregistrerProjet({
+      ...base,
+      type,
+      nom: nom.trim(),
+      lieu: lieu.trim() || undefined,
+      debut: debut || undefined,
+      fin: fin && (!debut || fin >= debut) ? fin : undefined,
+      budget: lireMontant(budget),
+      note: note.trim() || undefined,
+      archive,
+    });
+    fermer();
+    if (!projet) location.hash = `#/projet/${base.id}`;
+  };
+  return (
+    <Feuille titre={projet ? 'Modifier le projet' : 'Nouveau projet'}>
+      <form class="formulaire" onSubmit={enregistrer}>
+        {!projet && (
+          <Choix
+            nom="projet-type"
+            legende="Type"
+            valeur={type}
+            options={(Object.keys(TYPES_PROJET) as TypeProjet[]).map((t) => [
+              t,
+              <>
+                <Illustration nom={TYPES_PROJET[t].icone} />
+                {TYPES_PROJET[t].nom}
+              </>,
+            ])}
+            changer={setType}
+          />
+        )}
+        <Champ id="projet-nom" libelle="Nom">
+          <input
+            id="projet-nom"
+            class="champ"
+            required
+            value={nom}
+            placeholder="Vacances aux îles, terrasse…"
+            onInput={(e) => setNom(e.currentTarget.value)}
+          />
+        </Champ>
+        {type === 'voyage' && (
+          <Champ id="projet-lieu" libelle="Destination">
+            <input
+              id="projet-lieu"
+              class="champ"
+              value={lieu}
+              onInput={(e) => setLieu(e.currentTarget.value)}
+            />
+          </Champ>
+        )}
+        <div class="ligne-champs">
+          <Champ id="projet-debut" libelle="Début">
+            <input
+              id="projet-debut"
+              class="champ"
+              type="date"
+              value={debut}
+              onInput={(e) => setDebut(e.currentTarget.value)}
+            />
+          </Champ>
+          <Champ id="projet-fin" libelle="Fin">
+            <input
+              id="projet-fin"
+              class="champ"
+              type="date"
+              value={fin}
+              min={debut || undefined}
+              onInput={(e) => setFin(e.currentTarget.value)}
+            />
+          </Champ>
+        </div>
+        <Champ id="projet-budget" libelle={`Budget prévu (${devise.value === 'XPF' ? 'F' : '€'})`}>
+          <input
+            id="projet-budget"
+            class="champ"
+            inputMode="decimal"
+            value={budget}
+            onInput={(e) => setBudget(e.currentTarget.value)}
+          />
+        </Champ>
+        <Champ id="projet-note" libelle="Note">
+          <textarea
+            id="projet-note"
+            class="champ"
+            value={note}
+            onInput={(e) => setNote(e.currentTarget.value)}
+          />
+        </Champ>
+        {projet && (
+          <label class="case-a-cocher">
+            <input type="checkbox" checked={archive} onChange={(e) => setArchive(e.currentTarget.checked)} />
+            <span>Projet terminé (archivé, toujours consultable)</span>
+          </label>
+        )}
+        <Boutons
+          supprimer={
+            projet
+              ? () => {
+                  if (
+                    confirmer(
+                      `Supprimer le projet « ${projet.nom} » et ses dépenses ? Ses tâches et listes seront gardées.`,
+                    )
+                  ) {
+                    void supprimerProjet(projet);
+                    fermer();
+                    location.hash = '#/foyer';
+                  }
+                }
+              : undefined
+          }
+        />
+      </form>
+    </Feuille>
+  );
+}
+
+function FormDepense({ projetId, depense }: { projetId: string; depense?: Depense | undefined }) {
+  const [libelle, setLibelle] = useState(depense?.libelle ?? '');
+  const [montant, setMontant] = useState(depense ? String(depense.montant) : '');
+  const [date, setDate] = useState(depense?.date ?? aujourdhui.value);
+  const enregistrer = (e: Event) => {
+    e.preventDefault();
+    const m = lireMontant(montant);
+    if (!libelle.trim() || m === undefined) return;
+    void enregistrerDepense({
+      id: depense?.id ?? nouvelId(),
+      projetId,
+      libelle: libelle.trim(),
+      montant: m,
+      date: date || aujourdhui.value,
+      par: depense?.par ?? moi.value?.id,
+    });
+    fermer();
+  };
+  return (
+    <Feuille titre={depense ? 'Modifier la dépense' : 'Nouvelle dépense'}>
+      <form class="formulaire" onSubmit={enregistrer}>
+        <Champ id="depense-libelle" libelle="Quoi">
+          <input
+            id="depense-libelle"
+            class="champ"
+            required
+            value={libelle}
+            placeholder="Billets d’avion"
+            onInput={(e) => setLibelle(e.currentTarget.value)}
+          />
+        </Champ>
+        <div class="ligne-champs">
+          <Champ id="depense-montant" libelle={`Montant (${devise.value === 'XPF' ? 'F' : '€'})`}>
+            <input
+              id="depense-montant"
+              class="champ"
+              inputMode="decimal"
+              required
+              value={montant}
+              onInput={(e) => setMontant(e.currentTarget.value)}
+            />
+          </Champ>
+          <Champ id="depense-date" libelle="Date">
+            <input
+              id="depense-date"
+              class="champ"
+              type="date"
+              value={date}
+              onInput={(e) => setDate(e.currentTarget.value)}
+            />
+          </Champ>
+        </div>
+        {lireMontant(montant) !== undefined && (
+          <p class="aide">{formatMontant(lireMontant(montant) ?? 0, devise.value)}</p>
+        )}
+        <Boutons
+          supprimer={
+            depense
+              ? () => {
+                  void supprimerDepense(depense);
+                  fermer();
+                }
+              : undefined
+          }
+        />
+      </form>
+    </Feuille>
+  );
+}
+
+// ---------- Foyer et menu ----------
+function FormFoyer() {
+  const f = foyer.value;
+  const [nom, setNom] = useState(f?.nom ?? '');
+  const [noms, setNoms] = useState<string[]>([f?.membres[0]?.nom ?? '', f?.membres[1]?.nom ?? '']);
+  const [dev, setDev] = useState(f?.devise ?? 'XPF');
+  if (!f) return null;
+  return (
+    <Feuille titre="Le foyer">
+      <form
+        class="formulaire"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const membres = f.membres.map((m, i) => ({ ...m, nom: noms[i]?.trim() || m.nom }));
+          if (membres.length < 2 && noms[1]?.trim())
+            membres.push({ id: nouvelId(), nom: noms[1].trim(), couleur: 'b' });
+          void modifierFoyer({ ...f, nom: nom.trim() || f.nom, membres, devise: dev });
+          fermer();
+        }}
+      >
+        <Champ id="foyer-nom" libelle="Nom du foyer">
+          <input id="foyer-nom" class="champ" value={nom} onInput={(e) => setNom(e.currentTarget.value)} />
+        </Champ>
+        {[0, 1].map((i) => (
+          <Champ key={i} id={`foyer-membre-${i}`} libelle={i === 0 ? 'Premier prénom' : 'Second prénom'}>
+            <input
+              id={`foyer-membre-${i}`}
+              class="champ"
+              value={noms[i] ?? ''}
+              onInput={(e) => setNoms(noms.map((n, j) => (j === i ? e.currentTarget.value : n)))}
+            />
+          </Champ>
+        ))}
+        <Choix
+          nom="foyer-devise"
+          legende="Devise"
+          valeur={dev}
+          options={[
+            ['XPF', 'Franc pacifique (F)'],
+            ['EUR', 'Euro (€)'],
+          ]}
+          changer={setDev}
+        />
+        <Boutons />
+      </form>
+    </Feuille>
+  );
+}
+
+// ---------- Sortie « À voir » (brique Liste, billets en Tâche) ----------
+function FormSortie({ listeId, sortie }: { listeId: string; sortie?: Article | undefined }) {
+  const [nom, setNom] = useState(sortie?.nom ?? '');
+  const [categorie, setCategorie] = useState<CategorieSortie>(sortie?.categorie ?? 'film');
+  const [date, setDate] = useState(sortie?.date ?? '');
+  const [lieu, setLieu] = useState(sortie?.lieu ?? '');
+  const [billet, setBillet] = useState<EtatBillet>(sortie?.billet ?? 'aucun');
+  const tache = sortie?.tacheId ? taches.value.find((t) => t.id === sortie.tacheId) : undefined;
+  const [achatAvant, setAchatAvant] = useState(tache?.echeance ?? '');
+  const [vu, setVu] = useState(!!sortie?.coche);
+  const proposee = dateAchatBillets(date || undefined, aujourdhui.value);
+  const enregistrer = (e: Event) => {
+    e.preventDefault();
+    if (!nom.trim()) return;
+    const base: Article = sortie ?? {
+      id: nouvelId(),
+      listeId,
+      nom: '',
+      ajoutePar: moi.value?.id,
+      ajouteLe: new Date().toISOString(),
+    };
+    void enregistrerSortie(
+      {
+        ...base,
+        nom: nom.trim(),
+        categorie,
+        date: date || undefined,
+        lieu: lieu.trim() || undefined,
+        billet,
+        coche: vu ? (base.coche ?? { par: moi.value?.id, le: aujourdhui.value }) : undefined,
+      },
+      achatAvant || undefined,
+      aujourdhui.value,
+    );
+    fermer();
+  };
+  return (
+    <Feuille titre={sortie ? 'Modifier la sortie' : 'À voir'}>
+      <form class="formulaire" onSubmit={enregistrer}>
+        <Champ id="sortie-nom" libelle="Quoi">
+          <input
+            id="sortie-nom"
+            class="champ"
+            required
+            value={nom}
+            placeholder="Un film, une pièce, un concert, une soirée…"
+            onInput={(e) => setNom(e.currentTarget.value)}
+          />
+        </Champ>
+        <Choix
+          nom="sortie-categorie"
+          legende="Genre"
+          valeur={categorie}
+          options={(Object.keys(CATEGORIES_SORTIE) as CategorieSortie[]).map((c) => [
+            c,
+            <>
+              <Illustration nom={CATEGORIES_SORTIE[c].icone} />
+              {CATEGORIES_SORTIE[c].nom}
+            </>,
+          ])}
+          changer={setCategorie}
+        />
+        <div class="ligne-champs">
+          <Champ id="sortie-date" libelle="Date (facultatif)">
+            <input
+              id="sortie-date"
+              class="champ"
+              type="date"
+              value={date}
+              onInput={(e) => setDate(e.currentTarget.value)}
+            />
+          </Champ>
+          <Champ id="sortie-lieu" libelle="Où">
+            <input
+              id="sortie-lieu"
+              class="champ"
+              value={lieu}
+              placeholder="Cinéma, salle, chez des amis"
+              onInput={(e) => setLieu(e.currentTarget.value)}
+            />
+          </Champ>
+        </div>
+        <Choix
+          nom="sortie-billet"
+          legende="Billets"
+          valeur={billet}
+          options={[
+            ['aucun', 'Pas besoin'],
+            ['a-acheter', 'À acheter'],
+            ['achete', 'Achetés'],
+          ]}
+          changer={setBillet}
+        />
+        {billet === 'a-acheter' && (
+          <Champ id="sortie-achat" libelle="Rappel : acheter les billets avant le">
+            <input
+              id="sortie-achat"
+              class="champ"
+              type="date"
+              value={achatAvant || proposee}
+              onInput={(e) => setAchatAvant(e.currentTarget.value)}
+            />
+          </Champ>
+        )}
+        {sortie && (
+          <label class="case-a-cocher">
+            <input type="checkbox" checked={vu} onChange={(e) => setVu(e.currentTarget.checked)} />
+            <span>Déjà vu</span>
+          </label>
+        )}
+        <Boutons
+          supprimer={
+            sortie
+              ? () => {
+                  void supprimerArticle(sortie);
+                  fermer();
+                }
+              : undefined
+          }
+        />
+      </form>
+    </Feuille>
+  );
+}
+
+function MenuAjout() {
+  const listeSorties = listes.value.find((l) => l.type === 'sorties');
+  const compte = fiches.value.find((f) => f.type === 'compte');
+  const choix: readonly (readonly [string, string, string, TypeFeuille | 'article'])[] = [
+    ['shopping-cart', 'Article', 'Sur la liste de courses', 'article'],
+    ['check-mark-button', 'Tâche', 'Avec date, rappel, répétition', { type: 'tache' }],
+    ['card-index-dividers', 'Fiche', 'Maison, voiture, enfant, animal, compte', { type: 'fiche' }],
+    ['desert-island', 'Projet', 'Voyage, travaux, événement', { type: 'projet' }],
+    [
+      'clapper-board',
+      'À voir',
+      'Film, spectacle, soirée, billets',
+      listeSorties
+        ? { type: 'sortie', listeId: listeSorties.id }
+        : { type: 'liste', defauts: { nom: 'À voir', type: 'sorties' } },
+    ],
+    [
+      'money-bag',
+      'Virement',
+      'Rappel récurrent avec montant',
+      {
+        type: 'tache',
+        defauts: {
+          titre: compte ? `Virement vers ${compte.nom.toLowerCase()}` : 'Virement',
+          assignation: 'nous',
+          recurrence: { type: 'calendaire', unite: 'mois', intervalle: 1 },
+          ficheId: compte?.id,
+        },
+      },
+    ],
+  ];
+  return (
+    <Feuille titre="Ajouter">
+      <div class="menu-ajout">
+        {choix.map(([icone, titre, sous, action]) => (
+          <button
+            key={titre}
+            type="button"
+            onClick={() => {
+              if (action === 'article') {
+                fermer();
+                location.hash = '#/courses';
+                requestAnimationFrame(() => document.getElementById('saisie-article')?.focus());
+              } else ouvrir(action);
+            }}
+          >
+            <Illustration nom={icone} />
+            <strong>{titre}</strong>
+            <span>{sous}</span>
+          </button>
+        ))}
+      </div>
+    </Feuille>
+  );
+}
+
+/** La feuille ouverte, s’il y en a une. */
+export function Feuilles() {
+  const f = feuille.value;
+  if (!f) return null;
+  switch (f.type) {
+    case 'ajout':
+      return <MenuAjout />;
+    case 'tache':
+      return <FormTache tache={f.tache} defauts={f.defauts} />;
+    case 'liste':
+      return <FormListe liste={f.liste} defauts={f.defauts} />;
+    case 'article':
+      return <FormArticle article={f.article} />;
+    case 'sortie':
+      return <FormSortie listeId={f.listeId} sortie={f.sortie} />;
+    case 'fiche':
+      return <FormFiche fiche={f.fiche} />;
+    case 'sante':
+      return <FormSante fiche={f.fiche} />;
+    case 'km':
+      return <FormKm fiche={f.fiche} />;
+    case 'entree':
+      return <FormEntree ficheId={f.ficheId} entree={f.entree} />;
+    case 'projet':
+      return <FormProjet projet={f.projet} />;
+    case 'depense':
+      return <FormDepense projetId={f.projetId} depense={f.depense} />;
+    case 'foyer':
+      return <FormFoyer />;
+  }
+}
+
+/** Premier lancement : créer le foyer. */
+export function FormAccueil() {
+  const [moiNom, setMoiNom] = useState('');
+  const [autreNom, setAutreNom] = useState('');
+  const [nom, setNom] = useState('');
+  const [dev, setDev] = useState<'XPF' | 'EUR'>('XPF');
+  return (
+    <form
+      class="formulaire"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (moiNom.trim()) void creerFoyer(nom, moiNom, autreNom, dev);
+      }}
+    >
+      <Champ id="accueil-moi" libelle="Votre prénom">
+        <input
+          id="accueil-moi"
+          class="champ"
+          required
+          autoComplete="given-name"
+          value={moiNom}
+          onInput={(e) => setMoiNom(e.currentTarget.value)}
+        />
+      </Champ>
+      <Champ id="accueil-autre" libelle="Prénom de l’autre personne du foyer">
+        <input
+          id="accueil-autre"
+          class="champ"
+          value={autreNom}
+          onInput={(e) => setAutreNom(e.currentTarget.value)}
+        />
+      </Champ>
+      <Champ id="accueil-foyer" libelle="Nom du foyer (facultatif)">
+        <input
+          id="accueil-foyer"
+          class="champ"
+          placeholder="Notre foyer"
+          value={nom}
+          onInput={(e) => setNom(e.currentTarget.value)}
+        />
+      </Champ>
+      <Choix
+        nom="accueil-devise"
+        legende="Devise"
+        valeur={dev}
+        options={[
+          ['XPF', 'Franc pacifique (F)'],
+          ['EUR', 'Euro (€)'],
+        ]}
+        changer={setDev}
+      />
+      <button type="submit" class="bouton bouton-plein">
+        Créer le foyer
+      </button>
+    </form>
+  );
+}

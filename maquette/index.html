@@ -1,0 +1,1748 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="darkreader-lock" />
+    <meta name="theme-color" content="#F6F3EE" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111419" media="(prefers-color-scheme: dark)" />
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="Maquette de Nid : courses à tuiles, tâches du foyer, maison et charge mentale, synchronisées entre deux téléphones." />
+    <title>Aujourd’hui · Nid</title>
+    <script>
+      // Thème avant l'affichage : seulement pour un choix explicite (sinon, celui du système).
+      (function () {
+        try {
+          var t = JSON.parse(localStorage.getItem("skazy-outils:theme"));
+          if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..800&display=swap" />
+    <style>
+      /* ---------- Jetons : seul endroit où une couleur est écrite (charte propre à Nid) ---------- */
+      :root {
+        --fond: #f6f3ee;
+        --surface: #ffffff;
+        --surface-2: #ece7df;
+        --trait: #e3ddd3;
+        --bord-controle: #8c857a;
+        --texte: #22252b;
+        --texte-doux: #676259;
+        --primaire: #22416a;
+        --sur-primaire: #ffffff;
+        --primaire-doux: #e3e9f2;
+        --tuile: #22416a;
+        --sur-tuile: #ffffff;
+        --tuile-doux: #c9d6e8;
+        --miel: #f2b33d;
+        --sur-miel: #2a1e05;
+        --membre-a: #2b7a66;
+        --membre-b: #c4471f;
+        --sur-membre: #ffffff;
+        --ok: #2b7a66;
+        --bientot: #e39b2b;
+        --alerte: #b9382a;
+        --voile: rgba(20, 24, 32, 0.45);
+        --verre: rgba(246, 243, 238, 0.9);
+        --ombre: 0 1px 2px rgba(34, 37, 43, 0.06), 0 4px 14px rgba(34, 37, 43, 0.06);
+        --ombre-tuile: 0 1px 2px rgba(34, 65, 106, 0.12), 0 6px 14px rgba(34, 65, 106, 0.16);
+        --police: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --fond: #111419;
+          --surface: #1a1e25;
+          --surface-2: #242a33;
+          --trait: #2c323c;
+          --bord-controle: #7d848f;
+          --texte: #eef0f3;
+          --texte-doux: #a2a8b2;
+          --primaire: #8fb4e8;
+          --sur-primaire: #0e1726;
+          --primaire-doux: #1e2b3e;
+          --tuile: #2a4a78;
+          --ok: #4cc2a0;
+          --bientot: #f2b33d;
+          --alerte: #ff8a7a;
+          --voile: rgba(0, 0, 0, 0.6);
+          --verre: rgba(17, 20, 25, 0.9);
+          --ombre: 0 0 0 1px #262c35;
+          --ombre-tuile: none;
+        }
+      }
+      :root[data-theme="dark"] {
+        --fond: #111419;
+        --surface: #1a1e25;
+        --surface-2: #242a33;
+        --trait: #2c323c;
+        --bord-controle: #7d848f;
+        --texte: #eef0f3;
+        --texte-doux: #a2a8b2;
+        --primaire: #8fb4e8;
+        --sur-primaire: #0e1726;
+        --primaire-doux: #1e2b3e;
+        --tuile: #2a4a78;
+        --ok: #4cc2a0;
+        --bientot: #f2b33d;
+        --alerte: #ff8a7a;
+        --voile: rgba(0, 0, 0, 0.6);
+        --verre: rgba(17, 20, 25, 0.9);
+        --ombre: 0 0 0 1px #262c35;
+        --ombre-tuile: none;
+        color-scheme: dark;
+      }
+      :root[data-theme="light"] { color-scheme: only light; }
+
+      /* ---------- Base ---------- */
+      *, *::before, *::after { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--fond);
+        color: var(--texte);
+        font: 500 16px/1.45 var(--police);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      a { color: inherit; }
+      button, input { font: inherit; color: inherit; }
+      button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+      svg {
+        width: 20px; height: 20px; flex: none;
+        fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      }
+      svg.ico { fill: initial; stroke: none; }
+      :focus-visible { outline: 3px solid var(--primaire); outline-offset: 2px; }
+      [hidden] { display: none !important; }
+      h1:focus { outline: none; }
+      .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .mono { font-size: 13px; font-weight: 600; }
+      .doux { color: var(--texte-doux); }
+      .lien-evitement { position: absolute; left: -9999px; top: 12px; z-index: 60; background: var(--primaire); color: var(--sur-primaire); padding: 10px 16px; border-radius: 12px; font-weight: 700; }
+      .lien-evitement:focus { left: 16px; }
+
+      /* ---------- Mise en page : onglets en bas sur téléphone, barre latérale dès 900 px ---------- */
+      .navigation {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+        background: var(--verre);
+        -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+        border-top: 1px solid var(--trait);
+        padding: 6px 6px calc(4px + env(safe-area-inset-bottom));
+      }
+      .nav-marque, .nav-pied { display: none; }
+      .navigation ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); }
+      .navigation ul a {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+        min-height: 52px; border-radius: 14px; text-decoration: none;
+        font-size: 11px; font-weight: 600; color: var(--texte-doux);
+      }
+      .navigation ul a svg { width: 24px; height: 24px; stroke-width: 1.8; }
+      .nav-ico { display: grid; place-items: center; width: 56px; height: 30px; border-radius: 15px; transition: background 0.25s var(--ease); }
+      .navigation ul a[aria-current="page"] { color: var(--primaire); font-weight: 700; }
+      .navigation ul a[aria-current="page"] .nav-ico { background: var(--primaire-doux); }
+      .navigation ul a[aria-current="page"] svg { stroke-width: 2.2; }
+      .colonne { padding: 0 16px calc(130px + env(safe-area-inset-bottom)); max-width: 960px; }
+
+      .barre {
+        position: sticky; top: 0; z-index: 20;
+        display: flex; align-items: center; gap: 10px;
+        margin: 0 -16px; padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+        background: var(--verre);
+        -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+      }
+      .marque { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+      .logo { width: 32px; height: 32px; fill: none; stroke: none; }
+      .pastille { border-radius: 8px; padding: 4px 8px; background: var(--surface-2); }
+      .pastille-maquette { display: none; color: var(--texte-doux); font-size: 12px; }
+      .barre-espace { display: none; }
+      .synchro {
+        display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-left: auto; min-width: 0;
+        padding: 3px 12px 3px 4px; border-radius: 20px; background: var(--surface); box-shadow: var(--ombre);
+        text-decoration: none; font-size: 13px; font-weight: 600; white-space: nowrap;
+      }
+      .synchro-texte { overflow: hidden; text-overflow: ellipsis; }
+      .duo { display: inline-flex; }
+      .duo .avatar + .avatar { margin-left: -5px; }
+      .duo .avatar { width: 28px; height: 28px; box-shadow: 0 0 0 2px var(--surface); }
+      .voyant { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+      .synchro[data-etat="hors-ligne"] .voyant { background: transparent; box-shadow: inset 0 0 0 2px var(--bord-controle); }
+      .synchro[data-etat="en-cours"] .voyant { background: var(--bientot); animation: clignote 0.6s steps(2) infinite; }
+      @keyframes clignote { 50% { opacity: 0.2; } }
+
+      @media (max-width: 359px) { .barre .marque-nom { display: none; } }
+      @media (min-width: 600px) { .pastille-maquette { display: inline-block; } }
+      @media (min-width: 900px) {
+        .app { display: grid; grid-template-columns: 260px minmax(0, 1fr); }
+        .navigation {
+          position: sticky; top: 0; height: 100dvh; border-top: 0; border-right: 1px solid var(--trait);
+          background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none;
+          padding: 22px 14px; display: flex; flex-direction: column; gap: 26px;
+        }
+        .nav-marque { display: flex; flex-direction: column; gap: 4px; padding: 0 8px; text-decoration: none; }
+        .nav-marque .marque { font-size: 24px; }
+        .nav-marque .logo { width: 38px; height: 38px; }
+        .navigation ul { display: flex; flex-direction: column; gap: 2px; }
+        .navigation ul a { flex-direction: row; justify-content: flex-start; gap: 10px; font-size: 15px; padding: 4px 6px; min-height: 46px; }
+        .navigation ul a[aria-current="page"] { background: var(--primaire-doux); }
+        .nav-ico { width: 36px; height: 32px; }
+        .navigation ul a[aria-current="page"] .nav-ico { background: none; }
+        .nav-pied { display: block; margin-top: auto; padding: 14px; border-radius: 14px; background: var(--surface-2); color: var(--texte-doux); font-size: 13px; }
+        .nav-pied p { margin: 4px 0 0; }
+        .barre .marque { display: none; }
+        .colonne { padding: 0 40px 80px; }
+        .barre { margin: 0 -40px; padding: 14px 40px 10px; }
+      }
+
+      /* ---------- Titres et blocs ---------- */
+      .vue h1 { margin: 10px 0 2px; font-size: 32px; font-weight: 800; line-height: 1.1; letter-spacing: -0.025em; }
+      @media (min-width: 900px) { .vue h1 { font-size: 38px; margin-top: 18px; } }
+      .compte-titre { display: inline-block; vertical-align: 0.35em; margin-left: 8px; padding: 2px 9px; border-radius: 12px; background: var(--primaire-doux); color: var(--primaire); font-size: 14px; font-weight: 700; letter-spacing: 0; }
+      .chapeau { margin: 8px 0 0; font-size: 16px; line-height: 1.45; color: var(--texte-doux); max-width: 46ch; font-weight: 500; }
+      .chapeau strong { color: var(--texte); font-weight: 700; }
+      .bloc { margin-top: 26px; }
+      .bloc-tete { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 4px 10px; }
+      .bloc-tete h2 { margin: 0; font-size: 19px; font-weight: 750; letter-spacing: -0.015em; }
+      .bloc-tete .mono { color: var(--texte-doux); font-weight: 500; }
+      .bloc-tete a.mono { color: var(--primaire); font-weight: 700; text-decoration: none; }
+      .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+      .carte { background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+
+      /* ---------- Boutons et pastilles ---------- */
+      .bouton {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        min-height: 44px; padding: 0 16px; border-radius: 12px; border: 0;
+        background: var(--primaire-doux); color: var(--primaire);
+        font-size: 15px; font-weight: 700; text-decoration: none; white-space: nowrap;
+      }
+      .bouton-plein, .bouton-acide, .bouton[aria-pressed="true"] { background: var(--primaire); color: var(--sur-primaire); }
+      .bouton-icone { width: 40px; min-height: 40px; padding: 0; flex: none; border-radius: 50%; background: var(--surface); color: var(--texte); box-shadow: var(--ombre); }
+      .bouton-petit { min-height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+      .bouton:disabled { opacity: 0.55; cursor: default; }
+      .pilules { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 14px -16px 0; padding: 4px 16px 8px; }
+      .pilules::-webkit-scrollbar { display: none; }
+      .pilule {
+        flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px;
+        border: 0; border-radius: 20px; background: var(--surface); box-shadow: var(--ombre);
+        font-size: 14px; font-weight: 600;
+      }
+      .pilule svg { width: 18px; height: 18px; }
+      .pilule[aria-pressed="true"] { background: var(--primaire); color: var(--sur-primaire); box-shadow: none; }
+      .pilule .avatar { width: 22px; height: 22px; font-size: 11px; }
+
+      /* ---------- Avatars des membres (la couleur n'est jamais seule : initiale + nom accessible) ---------- */
+      .avatar {
+        width: 28px; height: 28px; border-radius: 50%; flex: none;
+        display: inline-grid; place-items: center;
+        font-size: 12px; font-weight: 800; line-height: 1; color: var(--sur-membre);
+      }
+      .avatar.a { background: var(--membre-a); }
+      .avatar.b { background: var(--membre-b); }
+      .avatar.nous { background: var(--primaire-doux); color: var(--primaire); font-size: 10px; }
+      .avatar.libre { background: transparent; box-shadow: inset 0 0 0 1.5px var(--bord-controle); color: var(--texte-doux); }
+
+      /* ---------- Courses : tuiles à icônes ---------- */
+      .tuiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+      .tuile {
+        position: relative; width: 100%; aspect-ratio: 1 / 1; border: 0; border-radius: 18px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+        padding: 10px 6px; text-align: center;
+        transition: transform 0.2s var(--ease), opacity 0.22s var(--ease), box-shadow 0.3s var(--ease);
+      }
+      .tuile:active { transform: scale(0.95); }
+      .tuile .ico, .monogramme { width: 44px; height: 44px; margin-bottom: 4px; }
+      .monogramme { display: grid; place-items: center; border-radius: 50%; background: var(--miel); color: var(--sur-miel); font-size: 16px; font-weight: 800; }
+      .tuile-nom { font-size: 14px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+      .tuile-precision { font-size: 12px; font-weight: 600; line-height: 1; }
+      .tuile.sur-liste { background: var(--tuile); color: var(--sur-tuile); box-shadow: var(--ombre-tuile); }
+      .tuile.sur-liste .tuile-precision { color: var(--tuile-doux); }
+      .tuile.recente { background: var(--surface); color: var(--texte); box-shadow: var(--ombre); }
+      .tuile.recente .tuile-precision { color: var(--texte-doux); }
+      .tuile .par { position: absolute; top: 7px; right: 7px; width: 22px; height: 22px; font-size: 10px; box-shadow: 0 0 0 2px var(--tuile); }
+      .drapeau { position: absolute; top: 8px; left: 8px; padding: 3px 6px; border-radius: 6px; background: var(--miel); color: var(--sur-miel); font-size: 10px; font-weight: 800; line-height: 1; }
+      .tuile.nouvelle { box-shadow: 0 0 0 3px var(--fond), 0 0 0 6px var(--miel); animation: arrivee 0.6s var(--ease); }
+      .tuile.ajoutee { animation: arrivee 0.5s var(--ease); }
+      .tuile.cochee { opacity: 0; transform: scale(0.8); }
+      @keyframes arrivee { from { transform: scale(0.6); opacity: 0; } }
+      .rayon h3 { display: flex; gap: 6px; margin: 18px 4px 8px; font-size: 13px; font-weight: 700; color: var(--texte-doux); }
+      .rayon h3 span { font-weight: 500; }
+      .rayon:first-child h3 { margin-top: 4px; }
+      .vide { margin: 12px 4px; color: var(--texte-doux); }
+
+      .saisie-rapide {
+        display: flex; align-items: center; gap: 10px; width: 100%; min-height: 50px; margin-top: 14px; padding: 0 14px;
+        border: 0; border-radius: 14px; background: var(--surface); box-shadow: var(--ombre); text-align: left;
+        font-size: 16px; font-weight: 500; color: var(--texte-doux);
+      }
+      .saisie-rapide svg { color: var(--primaire); }
+      .suggestions { list-style: none; margin: 0; padding: 4px 12px; display: grid; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .suggestion { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px 0; }
+      .suggestion + .suggestion { border-top: 1px solid var(--trait); }
+      .suggestion .ico, .suggestion .monogramme { width: 34px; height: 34px; margin: 0; }
+      .suggestion strong { display: block; font-weight: 700; }
+      .suggestion .mono { display: block; color: var(--texte-doux); font-size: 13px; font-weight: 500; }
+
+      .magasin {
+        display: none; position: sticky; top: calc(58px + env(safe-area-inset-top)); z-index: 10;
+        margin: 12px 0 0; padding: 12px 14px; border-radius: 16px; background: var(--tuile); color: var(--sur-tuile); box-shadow: var(--ombre-tuile);
+      }
+      .mode-magasin .magasin { display: block; }
+      .mode-magasin [data-hors-magasin] { display: none !important; }
+      .mode-magasin .tuiles { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+      .mode-magasin .tuile .ico, .mode-magasin .tuile .monogramme { width: 60px; height: 60px; }
+      .mode-magasin .tuile-nom { font-size: 16px; }
+      .magasin-ligne { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+      .magasin .mono { color: var(--tuile-doux); }
+      .magasin .bouton { background: rgba(255, 255, 255, 0.16); color: var(--sur-tuile); }
+      .magasin .bouton-acide { background: var(--miel); color: var(--sur-miel); }
+      .progression { height: 8px; margin: 10px 0 12px; border-radius: 4px; overflow: hidden; background: rgba(255, 255, 255, 0.2); }
+      .progression span { display: block; height: 100%; width: 0; border-radius: 4px; background: var(--miel); transition: width 0.4s var(--ease); }
+
+      .demo { margin-top: 28px; padding: 14px; border: 1.5px dashed var(--bord-controle); border-radius: 16px; }
+      .demo > .mono { color: var(--texte-doux); }
+      .demo p { margin: 4px 0 12px; color: var(--texte-doux); font-size: 14px; }
+
+      /* ---------- Tâches ---------- */
+      .taches { list-style: none; margin: 0; padding: 0 12px 0 4px; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .tache { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 6px; align-items: center; padding: 8px 0; }
+      .tache + .tache { border-top: 1px solid var(--trait); }
+      .case { width: 44px; height: 44px; padding: 0; border: 0; background: none; display: grid; place-items: center; border-radius: 50%; }
+      .case svg { width: 24px; height: 24px; padding: 4px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--bord-controle); stroke: transparent; stroke-width: 3.2; transition: background 0.2s; }
+      .case[aria-pressed="true"] svg { background: var(--primaire); box-shadow: none; stroke: var(--sur-primaire); }
+      .tache-titre { margin: 0; font-size: 16px; font-weight: 650; line-height: 1.25; }
+      .tache.faite .tache-titre { text-decoration: line-through; color: var(--texte-doux); }
+      .tache-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 0; margin: 2px 0 0; padding: 0; list-style: none; font-size: 13px; font-weight: 500; color: var(--texte-doux); }
+      .tache-meta li:not(:last-child)::after { content: "·"; margin: 0 6px; }
+      .tache-meta svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 3px; }
+      .retard { color: var(--alerte); font-weight: 700; }
+      .projets { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+      .projet { padding: 14px; border-radius: 16px; background: var(--surface); box-shadow: var(--ombre); }
+      .projet h3 { margin: 0 0 2px; font-size: 17px; font-weight: 750; }
+      .projet .mono { font-weight: 500; }
+      .barre-fine { height: 8px; margin-top: 12px; border-radius: 4px; overflow: hidden; background: var(--surface-2); }
+      .barre-fine span { display: block; height: 100%; width: var(--v); border-radius: 4px; background: var(--primaire); }
+
+      /* ---------- Maison : jauges selon le besoin ---------- */
+      .routines { list-style: none; margin: 0; padding: 0 14px; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .routine { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 12px 0; }
+      .routine + .routine { border-top: 1px solid var(--trait); }
+      .routine-nom { font-size: 16px; font-weight: 650; }
+      .routine-etat { font-size: 13px; font-weight: 500; color: var(--texte-doux); }
+      .routine-etat.urgent { color: var(--alerte); font-weight: 700; }
+      .routine .bouton { grid-column: 2; grid-row: 1 / span 3; }
+      .jauge { height: 8px; border-radius: 4px; overflow: hidden; background: var(--surface-2); }
+      .jauge span { display: block; height: 100%; width: var(--v); border-radius: 4px; background: var(--ok); transition: width 0.5s var(--ease); }
+      .jauge[data-niveau="bientot"] span { background: var(--bientot); }
+      .jauge[data-niveau="urgent"] span { background: var(--alerte); }
+      .equipements { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+      .equipement { padding: 12px 14px; border-radius: 16px; background: var(--surface); box-shadow: var(--ombre); }
+      .equipement strong { display: block; font-weight: 700; }
+      .equipement .mono { font-size: 13px; font-weight: 500; color: var(--texte-doux); }
+      .equipement .bientot-texte { color: var(--alerte); font-weight: 700; }
+
+      /* ---------- Nous ---------- */
+      .appareils { list-style: none; margin: 0; padding: 0 14px; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .appareil { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px 0; }
+      .appareil + .appareil { border-top: 1px solid var(--trait); }
+      .appareil svg { color: var(--primaire); }
+      .appareil strong { font-weight: 700; }
+      .appareil .mono { font-size: 13px; font-weight: 500; color: var(--texte-doux); }
+      .appareil > .mono:last-child { color: var(--ok); font-weight: 700; }
+      .domaines { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+      .domaine {
+        width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 52px;
+        padding: 8px 10px 8px 14px; border: 0; border-radius: 14px; background: var(--surface); box-shadow: var(--ombre); text-align: left;
+        font-size: 15px; font-weight: 650;
+      }
+      .equilibre { display: grid; gap: 12px; padding: 14px; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .equilibre-ligne { display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 10px; align-items: center; }
+      .equilibre-ligne .mono { color: var(--texte-doux); }
+      .partage { display: flex; height: 28px; border-radius: 14px; overflow: hidden; gap: 2px; }
+      .partage span { display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: 700; color: var(--sur-membre); }
+      .partage .a { background: var(--membre-a); }
+      .partage .b { background: var(--membre-b); justify-content: flex-end; }
+      .etapes { margin: 0; padding: 12px 14px 12px 34px; display: grid; gap: 4px; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .modeles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+      .modele { width: 100%; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 14px; border: 0; border-radius: 16px; background: var(--surface); box-shadow: var(--ombre); text-align: left; }
+      .modele .ico, .modele .monogramme { width: 40px; height: 40px; margin: 0; }
+      .modele strong { display: block; font-weight: 700; }
+      .modele .mono { font-size: 13px; font-weight: 500; color: var(--texte-doux); }
+
+      /* ---------- Bouton Ajouter, feuille de saisie, annonces ---------- */
+      .fab {
+        position: fixed; right: 16px; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 35;
+        width: 56px; height: 56px; border-radius: 50%; border: 0;
+        display: grid; place-items: center; background: var(--primaire); color: var(--sur-primaire);
+        box-shadow: 0 6px 18px rgba(34, 65, 106, 0.35); transition: transform 0.2s var(--ease);
+      }
+      .fab svg { width: 28px; height: 28px; stroke-width: 2.6; }
+      .fab:active { transform: scale(0.94); }
+      @media (min-width: 900px) { .fab { right: 32px; bottom: 32px; } }
+      dialog.feuille {
+        width: 100%; max-width: 600px; margin: auto auto 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+        border: 0; border-radius: 24px 24px 0 0; background: var(--surface); color: var(--texte);
+        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12);
+      }
+      dialog.feuille::backdrop { background: var(--voile); }
+      @media (min-width: 900px) { dialog.feuille { margin: auto; border-radius: 24px; padding: 22px; } }
+      .feuille h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+      .feuille-tete { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .feuille label { display: block; margin: 14px 0 6px; color: var(--texte-doux); font-weight: 600; }
+      .champ { width: 100%; min-height: 52px; padding: 12px 14px; border: 1.5px solid var(--bord-controle); border-radius: 12px; background: var(--fond); font-size: 16px; font-weight: 600; }
+      .aide { margin: 6px 0 0; font-size: 13px; color: var(--texte-doux); }
+      .apercu { list-style: none; margin: 10px 0 0; padding: 0; }
+      .apercu li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px 0; }
+      .apercu li + li { border-top: 1px solid var(--trait); }
+      .apercu .ico, .apercu .monogramme { width: 34px; height: 34px; margin: 0; }
+      .apercu .icone-tache { width: 34px; height: 34px; border-radius: 50%; background: var(--primaire-doux); color: var(--primaire); display: grid; place-items: center; }
+      .apercu strong { display: block; font-weight: 700; }
+      .apercu .mono { font-size: 13px; font-weight: 500; color: var(--texte-doux); }
+      .toast {
+        position: fixed; left: 50%; transform: translateX(-50%); z-index: 40;
+        top: calc(64px + env(safe-area-inset-top)); width: max-content; max-width: min(92vw, 440px);
+        padding: 12px 16px; border-radius: 14px; background: var(--texte); color: var(--fond);
+        font-size: 14px; font-weight: 600; line-height: 1.35; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      }
+      @media (min-width: 900px) { .toast { top: auto; bottom: 32px; } }
+
+      /* ---------- Foyer : fiches, projets, lignes ---------- */
+      .retour { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; margin: 4px 0 -8px -6px; padding: 0 8px 0 4px; border-radius: 10px; color: var(--primaire); font-weight: 700; text-decoration: none; }
+      .retour svg { width: 22px; height: 22px; }
+      .sous-titre { margin: 4px 0 0; color: var(--texte-doux); font-size: 15px; font-weight: 500; }
+      .fiches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+      .fiche { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 128px; padding: 14px; border: 0; border-radius: 18px; background: var(--surface); box-shadow: var(--ombre); text-align: left; text-decoration: none; }
+      .fiche .ico { width: 40px; height: 40px; margin-bottom: 6px; }
+      .fiche strong { font-size: 16px; font-weight: 750; line-height: 1.2; }
+      .fiche .sous { font-size: 13px; color: var(--texte-doux); line-height: 1.35; }
+      .fiche .alerte-texte { color: var(--alerte); font-weight: 700; }
+      .fiche-cadenas { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--primaire); }
+      .fiche-cadenas svg, .cadenas { width: 14px; height: 14px; vertical-align: -2px; }
+      .lignes { list-style: none; margin: 0; padding: 0 14px; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .lignes > li + li { border-top: 1px solid var(--trait); }
+      .ligne { width: 100%; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 56px; padding: 10px 0; border: 0; background: none; text-align: left; text-decoration: none; color: inherit; }
+      .ligne > .ico { width: 32px; height: 32px; }
+      .ligne > svg:not(.ico) { width: 22px; height: 22px; color: var(--primaire); justify-self: center; }
+      .ligne strong { display: block; font-weight: 700; line-height: 1.25; }
+      .ligne .sous { display: block; font-size: 13px; font-weight: 500; color: var(--texte-doux); }
+      .ligne .droite { font-size: 13px; font-weight: 700; color: var(--texte-doux); text-align: right; white-space: nowrap; }
+      .ligne .droite.urgent { color: var(--alerte); }
+      .ligne .droite.ok { color: var(--ok); }
+      .chiffre { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--primaire-doux); color: var(--primaire); font-size: 14px; font-weight: 600; line-height: 1.4; }
+      .chiffre svg { width: 20px; height: 20px; margin-top: 1px; }
+      .grand-chiffre { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .grand-chiffre strong { display: block; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+      .grand-chiffre .sous { display: block; font-size: 13px; color: var(--texte-doux); }
+      .avancement { margin-top: 14px; padding: 14px; background: var(--surface); border-radius: 16px; box-shadow: var(--ombre); }
+      .avancement .chiffres { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 600; }
+      .avancement .chiffres span:last-child { color: var(--texte-doux); }
+      .avancement + .avancement { margin-top: 10px; }
+      .avertissement { margin: 16px 4px 0; font-size: 13px; color: var(--texte-doux); }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <svg hidden xmlns="http://www.w3.org/2000/svg">
+      <symbol id="i-aujourdhui" viewBox="0 0 24 24"><path d="M12 2v3M4.2 6.2l1.4 1.4M19.8 6.2l-1.4 1.4M2 14h2M20 14h2M7 14a5 5 0 0 1 10 0M2 18h20M6 22h12" /></symbol>
+      <symbol id="i-panier" viewBox="0 0 24 24"><path d="m15 11-1 9M19 11l-4-7M2 11h20M3.5 11l1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4M4.5 15.5h15M5 11l4-7M9 11l1 9" /></symbol>
+      <symbol id="i-taches" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8" /></symbol>
+      <symbol id="i-maison" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></symbol>
+      <symbol id="i-nous" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" /></symbol>
+      <symbol id="i-soleil" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" /></symbol>
+      <symbol id="i-lune" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z" /></symbol>
+      <symbol id="i-systeme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor" /></symbol>
+      <symbol id="i-valider" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+      <symbol id="i-croix" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></symbol>
+      <symbol id="i-horloge" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+      <symbol id="i-repeter" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3" /></symbol>
+      <symbol id="i-magasin" viewBox="0 0 24 24"><path d="M3 9h18l-1.5-5h-15zM4 9v11h16V9M9 20v-6h6v6" /></symbol>
+      <symbol id="i-cloche" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a2 2 0 0 0 3.4 0" /></symbol>
+      <symbol id="i-synchro" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.7-6L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.7 6L3 16M8 16H3v5" /></symbol>
+      <symbol id="i-nuage-barre" viewBox="0 0 24 24"><path d="m2 2 20 20M5.8 5.8A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.3-.2M21.5 16.5A4.5 4.5 0 0 0 17.5 10h-1.8a7 7 0 0 0-5.2-4.8" /></symbol>
+      <symbol id="i-telephone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5" /><path d="M11 18h2" /></symbol>
+      <symbol id="i-lien" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></symbol>
+      <symbol id="i-annuler" viewBox="0 0 24 24"><path d="M3 7v6h6M21 17a9 9 0 0 0-15-6.7L3 13" /></symbol>
+      <symbol id="i-calendrier" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></symbol>
+      <symbol id="i-coeur" viewBox="0 0 24 24"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z" /></symbol>
+      <symbol id="i-dossier" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z" /></symbol>
+      <symbol id="i-cadenas" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></symbol>
+      <symbol id="i-chevron-gauche" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol>
+      <symbol id="i-outil" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9l-3.8 3.8z" /></symbol>
+      <symbol id="logo-nid" viewBox="0 0 64 64">
+        <rect width="64" height="64" rx="16" style="fill: #22416a" />
+        <ellipse cx="25" cy="27" rx="7.5" ry="9.5" style="fill: #fff6e6" />
+        <ellipse cx="39.5" cy="25.5" rx="7.5" ry="9.5" style="fill: #f7e2bc" />
+        <path d="M10 31h44a22 17 0 0 1-44 0z" style="fill: #f2b33d" />
+        <path d="M15 38q17 6 34 0M20 45q12 4 24 0" style="fill: none; stroke: #c98a1b; stroke-width: 3; stroke-linecap: round" />
+      </symbol>
+    </svg>
+    <svg aria-hidden="true" focusable="false" style="position: absolute; width: 0; height: 0; overflow: hidden" xmlns="http://www.w3.org/2000/svg">
+      <!-- Fluent Emoji Flat, Microsoft, licence MIT -->
+      <symbol id="f-airplane" viewBox="0 0 32 32"><g fill="none"><path fill="#9b9b9b" d="m15 5.5l1.615-.512l.051-.052a1.14 1.14 0 0 0 .01-1.6a1.126 1.126 0 0 0-1.592-.011L14.022 4.38zm13.659 12.436l-.679.676L27 17.5l.442-1.415c.41-.169.9-.087 1.227.25a1.123 1.123 0 0 1-.01 1.601"/><path fill="#cdc4d6" d="m14.12 28.875l-1.348-5.554a26 26 0 0 0 4.825-3.61l3.428-3.254l3.443-1.551l1.943-3.563l2.295-2.18a4.163 4.163 0 0 0 .1-5.935a4.14 4.14 0 0 0-5.924.04L20.36 5.892l-4.1 1.727l-1.037 3.618l-2.96 3.08a26.2 26.2 0 0 0-3.646 4.813l-5.525-1.404a.9.9 0 0 0-.859.23c-.44.442-.2.993.24 1.454l9.95 10.087c.49.521 1.009.692 1.448.25a.9.9 0 0 0 .25-.872"/><path fill="#00a6ed" d="m27.793 5.77l-1.54-1.552a.73.73 0 0 0-1.032-.01a.713.713 0 0 0-.01 1.022l1.54 1.552a.73.73 0 0 0 1.032.01a.72.72 0 0 0 .01-1.022"/><path fill="#0084ce" d="m15.216 11.245l5.166-5.375L8.346 3.05c-.46-.11-.95-.04-1.37.19c-1.3.73-1.3 2.59-.01 3.32zm11.213.08l-5.42 5.147L25.46 24.7c.7 1.31 2.57 1.34 3.32.06c.24-.41.32-.89.22-1.36zM8.156 22.315a1.07 1.07 0 0 1 1.527.01c.43.421.42 1.111-.01 1.533L6.84 26.685a1.07 1.07 0 0 1-1.526-.01a1.08 1.08 0 0 1 .01-1.533z"/></g></symbol>
+      <symbol id="f-automobile" viewBox="0 0 32 32"><g fill="none"><path fill="#f8312f" d="M24.64 10h-9.66c-1.06.04-2.04.61-2.63 1.49L12 12l-1.434 2.985L7.98 18h-3.1c-1.29 0-2.38.84-2.75 2l.266 1.5L2 23v1l14 1l14-1v-4.49c0-.51-.05-1.02-.14-1.51l-1.315-2.789s-.765-3.111-.785-3.171A3.41 3.41 0 0 0 24.64 10"/><path fill="#9b9b9b" d="M28.61 26H3.39C2.62 26 2 25.38 2 24.61V24h28v.61c0 .77-.62 1.39-1.39 1.39"/><path fill="#26c9fc" d="m12 12l-4.01 6h7.04c.53 0 .96-.43.96-.96v-4.08a.96.96 0 0 0-.96-.96zm11.01 6h-4.04a.96.96 0 0 1-.96-.96v-4.08c0-.53.43-.96.96-.96h4.04c.53 0 .96.43.96.96v4.08c0 .53-.43.96-.96.96m4.82-5.79l1.64 4.37c.17.46.3.94.38 1.42h-2.91a.96.96 0 0 1-.96-.96v-4c0-.57.47-1.04 1.04-1.04h.72s.07.15.09.21"/><path fill="#e6e6e6" d="M3.99 22v-1c0-.55-.45-1-1-1h-.85c-.1.29-.14.6-.14 1.27V23h.99c.55 0 1-.45 1-1"/><path fill="#321b41" d="M12.02 25.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0m14.98 0a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0"/><path fill="#e6e6e6" d="M10 25.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m15 0a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"/><path fill="#ca0b4a" d="M29.99 20h-.5c-.85 0-1.54.71-1.5 1.57c.04.81.74 1.43 1.55 1.43h.45z"/><path fill="#321b41" d="M11.13 19h.39c.27 0 .48-.22.48-.48v-2.04a.48.48 0 0 0-.48-.48h-.39c-.62 0-1.13.51-1.13 1.13v.74c0 .62.51 1.13 1.13 1.13"/></g></symbol>
+      <symbol id="f-avocado" viewBox="0 0 32 32"><g fill="none"><path fill="#44911b" d="M25.58 20.33c.16-1.89-.33-3.72 1.01-5.06l.83-.83a6.06 6.06 0 0 0 0-8.56l-1.86-1.86l-1.34 1.34c-1.49.04-2.97.63-4.11 1.77l-.21.2a8.02 8.02 0 0 1-4.99 2.32c-2.5.21-4.84 1.3-6.62 3.08a10.43 10.43 0 0 0-2.42 10.98l-.68.68l2.55 2.55a10.44 10.44 0 0 0 14.77 0c1.77-1.77 2.86-4.11 3.07-6.61"/><path fill="#008463" d="M20.66 2c-1.84 0-3.58.72-4.88 2.02l-.18.19c-.95.95-2.22 1.54-3.57 1.66c-2.59.22-5.02 1.35-6.85 3.18A10.8 10.8 0 0 0 2 16.72c0 2.9 1.13 5.62 3.18 7.67s4.77 3.18 7.67 3.18s5.62-1.13 7.67-3.18c1.83-1.83 2.97-4.27 3.19-6.85a5.7 5.7 0 0 1 1.66-3.57l.19-.19a6.87 6.87 0 0 0 2.02-4.88c0-1.84-.72-3.58-2.02-4.88A6.93 6.93 0 0 0 20.66 2"/><path fill="#c3ef3c" d="m24.32 12.93l.19-.19a5.43 5.43 0 0 0 0-7.68a5.43 5.43 0 0 0-7.68 0l-.19.19a7.18 7.18 0 0 1-4.48 2.08a9.53 9.53 0 0 0-5.94 2.76a9.367 9.367 0 0 0 0 13.25a9.367 9.367 0 0 0 13.25 0a9.53 9.53 0 0 0 2.76-5.94c.15-1.68.89-3.27 2.09-4.47"/><path fill="#6d4534" d="M13.29 20.69a4.36 4.36 0 1 0 0-8.72a4.36 4.36 0 0 0 0 8.72"/></g></symbol>
+      <symbol id="f-baby" viewBox="0 0 32 32"><g fill="none"><path fill="#fdbb11" d="M9.75 19.75a3.25 3.25 0 1 1-6.5 0a3.25 3.25 0 0 1 6.5 0m19 0a3.25 3.25 0 1 1-6.5 0a3.25 3.25 0 0 1 6.5 0"/><path fill="#ffc83d" d="M23.21 5.79A8.86 8.86 0 0 0 17.902 4h-3.806c-1.898 0-3.755.63-5.306 1.79c-2.643 1.99-4.072 5.3-3.745 8.691l.898 8.11c.296 3.141 2.377 5.781 5.265 6.681c3.123.97 6.46.97 9.582 0c2.887-.9 4.97-3.54 5.265-6.68l.898-8.111c.326-3.39-1.102-6.7-3.745-8.69"/><path fill="#990839" d="M15.992 23.963a6.4 6.4 0 0 1-3.007-.733c-.299-.16-.617.181-.428.472a4.09 4.09 0 0 0 3.445 1.887a4.1 4.1 0 0 0 3.445-1.887c.18-.28-.13-.622-.428-.472a6.55 6.55 0 0 1-3.027.733"/><path fill="#ed9200" d="M16.002 22.65c.483 0 .914-.245 1.16-.613a.504.504 0 0 0-.42-.787h-1.479c-.41 0-.657.46-.421.787c.246.378.678.613 1.16.613"/><path fill="#fff" d="M7.37 19.648C7.74 18.126 9.1 17 10.71 17c1.67 0 3.07 1.217 3.38 2.82c.07.355-.21.68-.56.68h-5.5a.683.683 0 0 1-.66-.852m16.68 0C23.68 18.126 22.32 17 20.71 17c-1.68 0-3.07 1.217-3.38 2.82c-.07.355.21.68.56.68h5.5c.44 0 .77-.416.66-.852"/><path fill="#7d4533" d="M9.02 19.92c0-1.21.98-2.2 2.2-2.2s2.2.99 2.21 2.2c0 .2-.03.39-.08.58H9.1c-.05-.18-.08-.38-.08-.58m13.38 0a2.2 2.2 0 0 0-2.2-2.2c-1.22 0-2.21.99-2.21 2.2c0 .2.03.39.08.58h4.25c.05-.18.08-.38.08-.58"/><path fill="#000" d="M11.22 18.66c.7 0 1.26.56 1.26 1.26c0 .21-.06.41-.15.58H10.1c-.09-.17-.14-.37-.14-.58c0-.7.56-1.26 1.26-1.26m8.98 0c-.7 0-1.26.56-1.26 1.26c0 .21.05.41.15.58h2.23c.09-.17.14-.37.14-.58c0-.7-.56-1.26-1.26-1.26"/><path fill="#fff" d="M10.53 19.06a.39.39 0 1 1-.78 0a.39.39 0 0 1 .78 0m9.37 0a.39.39 0 1 1-.78 0a.39.39 0 0 1 .78 0"/><path fill="#d37034" d="M9.648 15.551c.521-.185 1.268-.326 2.255-.233a.5.5 0 1 0 .094-.995c-1.133-.107-2.026.052-2.685.286a.5.5 0 0 0 .336.942m12.57-.941c-.659-.235-1.552-.394-2.685-.287a.5.5 0 1 0 .094.995c.987-.093 1.734.048 2.255.233a.5.5 0 0 0 .336-.942"/><path fill="#f1a11e" d="M15.82 2a4.27 4.27 0 0 0-3.8 2.22c.62-.14 1.25-.22 1.88-.22h.15c1.81 0 3.33 1.48 3.32 3.29c-.01.82-.31 1.56-.81 2.13a.542.542 0 0 0 .57.88a4.26 4.26 0 0 0 2.89-4.04c.01-2.32-1.88-4.23-4.2-4.26"/></g></symbol>
+      <symbol id="f-baby-bottle" viewBox="0 0 32 32"><g fill="none"><path fill="#fcd53f" d="m6.27 3.3l-.68-.68a2.1 2.1 0 0 0-2.97 2.97l.68.68c.26.26.36.65.24 1.01L3 8.89c-.24.71-.05 1.49.48 2.01l.62.63h.068l4.196-3.175l3.166-4.16V4.1l-.63-.62c-.52-.53-1.3-.72-2.01-.48l-1.61.54c-.36.12-.75.02-1.01-.24"/><path fill="#fbb8ab" d="m19.33 5.22l-.02-.02l-.03-.03a4.206 4.206 0 0 0-5.509-.288c-.132.104-.61-.162-.733-.04l-8.17 8.17c-.127.127.108.638 0 .777a4.206 4.206 0 0 0 .302 5.491l.05.05l9.29 9.29a4.726 4.726 0 0 0 6.69 0l7.43-7.43a4.726 4.726 0 0 0 0-6.69l-.03-.03l-9.23-9.23c-.02-.01-.03-.02-.04-.02"/><path fill="#ffe5d9" d="M18.46 6.44c-.08-.05-.15-.11-.22-.18a2.71 2.71 0 0 0-3.79.03l-8.17 8.17c-1.03 1.04-1.05 2.74-.03 3.79c.01.02.02.03.03.04l2.937 2.937c-.033-.041-.002-.073-.03-.118a1.26 1.26 0 0 1 .415-1.738l13.185-7.846a.62.62 0 0 1 .615-.017c.053.028.105-.001.148.042z"/><path fill="#f4f4f4" d="M15.55 27.57L9.3 21.32c-.57-.58-.45-1.54.24-1.96l13.25-7.9a.62.62 0 0 1 .76.09l3.99 4.03a3.223 3.223 0 0 1 0 4.56l-7.43 7.43a3.223 3.223 0 0 1-4.56 0"/><path fill="#e39d89" d="m11.58 4.05l-7.53 7.53a.99.99 0 0 0 0 1.39l.819.819q.16-.208.351-.399l8.17-8.17q.185-.186.387-.343l-.817-.817c-.38-.39-1-.39-1.38-.01m.05 10.42l-1.77 1.77c-.29.29-.29.77 0 1.06s.77.29 1.06 0l1.77-1.77c.29-.29.29-.77 0-1.06c-.29-.3-.76-.3-1.06 0m3.36 3.36l-1.77 1.77c-.29.29-.29.77 0 1.06s.77.29 1.06 0l1.77-1.77c.29-.29.29-.77 0-1.06c-.29-.3-.76-.3-1.06 0m3.36 3.35l-1.77 1.77c-.29.29-.29.77 0 1.06s.77.29 1.06 0l1.77-1.77c.29-.29.29-.77 0-1.06a.754.754 0 0 0-1.06 0"/></g></symbol>
+      <symbol id="f-baguette-bread" viewBox="0 0 32 32"><g fill="none"><path fill="#f3ad61" d="M17.23 5.846L17.078 6v2.077H15L12.577 10.5l-.077 2l-2 .077L8.077 15L8 17l-1.996.078l-.158.153a6.314 6.314 0 0 0 0 8.923a6.314 6.314 0 0 0 8.923 0l11.385-11.385a6.314 6.314 0 0 0 0-8.923a6.314 6.314 0 0 0-8.923 0"/><path fill="#fff3d7" d="m5.974 17.103l4.439 4.438a1.556 1.556 0 0 0 2.206 0a1.556 1.556 0 0 0 0-2.206L8.18 14.897zm4.461-4.461l4.443 4.443a1.556 1.556 0 0 0 2.207 0a1.57 1.57 0 0 0 0-2.207l-4.443-4.443zm4.462-4.462l4.438 4.439a1.556 1.556 0 0 0 2.207 0a1.556 1.556 0 0 0 0-2.206l-4.439-4.439z"/></g></symbol>
+      <symbol id="f-banana" viewBox="0 0 32 32"><g fill="none"><path fill="#f3ad61" d="M2 26.431c0-.73.592-1.321 1.322-1.321h.99a1.322 1.322 0 0 1 0 2.643h-.99c-.73 0-1.322-.592-1.322-1.322"/><path fill="#f9c23c" d="M19.783 18h9.435c.695 0 1.045-.876.55-1.392l-2.178-2.272a4.244 4.244 0 0 0-6.181 0l-2.179 2.272c-.492.514-.142 1.392.553 1.392m-15 0h9.434c.695 0 1.045-.878.553-1.392l-2.18-2.272a4.243 4.243 0 0 0-6.182 0L4.23 16.608c-.492.514-.142 1.392.553 1.392"/><path fill="#feefc2" d="M16.7 2.029c4.92-.708 7.96 11.897 5.745 16.99c-2.215 5.094-6.997 6.21-12.07 8.204a4.7 4.7 0 0 1-1.705.325c-1.924 0-2.97 1.582-3.7-.375c-.942-2.535.293-5.376 2.76-6.344c2.684-1.053 4.111-3.077 5.185-5.818c1.096-2.795 1.17-3.941 1.166-6.988c-.005-2.437-.165-5.594 2.619-5.994"/><path fill="#fcd53f" d="m22.445 19.02l-9.46-4.344c-1.086 2.498-3.053 4.411-5.54 5.39c-2.881 1.132-4.807 4.23-3.23 7.386c3.151 6.304 18.23-.066 18.23-8.433"/><path fill="#f9c23c" fill-rule="evenodd" d="M18.24 16.482a.75.75 0 0 1 .486.942c-1.98 6.201-7.756 9.065-12.918 9.33a.75.75 0 0 1-.077-1.498c4.738-.243 9.83-2.852 11.566-8.288a.75.75 0 0 1 .943-.486" clip-rule="evenodd"/><path fill="#fff478" d="m23.24 26.467l-10.197-11.78h9.004c2.126.107 3.794 1.91 3.794 4.097v7.552c0 1.33-1.197 1.736-2.6.131"/></g></symbol>
+      <symbol id="f-bathtub" viewBox="0 0 32 32"><g fill="none"><path fill="#998ea4" d="M17.25 6c0-2.414 1.836-4.25 4.25-4.25S25.75 3.586 25.75 6v9.5h-1.5V6c0-1.586-1.164-2.75-2.75-2.75S18.75 4.414 18.75 6v1.25h-1.5zm-5.72 21.53l-2.5 2.5a.75.75 0 0 1-1.06-1.06l2.5-2.5zm11.44 2.5l-2.5-2.5l1.06-1.06l2.5 2.5a.75.75 0 1 1-1.06 1.06"/><path fill="#998ea4" d="M15.5 8.5S15.5 6 18 6s2.5 2.5 2.5 2.5c.04.17 0 .5-.5.5h-4c-.5 0-.545-.331-.5-.5"/><path fill="#26eafc" d="M10 11c-2.5 0-4.5 2.5-3.5 4.5l8.5 1l8.5-1c0-.5-1-2.5-3.5-2.5c-1 0-1.5.5-2.5.5s-1-1-2-1s-1 .5-2 .5s-1-2-3.5-2"/><path fill="#b4acbc" d="M19 28h-6C4 28 3 17 3 16.5h26C29 17 28 28 19 28"/><path fill="#cdc4d6" d="M2 16.5a1 1 0 0 1 1-1h26a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1"/></g></symbol>
+      <symbol id="f-battery" viewBox="0 0 32 32"><g fill="none"><path fill="#9b9b9b" d="M13 4V2.79c0-.438.314-.79.705-.79h4.59c.39 0 .705.352.705.79V4h3.23c.98 0 1.77.79 1.77 1.769V28.23c0 .98-.79 1.769-1.77 1.769H9.77A1.765 1.765 0 0 1 8 28.231V5.77C8 4.789 8.79 4 9.77 4z"/><path fill="#86d72f" d="M24 6H8v22h16z"/><path fill="#fff" d="M15 12.5v.93c0 .31.26.57.57.57h.86c.31 0 .57-.26.57-.58v-.92h.93c.31 0 .57-.26.56-.58v-.85a.57.57 0 0 0-.57-.57H17v-.93c0-.31-.26-.57-.58-.57h-.85c-.31 0-.57.26-.57.57v.93h-.93a.57.57 0 0 0-.57.57v.86c0 .31.26.57.57.57zM17.93 25h-3.86a.57.57 0 0 1-.57-.57v-.85c0-.32.26-.58.57-.58h3.85c.32 0 .57.26.57.57v.85c.01.32-.25.58-.56.58"/></g></symbol>
+      <symbol id="f-beverage-box" viewBox="0 0 32 32"><g fill="none"><path fill="#86d72f" d="M7 26V7h.265l10.678 3.858L18 11l.127.185v18.612L18 30z"/><path fill="#c3ef3c" d="m7 7l7-2l11 4v19l-7 2V11z"/><path fill="#d3f093" d="M21.5 12.5L18 11l7-2l-2 3c-.344.54-.738.803-1.5.5"/><path fill="#008463" d="M11.57 12.75c.62.22 1.18.88 1.47 1.72l.19.55c-.28-.01-.44-.07-.48-.08c-.05-.02-.33-.13-.78-.49c-.17-.14-.4-.28-.66-.37c-.28-.1-.6-.15-.92-.09c-.2-.33-.36-.71-.43-1.12l-.14-.75z"/><path fill="#f8312f" d="M14.316 2.051A1 1 0 0 0 13 3v3.5s.5.25 1 .25s1-.25 1-.25V4.387l1.684.562a1 1 0 0 0 .632-1.898zM16.28 17.5c-.61-1.49-1.44-2.15-2.09-2.38c-.26-.09-.49-.12-.65-.11c-.11.01-.21.01-.3.01c-.28-.01-.45-.06-.49-.08l-.019-.009c-.078-.035-.345-.156-.751-.481c-.17-.14-.4-.28-.66-.37c-.28-.1-.6-.15-.92-.09c-.42.08-.85.35-1.22.94c-.99 1.57-.47 5.11.59 6.81c.46.72.89 1.04 1.31 1.19c.281.104.558.13.824.154c.245.023.481.045.706.126c.234.083.473.235.72.391c.26.166.528.337.81.439c.42.15.86.15 1.33-.24c1.1-.91 1.73-4.04.81-6.3"/><path fill="#990838" d="m17.14 2.993l.176.058a1 1 0 0 1-.24 1.946c-.455-.037-.814-.471-.814-1c0-.555.393-1.004.878-1.004"/></g></symbol>
+      <symbol id="f-broccoli" viewBox="0 0 32 32"><g fill="none"><path fill="#00d26a" d="M18.762 21.174a.967.967 0 0 0-1.34-.28l-4.96 3.25l2.13-4.23c.24-.48.07-1.07-.4-1.32a.98.98 0 0 0-1.32.42l-2.15 4.26l-.34-5.92a.97.97 0 0 0-1.02-.91a.97.97 0 0 0-.91 1.02l.19 3.34c.08 1.4-.21 2.81-.84 4.06l-.97 1.93c-.32.64-.07 1.43.58 1.76l2.78 1.4c.64.32 1.43.07 1.76-.58l.97-1.93a7.9 7.9 0 0 1 2.76-3.09l2.8-1.84c.45-.29.58-.89.28-1.34"/><path fill="#008463" d="M26.362 12.384c.93-3.71-.79-7.69-4.35-9.49a8.36 8.36 0 0 0-10.21 2.15c-2.79-.66-5.78.64-7.12 3.32a6.34 6.34 0 0 0 6.23 9.17a3.937 3.937 0 0 0 5.96 3.01c.59.98 1.46 1.81 2.56 2.36a6.34 6.34 0 0 0 8.52-2.81c1.33-2.68.6-5.86-1.59-7.71"/></g></symbol>
+      <symbol id="f-butter" viewBox="0 0 32 32"><defs><path id="SVGBdj0ZbUr" fill="#fff478" d="M9.35 20.424v-3.77c0-.2.21-.34.4-.25l7.35 3.62c.19.09.31.29.31.5v3.73c0 .24-.25.4-.47.29l-7.23-3.55a.63.63 0 0 1-.36-.57"/></defs><g fill="none"><path fill="#d3d3d3" d="M2 22.93v1.22c0 .21.11.42.33.53l10.15 4.99c.62.31 1.36.31 1.98 0l15.2-7.4c.22-.11.33-.32.33-.53v-1.22z"/><path fill="#f4f4f4" d="M18.26 14.67L2.33 22.43a.59.59 0 0 0 0 1.06l10.15 4.99c.62.31 1.36.31 1.98 0l15.2-7.4a.59.59 0 0 0 0-1.06l-10.88-5.35a.6.6 0 0 0-.52 0"/><path fill="#fcd53f" d="M18.91 12.13c-.35-.17-.75-.17-1.09 0l-8.04 3.85c-.26.13-.43.4-.43.69c2.282 3.17 4.581 5.314 7.619 7.88l.101.05c.21.1.46.1.68 0l.129-.062C21.875 20.594 22.5 20 26.42 16.3c0-.29-.17-.56-.43-.69z"/><use href="#SVGBdj0ZbUr"/><use href="#SVGBdj0ZbUr"/><path fill="#fcd53f" d="M8.4 17.31c-.35-.17-.75-.17-1.09 0l-.98.47c-.26.13-.43.39-.43.69c2.214 3.167 5.18 4.872 7.62 7.88l.1.05c.21.1.46.1.68 0l.133-.065c.25-1.71.906-3.188 1.477-4.855c0-.29-.17-.56-.43-.69z"/><path fill="#fff478" d="M5.9 22.223v-3.77c0-.2.21-.34.4-.25l7.36 3.62c.19.09.31.29.31.5v3.73c0 .24-.25.4-.47.29l-7.24-3.56a.62.62 0 0 1-.36-.56"/><path fill="#f9c23c" d="M26.43 16.284v3.77c0 .24-.14.46-.35.56l-8.19 3.93a.323.323 0 0 1-.47-.29v-3.73c0-.21.12-.41.31-.5l8.3-3.99c.19-.09.4.05.4.25m-10.52 5.189v3.77c0 .24-.13.46-.35.55l-1.13.55a.323.323 0 0 1-.47-.29v-3.73c0-.21.12-.41.31-.5l1.24-.6c.19-.09.4.05.4.25"/></g></symbol>
+      <symbol id="f-canned-food" viewBox="0 0 32 32"><g fill="none"><path fill="#f8312f" d="M6.75 3.614h17.99v6.5l-8.995 2.758l-8.995-2.757zM24.74 21v7.612H6.75V21l8.995-4.869z"/><path fill="#d3d3d3" d="M6.52 2h18.3a1.52 1.52 0 1 1 0 3.04H6.52a1.52 1.52 0 1 1 0-3.04m0 25.04h18.3c.84 0 1.52.69 1.52 1.53s-.68 1.52-1.52 1.52H6.52c-.84 0-1.52-.68-1.52-1.52s.68-1.53 1.52-1.53"/><path fill="#f4f4f4" d="M21.596 21.06a7.98 7.98 0 0 1-5.856 2.55a7.98 7.98 0 0 1-5.856-2.55H6.75V10.07h3.219a7.98 7.98 0 0 1 5.771-2.46c2.268 0 4.316.944 5.771 2.46h3.229v10.99z"/><path fill="#f8312f" d="M17.31 12.72h-3.14c-2.18 0-3.95 1.77-3.95 3.95s1.77 3.95 3.95 3.95h3.14c2.18 0 3.95-1.77 3.95-3.95s-1.76-3.95-3.95-3.95"/><path fill="#00d26a" d="M19.79 10.62h-2.28c-.72 0-1.36.338-1.768.862a2.23 2.23 0 0 0-1.752-.852H11.7c0 1.23 1 2.23 2.24 2.23h2.28v-.01h1.34c1.23 0 2.23-1 2.23-2.23"/></g></symbol>
+      <symbol id="f-carrot" viewBox="0 0 32 32"><g fill="none"><path fill="#00d26a" d="m28.902 8.361l-.01.01a3.733 3.733 0 0 1-.24 5.01a3.72 3.72 0 0 1-5.27 0a3.72 3.72 0 0 1-1.078-2.278L20.5 12.908l-1.415-1.414l1.746-1.745a3.7 3.7 0 0 1-2.139-1.058a3.72 3.72 0 0 1 0-5.27a3.73 3.73 0 0 1 4.92-.31l.02-.02c1.45-1.46 3.81-1.45 5.27 0a3.72 3.72 0 0 1 0 5.27"/><path fill="#ff822d" d="m4.642 29.891l15.75-5.1c4.51-1.46 5.88-7.17 2.53-10.52l-5.2-5.2c-3.35-3.35-9.06-1.97-10.52 2.53l-5.1 15.75c-.51 1.57.97 3.05 2.54 2.54"/><path fill="#ff6723" d="M12.373 19.411c.49-.49.49-1.28 0-1.78l-5.38-5.38l-.87 2.68l4.47 4.47c.49.5 1.29.5 1.78.01m-3.78 4.55c-.49.49-.49 1.28 0 1.78l2.17 2.17l2.68-.87l-3.08-3.08a1.25 1.25 0 0 0-1.77 0m7.66-4.98c-.49-.5-.49-1.29 0-1.78s1.28-.49 1.78.01l5.43 5.43c-.5.66-1.14 1.22-1.9 1.65z"/></g></symbol>
+      <symbol id="f-cheese-wedge" viewBox="0 0 32 32"><g fill="none"><path fill="#fcd53f" d="M29 15.075c-1.27 0-2.38-1.03-2.38-2.31c0-1.314 1.096-2.31 2.38-2.31v-2.03c0-.87-.8-1.52-1.65-1.33l-10.94-.717l-11.34 5.627c-.62.14-1.07.69-1.07 1.33v9.01a2.121 2.121 0 0 1 0 4.24v2.01c0 .87.8 1.52 1.65 1.33l22.28-4.91c.62-.14 1.07-.69 1.07-1.33z"/><path fill="#ffb02e" d="m15.74 2.565l-11.02 9.56l23.35-4.99l-9.78-4.89c-.84-.42-1.84-.29-2.55.32m8.74 13.87a3.67 3.67 0 1 1-7.34 0a3.67 3.67 0 0 1 7.34 0m-11.87 5.55a2.12 2.12 0 1 0 0-4.24a2.12 2.12 0 0 0 0 4.24m6.35 1.14a1.14 1.14 0 1 1-2.28 0a1.14 1.14 0 0 1 2.28 0"/></g></symbol>
+      <symbol id="f-child" viewBox="0 0 32 32"><g fill="none"><path fill="#f1a11e" d="m25.63 6.195l-.35-.19h.86a.93.93 0 0 0 .88-1.222A4 4 0 0 0 23.21 2H12.38c-1.22 0-2.21.921-2.35 2.113l-.035.005q-.019.004-.035.005h-.44C5.92 4.123 3 7.046 3 10.65v2.903c0 .846.405 1.546 1.25 1.546h.58l-.93 2.919h1.276L5 19.515v4.245c0 2.35 1.91 4.26 4.26 4.26h1.04V18.019h11.42V28.02h1.04c2.35 0 4.26-1.91 4.26-4.26v-5.741h1.08l-.92-3.003h.53c.71 0 1.29-.58 1.29-1.291v-1.873a6.36 6.36 0 0 0-3.37-5.657"/><path fill="#fdbb11" d="M4.618 15.1a3.25 3.25 0 1 0 1.196-.527l.036 1.334v.06L5.92 18c-.55 0-1-.43-1.02-.981L4.83 15.1zm21.574-.526a3.25 3.25 0 1 0 1.066.442h-.078l-.02.52l-.06 1.483c-.02.55-.47.981-1.02.981z"/><path fill="#ffc83d" d="m5.815 13.773l.21 6.453c.24 5.852 4.634 9.784 9.975 9.784s9.735-3.932 9.974-9.784l.206-6.284a2.23 2.23 0 0 0-2.21-1.93H18.8a6.8 6.8 0 0 1-5.76-3.193a4.1 4.1 0 0 1-3.99 3.193H7.81a2.01 2.01 0 0 0-1.995 1.76"/><path fill="#990839" d="M16.002 23.174a6.5 6.5 0 0 1-3.016-.733a.328.328 0 0 0-.429.472a4.1 4.1 0 0 0 3.445 1.887a4.1 4.1 0 0 0 3.445-1.887c.18-.281-.13-.622-.43-.472a6.35 6.35 0 0 1-3.015.733"/><path fill="#ed9200" d="M15.993 22c.68 0 1.27-.345 1.63-.873c.32-.477-.02-1.127-.59-1.127h-2.07c-.57 0-.91.65-.59 1.127c.35.528.95.873 1.62.873"/><path fill="#fff" d="M8.19 17.87a3.11 3.11 0 0 1 3.01-2.34c1.51 0 2.76 1.07 3.04 2.49c.06.31-.19.6-.51.6H8.79c-.4 0-.7-.37-.6-.75m15.64 0a3.11 3.11 0 0 0-3.01-2.34c-1.51 0-2.76 1.07-3.04 2.49c-.06.31.19.6.51.6h4.94c.4 0 .7-.37.6-.75"/><path fill="#7d4533" d="M9.68 18.1c0-1.09.89-1.98 1.98-1.98a1.985 1.985 0 0 1 1.91 2.51H9.75c-.04-.17-.07-.35-.07-.53m12.66 0c0-1.09-.89-1.98-1.98-1.98a1.985 1.985 0 0 0-1.91 2.51h3.82c.04-.17.07-.35.07-.53"/><path fill="#000" d="M11.66 16.97a1.13 1.13 0 0 1 1 1.66h-2a1.13 1.13 0 0 1 1-1.66m8.7 0a1.13 1.13 0 0 0-1 1.66h2a1.13 1.13 0 0 0-1-1.66"/><path fill="#fff" d="M11.33 17.32a.35.35 0 1 1-.7 0a.35.35 0 0 1 .7 0m8.77 0a.35.35 0 1 1-.7 0a.35.35 0 0 1 .7 0"/><path fill="#d37034" d="M9.888 14.561c.521-.185 1.268-.326 2.255-.233a.5.5 0 1 0 .094-.996c-1.133-.107-2.026.052-2.685.287a.5.5 0 1 0 .336.942m12.58-.942c-.659-.235-1.552-.394-2.685-.287a.5.5 0 1 0 .094.996c.987-.093 1.734.048 2.255.233a.5.5 0 0 0 .336-.942"/></g></symbol>
+      <symbol id="f-coconut" viewBox="0 0 32 32"><g fill="none"><path fill="#6d4534" d="m26.219 8.156l-3.32-3.33l-18.08 18.08l3.33 3.33c4.99 4.99 13.08 4.99 18.07 0c4.99-5 4.99-13.09 0-18.08"/><path fill="#a56953" d="M23.619 20.206c.04-.79.22-1.58.61-2.33c2.33-4.52 1.96-9.76-1.33-13.05c-2.79-2.79-6.97-3.48-10.93-2.22a4.1 4.1 0 0 0-2.4 2.05c-.3.61-.85 1.29-1.57 1.9c-.72.62-1.48 1.05-2.1 1.24c-1.02.3-1.9 1.07-2.4 2.04c-2.34 4.52-1.97 9.77 1.32 13.07c1.57 1.57 3.59 2.48 5.75 2.74c.7.09 1.34.35 1.89.73c.34.23.87.33 1.46.23c.57-.1 1.08-.36 1.42-.7c.57-.56 1.21-1.05 1.92-1.37c.08-.04.15-.07.23-.11c.76-.36 1.56-.52 2.34-.53c.76 0 1.72-.45 2.53-1.26c.78-.77 1.23-1.69 1.26-2.43"/><path fill="#d3d3d3" d="M22.609 18.836c0-.52.12-1.05.37-1.55c1.99-3.93 1.65-8.48-1.21-11.34c-2.51-2.51-6.32-3.08-9.88-1.83c-.53.2-.97.66-1.12 1.2c-.19.68-.83 1.58-1.75 2.37c-.94.8-1.92 1.28-2.61 1.33c-.55.04-1.09.38-1.38.9c-2.3 4.05-2.06 8.87.93 11.86c1.46 1.46 3.37 2.27 5.4 2.44c.52.04.97.26 1.36.55c.35.27.94.36 1.59.22c.63-.14 1.17-.48 1.48-.88c.33-.42.75-.76 1.23-.98l.24-.12c.5-.25 1.03-.39 1.55-.38c.76.01 1.73-.45 2.54-1.26c.8-.81 1.25-1.77 1.26-2.53"/><path fill="#9b9b9b" d="M21.519 17.326c-.08-.26-.05-.55.08-.83c1.54-3.24 1.22-6.93-1.12-9.27c-1.95-1.95-4.83-2.5-7.61-1.74c-.54.15-.97.61-1.1 1.15c-.17.69-.82 1.6-1.76 2.41c-.94.8-1.94 1.29-2.62 1.33c-.57.04-1.1.4-1.34.93c-1.49 3.21-1.14 6.85 1.17 9.16c1.28 1.28 2.95 1.95 4.74 2.06c.26.01.48.11.65.29c.33.34.98.48 1.71.32c.7-.16 1.28-.55 1.57-1.01c.15-.23.36-.42.6-.53h.01c.27-.13.56-.15.82-.07c.79.26 2.02-.2 3.01-1.19c.99-1 1.44-2.22 1.19-3.01"/></g></symbol>
+      <symbol id="f-cooked-rice" viewBox="0 0 32 32"><g fill="none"><path fill="#f8312f" d="M18.65 30.008h-5.39c-6.21 0-11.25-5.04-11.25-11.25v-5.26H29.9v5.26c0 6.21-5.04 11.25-11.25 11.25"/><path fill="#ca0b4a" d="M21.92 7.728c3.18 0 5.77 2.59 5.77 5.77s-2.59 5.77-5.77 5.77H9.98c-3.18 0-5.77-2.59-5.77-5.77s2.59-5.77 5.77-5.77zm0-2.21H9.98c-4.41 0-7.98 3.57-7.98 7.98s3.57 7.98 7.98 7.98h11.93c4.41 0 7.98-3.57 7.98-7.98c.01-4.4-3.57-7.98-7.97-7.98"/><path fill="#bebebe" d="m4.234 12.283l-.018-.169c-.02-.193-.052-.39-.088-.613l-.011-.066c-.088-.54-.21-1.281-.005-2l.1-.367c.133-.499.2-.749.347-.896l-.002-.008c.147-.188.269-.357.367-.526c.157-.274.282-.59.439-.995l.026-.068c.225-.584.535-1.386 1.144-1.994c.6-.6 1.387-.91 1.958-1.134l.067-.026c.412-.162.729-.29.997-.45l.008-.005l.007-.004c.26-.15.518-.356.85-.626l.057-.046c.488-.395 1.165-.944 2.015-1.168c.815-.221 1.656-.09 2.267.005l.075.012c.434.067.78.119 1.106.119s.672-.052 1.106-.12l.075-.01c.611-.096 1.452-.227 2.267-.006c.85.224 1.527.773 2.015 1.168l.056.046c.333.27.59.475.85.625c.274.158.591.283.995.44l.069.026c.583.225 1.385.535 1.994 1.144c.607.606.916 1.409 1.14 1.99l.027.068c.158.409.283.726.44.995l.002.003c.117.203.267.403.454.639v.004c.258.383.267.415.355.766c.026.099.058.224.103.39c.204.719.083 1.46-.005 2l-.01.066c-.038.226-.07.426-.09.62l-.016.157C27.633 15.451 24.88 18 21.517 18H10.483c-3.359 0-6.109-2.543-6.25-5.717"/><path fill="#f4f4f4" d="M27.81 12.739c-.038.252-.078.505-.103.757h-.017v.002c0 3.18-2.59 5.77-5.77 5.77H9.98c-3.18 0-5.77-2.59-5.77-5.77v-.002h-.018a14 14 0 0 0-.103-.747c-.103-.667-.205-1.324-.039-1.931c.168-.64.599-1.173 1.026-1.7c.26-.321.517-.64.714-.98c.203-.352.354-.743.505-1.134c.245-.63.488-1.26.945-1.716c.45-.45 1.067-.694 1.684-.937c.397-.156.794-.312 1.146-.523c.34-.197.66-.455.98-.715c.527-.427 1.06-.857 1.7-1.025c.608-.166 1.265-.064 1.931.04c.42.064.842.13 1.259.13s.84-.066 1.259-.13c.666-.104 1.323-.206 1.931-.04c.64.168 1.173.598 1.7 1.025c.32.26.64.518.98.715c.352.202.743.354 1.134.505c.63.244 1.259.488 1.716.945c.455.455.698 1.084.942 1.712c.152.394.304.787.508 1.138c.197.34.455.659.715.98c.426.527.857 1.06 1.025 1.7c.166.607.064 1.264-.04 1.93"/><path fill="#bebebe" d="m15.05 4.478l.95 1.64c.21.37.09.83-.28 1.04s-.83.08-1.04-.28l-.95-1.64a.764.764 0 0 1 .28-1.04c.37-.21.83-.08 1.04.28m4.35 3.45l.35-1.86c.08-.41.48-.68.89-.61c.42.08.69.48.61.89l-.35 1.86a.76.76 0 0 1-.89.61a.76.76 0 0 1-.61-.89m-6.48 4.71l-.77-1.73c-.17-.39 0-.83.38-1s.83 0 1 .38l.77 1.73c.17.38 0 .83-.38 1s-.83 0-1-.38m-3.69 4.36l.35-1.86a.75.75 0 0 1 .89-.61c.42.08.69.48.61.89l-.35 1.86a.76.76 0 0 1-.89.61a.76.76 0 0 1-.61-.89m-1.41-5.54l-1.68.88a.75.75 0 0 0-.32 1.02c.19.37.65.52 1.02.32l1.68-.88a.75.75 0 0 0 .32-1.02a.76.76 0 0 0-1.02-.32m1.22-5.09l-1.13 1.52c-.25.34-.18.81.16 1.06s.81.18 1.06-.16l1.13-1.52c.25-.34.18-.81-.16-1.06a.755.755 0 0 0-1.06.16m5.89 10.2l1.13-1.52c.25-.33.72-.4 1.06-.16c.34.25.41.72.16 1.06l-1.13 1.52c-.25.34-.72.41-1.06.16a.754.754 0 0 1-.16-1.06m8.59-5.56l1.23 1.44a.76.76 0 0 0 1.16-.98l-1.23-1.44a.76.76 0 0 0-1.16.98m.52 5.54l-.95-1.64a.764.764 0 0 0-1.04-.28c-.36.21-.49.67-.28 1.04l.95 1.64c.21.36.67.49 1.04.28c.36-.21.49-.67.28-1.04m-5.56-6l1.74.75c.38.16.56.61.4 1c-.17.39-.62.57-1 .4l-1.74-.75a.76.76 0 0 1-.4-1c.17-.39.62-.57 1-.4"/></g></symbol>
+      <symbol id="f-croissant" viewBox="0 0 32 32"><g fill="none"><path fill="#feefc2" d="m6.892 6.322l-.57.57c-6.66 8.85-1.13 17.95-1.13 17.95l8.27-.86c-.88-1.79 0-5.49 2.52-8.01s6.22-3.41 8.01-2.52l.86-8.27c-.01 0-9.11-5.52-17.96 1.14"/><path fill="#e19747" d="m25.872 15.932l-2.21-2.21a.74.74 0 0 1-.2-.55l.75-8.29c.05-.51.67-.73 1.03-.37l1.72 1.72c2.03 2.03 3.12 4.81 3.02 7.68l-.01.41a2.402 2.402 0 0 1-4.1 1.61m-9.94 9.94l-2.21-2.21a.74.74 0 0 0-.55-.2l-8.29.75c-.51.05-.73.67-.37 1.03l1.72 1.72c2.03 2.03 4.81 3.12 7.68 3.02l.41-.01a2.402 2.402 0 0 0 1.61-4.1"/><path fill="#f3ad61" d="m22.742 3.192l-.92-.35c-2.31-.87-4.81-1.07-7.23-.58l-.66.14c-.61.12-.92.81-.62 1.36l5.66 9.95c.12.22.33.37.57.44c.83.21 1.71.17 2.52-.14l.12-.05a.91.91 0 0 0 .59-.8l.55-9.04a.91.91 0 0 0-.58-.93m-12.91-.37c-3.21 1.25-5.76 3.8-7.01 7.01c-.34.88 0 1.87.8 2.36l10.42 6.35c.62.38 1.4.38 2.02 0a7.45 7.45 0 0 0 2.48-2.48c.38-.62.38-1.4 0-2.02l-6.35-10.42c-.49-.8-1.48-1.14-2.36-.8m-6.99 19l.35.92c.14.37.51.61.91.59l9.05-.56a.91.91 0 0 0 .8-.59l.05-.12c.31-.81.35-1.69.14-2.52a.94.94 0 0 0-.44-.57l-9.95-5.66c-.55-.3-1.24.01-1.36.62l-.13.66c-.49 2.42-.29 4.92.58 7.23"/></g></symbol>
+      <symbol id="f-cucumber" viewBox="0 0 32 32"><g fill="none"><path fill="#44911b" d="M29.6 13.6c0-.48-.24-.9-.6-1.15c.32-1.47.48-2.99.48-4.55c0-3.26-2.64-5.9-5.9-5.9s-5.9 2.64-5.9 5.9c0 .83-.1 1.64-.3 2.41c-.74.04-1.33.65-1.33 1.4c0 .37.15.71.39.97a9.85 9.85 0 0 1-3.86 3.82a1.408 1.408 0 0 0-2.55.83c0 .04 0 .09.01.13c-.69.15-1.4.24-2.14.24c-3.26 0-5.9 2.64-5.9 5.9s2.64 5.9 5.9 5.9c1.13 0 2.24-.09 3.33-.26c.23.44.7.75 1.24.75c.76 0 1.38-.6 1.4-1.36a21.5 21.5 0 0 0 8.02-4.33a1.408 1.408 0 0 0 1.86-1.79A21.8 21.8 0 0 0 28.27 15c.74-.04 1.33-.65 1.33-1.4"/><path fill="#86d72f" d="M23.49 12.35a1.14 1.14 0 1 1-2.28 0a1.14 1.14 0 0 1 2.28 0m-4.83 8.2a1.14 1.14 0 1 0 0-2.28a1.14 1.14 0 0 0 0 2.28m-6.81 4a1.14 1.14 0 1 0 0-2.28a1.14 1.14 0 0 0 0 2.28"/></g></symbol>
+      <symbol id="f-desert-island" viewBox="0 0 32 32"><g fill="none"><path fill="#593b39" d="M18.5 8.35h-3.95c-.29 0-.52.23-.52.52v17.08c0 .29.23.52.52.52h3.95c.29 0 .52-.23.52-.52V8.88c0-.29-.23-.53-.52-.53"/><path fill="#ff944c" d="M28.794 28H4.386a14.58 14.58 0 0 1 12.204-6.59c5.106 0 9.598 2.62 12.204 6.59"/><path fill="#96c34a" d="M15.92 8.49H6.05c-.54 0-.98-.49-.87-1.01c.48-2.54 2.73-4.49 5.4-4.49c2.703 0 4.973 1.986 5.42 4.567c.448-2.581 2.718-4.567 5.42-4.567c2.67 0 4.92 1.95 5.4 4.49c.1.53-.33 1.01-.87 1.01z"/><path fill="#608842" d="m15.75 9.1l-3.07 3.07l-3.07 3.07c-.37.36-.99.33-1.28-.1c-1.4-2.04-1.19-4.89.62-6.7s4.65-2.02 6.7-.62c.21.142.326.366.345.6a.77.77 0 0 1 .325-.54c1.99-1.36 4.75-1.15 6.51.6c1.76 1.76 1.96 4.52.6 6.51c-.28.41-.89.45-1.24.09l-2.98-2.98l-2.98-2.98a.83.83 0 0 1-.239-.518a.85.85 0 0 1-.241.498"/><path fill="#8b5c56" d="M16.5 10.99a1.99 1.99 0 1 1-3.98 0a1.99 1.99 0 0 1 3.98 0M20.49 13a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/><path fill="#00a6ed" d="M30.02 27.63c-.01-.51-.51-1.06-1.02-1.07c-1.02-.01-1.45-.56-2.63-.56c-1.72 0-1.72 1-3.44 1s-1.72-1-3.45-1c-1.72 0-1.72 1-3.45 1c-1.72 0-1.72-1-3.45-1c-1.72 0-1.72 1-3.44 1s-1.72-1-3.45-1c-1.38 0-1.94.63-2.89.88c-.47.13-.8.56-.8 1.04c0 .6.48 1.08 1.08 1.08H29.1c.5 0 .91-.4.92-.9c.01-.16.01-.32 0-.47"/></g></symbol>
+      <symbol id="f-droplet" viewBox="0 0 32 32"><path fill="#26c9fc" d="M18.27 3.388c-.991-1.85-3.663-1.85-4.643 0l-6.273 11.8c-3.842 6.58.95 14.81 8.614 14.81h.21c7.554 0 12.266-8.1 8.494-14.58z"/></symbol>
+      <symbol id="f-egg" viewBox="0 0 32 32"><path fill="#f3ad61" d="M16.331 2c-2.57 0-4.98 1.28-6.42 3.4l-.13.19A21.92 21.92 0 0 0 6.101 20l.08.8c.5 5.21 4.88 9.18 10.11 9.18c5.25 0 9.63-3.99 10.11-9.22l.09-.93a21.9 21.9 0 0 0-3.78-14.48A7.77 7.77 0 0 0 16.331 2"/></symbol>
+      <symbol id="f-fish" viewBox="0 0 32 32"><g fill="none"><path fill="#00a6ed" d="M16.406 5.866c-2.686 0-3.792 2.517-3.842 4.822h-.908a8.66 8.66 0 0 0-8.315 6.242a1.055 1.055 0 0 0-.622 2.015a1.055 1.055 0 0 0 .438 2.05a8.66 8.66 0 0 0 8.5 7.005h1.783c.036.965.51 1.997 1.631 1.997h2.205c.106.018.308-.046.265-.45c-.043-.407-.231-1.236-1.233-1.547h.036a8.66 8.66 0 0 0 8.578-7.488v4.176c0 2.25 4.922 4.625 4.922 2.437v-4.5c0-1.205-2.039-3.26-3.304-3.281c1.265-.021 3.304-2.076 3.304-3.282v-4.5c0-2.187-4.922.188-4.922 2.438v4.176a8.66 8.66 0 0 0-7.03-7.35c3.617-.276 4.209-2.776 4.327-3.9c.1-.95-.375-1.103-.625-1.06z"/><path fill="#0074ba" d="M11.726 13.804a.5.5 0 0 1 .704-.062c3.05 2.555 3.211 7.049.043 10.398a.5.5 0 1 1-.727-.687c2.832-2.994 2.587-6.812.042-8.945a.5.5 0 0 1-.062-.704"/><path fill="#1c1c1c" d="M9.078 17.5a.61.61 0 1 1-1.219 0a.61.61 0 0 1 1.22 0"/></g></symbol>
+      <symbol id="f-garlic" viewBox="0 0 32 32"><g fill="none"><path fill="#ffce7c" d="M15.985 28.236q.39.034.796.034h6.08c6.65 0 9.65-8.32 4.52-12.56l-4.23-3.49a8.47 8.47 0 0 1-3.09-6.55v-1.5c0-.65-.52-1.17-1.17-1.17h-5.81c-.65 0-1.17.52-1.17 1.17v1.5c0 2.54-1.13 4.94-3.09 6.55l-4.23 3.49c-5.13 4.24-2.13 12.56 4.52 12.56h6.08q.405 0 .794-.034"/><path fill="#feefc2" d="m22.05 14.09l-2.33-2.21a7.6 7.6 0 0 1-2.35-5.49V3h-2.81v3.42c0 2.08-.85 4.06-2.36 5.49l-2.29 2.18c-5.38 5.12-1.76 14.19 5.67 14.19h.79c7.44 0 11.06-9.06 5.68-14.19"/></g></symbol>
+      <symbol id="f-glass-of-milk" viewBox="0 0 32 32"><g fill="none"><path fill="#aeddff" d="m4.01 3.066l3.78 26.127a.95.95 0 0 0 .937.807h14.546a.934.934 0 0 0 .937-.807l3.78-26.127A.942.942 0 0 0 27.054 2H4.947a.942.942 0 0 0-.938 1.066"/><path fill="#f3eef8" d="m6.51 9.295l2.461 17.167c.04.309.31.538.62.538h12.806c.31 0 .58-.229.62-.538l2.47-17.167c.1-.688-.43-1.295-1.13-1.295H7.64c-.69 0-1.22.617-1.13 1.295"/><path fill="#fff" d="M24.856 5.215a1 1 0 1 0-1.98-.284L19.713 27h2.02z"/></g></symbol>
+      <symbol id="f-hammer-and-wrench" viewBox="0 0 32 32"><g fill="none"><path fill="#7d4533" d="m13.122 8.879l15 15a3 3 0 1 1-4.243 4.242l-15-15z"/><path fill="#b4acbc" d="M11.427 2.23L4.353 9.303a.5.5 0 0 0 0 .707L6 13l2.95 1.607a.5.5 0 0 0 .707 0l4.95-4.95a.5.5 0 0 0 0-.707L12.657 7c-.477-.48-.05-1-.05-1l2.724-2.724a.5.5 0 0 0-.301-.85l-3.196-.34a.5.5 0 0 0-.407.144M26.32 9.125l2.55-2.55c.32-.33.88-.17.99.28c.4 1.66-.04 3.48-1.34 4.78a5.06 5.06 0 0 1-5.115 1.244l-9.736 9.805a5.08 5.08 0 0 1-1.32 5.1a5.06 5.06 0 0 1-4.72 1.28a.592.592 0 0 1-.28-.99l2.55-2.55c.23-.23.23-.6 0-.83l-1.61-1.61a.585.585 0 0 0-.83 0l-2.55 2.55c-.32.33-.88.17-.99-.28c-.4-1.66.04-3.48 1.34-4.78a5.06 5.06 0 0 1 5.166-1.227l9.702-9.77a5.08 5.08 0 0 1 1.303-5.152a5.06 5.06 0 0 1 4.72-1.28c.45.11.6.67.28.99l-2.55 2.55c-.23.23-.23.6 0 .83l1.61 1.61c.23.23.6.23.83 0"/><path fill="#cdc4d6" d="M1.177 11.298a.25.25 0 0 1 0-.353l.643-.644a2 2 0 0 1 2.829 0l3.889 3.89a2 2 0 0 1 0 2.828l-.644.643a.25.25 0 0 1-.353 0z"/></g></symbol>
+      <symbol id="f-honey-pot" viewBox="0 0 32 32"><g fill="none"><path fill="#d3883e" d="M6 8a1 1 0 0 1 1-1h2.05l.048.047H22.93L22.988 7H25a1 1 0 1 1 0 2l-9 2l-9-2a1 1 0 0 1-1-1"/><path fill="#b97028" d="M4 16c-1-4.5 2-7 4-7l.059-.04H23.91L24 9c2 0 5 2.5 4 7l-.288 1l-.087.055l-11.627 4l-11.627-4L4.288 17zm2.452 8.5L7.75 29S8 30 9 30h14c1 0 1.25-1 1.25-1l1.298-4.5l-.167-.113l-9.398-3l-9.398 3z"/><path fill="#8c5543" d="M27.712 17H4.288l2.164 7.5h19.096z"/><path fill="#6d4534" d="M19.683 3.273a.75.75 0 0 1 .544.91l-.998 3.96a.75.75 0 1 1-1.454-.367l.998-3.96a.75.75 0 0 1 .91-.543"/><path fill="#8c5543" d="M21.5 4.002a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/><path fill="#f9c23c" d="M9.047 7c1.04 6.128 4.452 5.73 4.452 5.73c2.321 0 2.776-1.122 3.206-2.18c.127-.313.252-.62.422-.892c.657-.986 1.77-.265 2.022 0c.645.695 1.353.569 1.353.569c1.61-.033 2.332-2.603 2.484-3.227zm12.599 5.632s-.355-.987-1.408-.96c-.222.019-.919.253-.815 1.315c.038.43.136 1.695 1.741 1.287c.638-.162.772-.879.482-1.642"/></g></symbol>
+      <symbol id="f-hot-beverage" viewBox="0 0 32 32"><g fill="none"><path fill="#d3d3d3" d="M14.5 30C20.851 30 26 24.851 26 18.5S20.851 7 14.5 7S3 12.149 3 18.5S8.149 30 14.5 30"/><path fill="#9b9b9b" d="M14.42 27.5c-5.17 0-9.38-4.7-9.38-9.87H23.8c0 5.17-4.21 9.87-9.38 9.87"/><path fill="#e6e6e6" d="M21.4 12.38a9.35 9.35 0 0 0-6.98-3.13a9.37 9.37 0 0 0-6.99 3.13H5.04v5.25c0 5.17 4.21 9.38 9.38 9.38c4.378 0 8.068-3.019 9.095-7.083l1.06-1.04s-.788-.652-.779-.996q.004-.13.004-.261v-5.25z"/><path fill="#f4f4f4" d="M23.79 12.38a9.38 9.38 0 1 1-1.08-4.372Q22.865 8 23.02 8c3.3 0 5.98 2.68 5.98 5.98a5.984 5.984 0 0 1-5.488 5.96a9.4 9.4 0 0 0 .285-2.056A3.994 3.994 0 0 0 27 13.98c0-2.03-1.53-3.718-3.507-3.952c.194.752.297 1.54.297 2.352"/><path fill="#7d4533" d="M14.41 20.67a8.29 8.29 0 0 0 8.29-8.29c0-4.578-5.035-7.29-8.29-7.29c-2.786 0-8.29 2.712-8.29 7.29a8.29 8.29 0 0 0 8.29 8.29"/><path fill="#9b9b9b" d="M6.14 12.966c.301-3.1 3.889-6.876 8.27-6.876c4.38 0 7.967 3.827 8.27 6.88q.02-.293.02-.59a8.29 8.29 0 1 0-16.56.586"/></g></symbol>
+      <symbol id="f-house" viewBox="0 0 32 32"><g fill="none"><path fill="#f3c07b" fill-rule="evenodd" d="M10 8.834V3.523A.53.53 0 0 0 9.467 3H6.543A.53.53 0 0 0 6 3.523v8.646l-1 .833v16h22v-15L16.07 3.772z" clip-rule="evenodd"/><path fill="#8c5543" d="M15.92 27.003H8.08c-.04 0-.08-.04-.08-.08v-10.53c0-.75.61-1.36 1.36-1.36h5.29c.75 0 1.36.61 1.36 1.36v10.53c-.01.04-.05.08-.09.08"/><path fill="#402a32" d="M14.5 21.002a.5.5 0 1 0 0-1a.5.5 0 0 0 0 1"/><path fill="#d3d3d3" d="M15.96 28.002H8c-.55 0-1-.45-1-1s.45-1 1-1h7.96c.55 0 1 .45 1 1s-.45 1-1 1"/><path fill="#00f397" d="M30 29.002H2v-.09c0-1.06.85-1.91 1.91-1.91h24.18c1.05 0 1.91.85 1.91 1.91z"/><path fill="#f8312f" d="m16.88 2.353l12.76 12.57c.48.47.48 1.23 0 1.69c-.47.47-1.24.47-1.72 0l-11.9-11.72l-11.94 11.76c-.47.47-1.24.47-1.72 0s-.48-1.23 0-1.7l12.8-12.6c.47-.47 1.24-.47 1.72 0"/><path fill="#83cbff" d="M23.14 21.002h-4.28c-.48 0-.86-.38-.86-.86v-4.28c0-.47.38-.86.86-.86h4.28c.47 0 .86.38.86.86v4.28c0 .48-.38.86-.86.86"/></g></symbol>
+      <symbol id="f-ice-cream" viewBox="0 0 32 32"><g fill="none"><path fill="#e19747" d="M26.778 4.439a.875.875 0 0 0-1.376-1.081l-6.16 7.842a.875.875 0 0 0 .868 1.397a.877.877 0 0 0 1.284.602l8.049-4.467a.875.875 0 1 0-.85-1.53l-7.066 3.922z"/><path fill="#6d4534" d="M15.59 17.75a6.75 6.75 0 1 1-13.5 0a6.75 6.75 0 0 1 13.5 0"/><path fill="#ff8687" d="M29.01 17.625a6.75 6.75 0 1 1-13.5 0a6.75 6.75 0 0 1 13.5 0"/><path fill="#feefc2" d="M24.078 14.922a8.078 8.078 0 1 1-16.156 0a8.078 8.078 0 0 1 16.156 0"/><path fill="#00a6ed" d="M2.722 21.042h25.494c.622 0 .97.71.58 1.194c-.82 1.02-1.98 2.413-2.655 3c-.726.63-2.171 1.55-3.104 2.124a4.16 4.16 0 0 0-1.396 1.399l-.135.224a2 2 0 0 1-1.715.97h-8.644a2 2 0 0 1-1.715-.97l-.134-.224a4.2 4.2 0 0 0-1.397-1.4c-.933-.573-2.378-1.494-3.103-2.124c-.675-.585-1.835-1.978-2.656-2.999a.734.734 0 0 1 .58-1.195"/><path fill="#f8312f" d="M17.95 5.983c0 1.096-.725 1.863-1.984 1.863s-1.983-.767-1.983-1.863a1.983 1.983 0 1 1 3.966 0"/></g></symbol>
+      <symbol id="f-identification-card" viewBox="0 0 32 32"><g fill="none"><path fill="#26c9fc" d="M27.8 30H4.2C3 30 2 29 2 27.8V14.2C2 13 3 12 4.2 12h23.5c1.3 0 2.3 1 2.3 2.2v13.5c0 1.3-1 2.3-2.2 2.3"/><path fill="#f4f4f4" d="M26.405 28h-11.81c-.297 0-.595-.194-.595-.58v-1.84c0-.29.198-.58.595-.58h11.81c.297 0 .595.194.595.58v1.84c0 .29-.298.58-.595.58"/><path fill="#fff" d="M11.024 23H4.976c-.393 0-.785.741-.923.328Q4 23.178 4 23v-8c0-.5.39-1 .976-1h6.048c.488 0 .976.4.976 1v8q0 .108-.017.208c-.08.483-.444-.208-.959-.208"/><path fill="#0074ba" d="M14.5 15a.5.5 0 0 0 0 1h12a.5.5 0 1 0 0-1zm-.5 3.5a.5.5 0 0 1 .5-.5h12a.5.5 0 1 1 0 1h-12a.5.5 0 0 1-.5-.5m0 3a.5.5 0 0 1 .5-.5h12a.5.5 0 1 1 0 1h-12a.5.5 0 0 1-.5-.5"/><path fill="#321b41" d="M8.476 15h-.98c-1.076 0-1.86.92-1.762 2.045l.04.53a.71.71 0 0 0-.53.698c0 .379.282.689.639.714l.047.615c.077.643.517 1.223 1.13 1.442c-1.274.283-2.364 1.084-3.06 2.181c.11.474.53.775.951.775h6.07c.587 0 .979-.41.979-1.023a4.87 4.87 0 0 0-2.995-1.955c.564-.218.964-.733 1.037-1.42l.047-.615a.704.704 0 0 0 .638-.714a.71.71 0 0 0-.53-.698l.04-.53c.1-1.125-.781-2.045-1.76-2.045M15.5 27h10c.2 0 .5-.2.5-.5s-.2-.5-.5-.5h-10c-.3 0-.5.2-.5.5s.2.5.5.5"/></g></symbol>
+      <symbol id="f-leafy-green" viewBox="0 0 32 32"><g fill="none"><path fill="#008463" d="M12.122 5.389c-2.59-1.35-5.81-.41-7.24 2.16c-.9 1.62-.89 3.51-.11 5.05c-.84.39-1.56 1.04-2.04 1.9a4.57 4.57 0 0 0-.13 4.22c.8 1.68.79 3.64-.12 5.26a3.794 3.794 0 0 0 .83 4.72a3.794 3.794 0 0 0 4.72.83c1.62-.91 3.58-.92 5.26-.12c1.3.62 2.87.63 4.22-.13c.86-.48 1.51-1.2 1.9-2.04c1.54.78 3.43.79 5.05-.11c2.57-1.43 3.51-4.65 2.16-7.24c.48-.13.96-.34 1.4-.64a4.58 4.58 0 0 0 1.55-5.73a4.575 4.575 0 0 0-7.28-1.37a5.4 5.4 0 0 0-1.105-1.325a5.4 5.4 0 0 0-1.325-1.105a4.575 4.575 0 0 0-1.37-7.28a4.58 4.58 0 0 0-5.73 1.55c-.3.44-.51.92-.64 1.4"/><path fill="#86d72f" d="M23.962 22.069a5.413 5.413 0 0 0 .1-7.55c.43-.26.83-.59 1.17-1c1.43-1.71 1.4-4.25-.07-5.93a4.573 4.573 0 0 0-6.68-.23c-.27.27-.5.57-.69.89a5.413 5.413 0 0 0-7.55.1a5.4 5.4 0 0 0-1.49 4.82c-.91.15-1.78.58-2.48 1.28a4.52 4.52 0 0 0-1.27 4.01c.32 1.83-.23 3.71-1.54 5.03a3.79 3.79 0 0 0 5.36 5.36c1.32-1.32 3.19-1.86 5.03-1.54a4.56 4.56 0 0 0 4.02-1.27c.7-.7 1.12-1.57 1.28-2.48c1.69.31 3.5-.18 4.81-1.49"/><path fill="#c3ef3c" d="M13.864 11.481a.5.5 0 0 1 .626.33l1.254 4.039l4.245-4.245a.5.5 0 0 1 .707.707l-4.244 4.244l4.048 1.255a.5.5 0 0 1-.296.955l-4.552-1.41l-4.06 4.06l2.848.885a.5.5 0 1 1-.296.955l-3.352-1.04l-2.226 2.226a.5.5 0 1 1-.707-.707l2.226-2.226l-1.04-3.352A.5.5 0 0 1 10 17.86l.884 2.85l4.061-4.062l-1.41-4.541a.5.5 0 0 1 .329-.626"/></g></symbol>
+      <symbol id="f-lemon" viewBox="0 0 32 32"><g fill="none"><path fill="#86d72f" d="M7 2.5L2 5c.82 2.32 3.617 3.814 6.117 2.814l6-2.5C13.297 2.984 9.802 1.27 7 2.5"/><path fill="#fcd53f" d="M14.924 4.6C9.52 6.507 6.69 12.45 8.592 17.87l1.253 3.558a10.38 10.38 0 0 0 8.929 6.908c.742.059 1.438.384 1.994.884c.8.721 1.948.989 3.027.605a3.04 3.04 0 0 0 1.983-2.372a3.4 3.4 0 0 1 .997-1.943c2.864-2.744 4.035-7.013 2.632-11.002l-1.252-3.558c-1.902-5.432-7.828-8.27-13.231-6.35"/></g></symbol>
+      <symbol id="f-light-bulb" viewBox="0 0 32 32"><g fill="none"><path fill="#9b9b9b" d="M17.651 22.27h-3.89c-.79 0-1.44.64-1.43 1.43v3.89c0 .79.64 1.43 1.43 1.43h.248a1.94 1.94 0 0 0 3.384 0h.258c.79 0 1.43-.64 1.43-1.43V23.7c0-.79-.64-1.43-1.43-1.43"/><path fill="#fcd53f" d="M18.161 23.13c.24 0 .43-.18.45-.41c.07-.86.44-2.95 2.46-5.19a8.66 8.66 0 0 0 3.29-6.31c.02-.24.03-.4.03-.5v-.1c-.06-4.78-3.93-8.62-8.7-8.62a8.69 8.69 0 0 0-8.69 8.6s-.01.24.03.64c.16 2.54 1.4 4.79 3.29 6.28c2.02 2.25 2.42 4.34 2.49 5.2c.02.23.21.41.45.41z"/><path fill="#ffb02e" d="M15.701 10.7c1.62 0 2.94 1.31 2.96 2.93v.08c0 .03 0 .07-.01.13c-.05.84-.46 1.63-1.12 2.15l-.07.05l-.06.06c-1.1 1.22-1.33 4.32-1.37 6.02h-.65c-.05-1.7-.29-4.8-1.39-6.02l-.06-.06l-.07-.05a2.96 2.96 0 0 1-1.12-2.17c0-.04-.01-.07-.01-.09v-.09c.03-1.62 1.36-2.94 2.97-2.94m0-1a3.96 3.96 0 0 0-2.45 7.07c1.2 1.34 1.14 6.36 1.14 6.36h2.64s-.08-5.02 1.13-6.35c.86-.68 1.43-1.71 1.5-2.88c.01-.11.01-.18.01-.23v-.04a3.97 3.97 0 0 0-3.97-3.93"/><path fill="#d3d3d3" d="M19.167 25.053a.5.5 0 1 0-.172-.986l-6.74 1.18a.5.5 0 1 0 .172.986zm-.05 2.15a.5.5 0 0 0-.172-.985l-6.65 1.17a.5.5 0 1 0 .173.984z"/><path fill="#fff478" d="M13.791 5.44c-1.11 1.92-.55 4.32 1.25 5.35s4.15.32 5.26-1.6s.55-4.32-1.25-5.35s-4.15-.32-5.26 1.6"/></g></symbol>
+      <symbol id="f-locked" viewBox="0 0 32 32"><g fill="none"><path fill="#d3d3d3" d="M16 2a6 6 0 0 0-6 6v3a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6m0 2.5A3.5 3.5 0 0 1 19.5 8v3a3.5 3.5 0 1 1-7 0V8A3.5 3.5 0 0 1 16 4.5"/><path fill="#f9c23c" d="M5 14a3 3 0 0 1 3-3h16a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path fill="#433b6b" d="M17.5 20.5a2.5 2.5 0 1 0-3 0V24a1.5 1.5 0 0 0 3 0z"/></g></symbol>
+      <symbol id="f-lotion-bottle" viewBox="0 0 32 32"><g fill="none"><path fill="#f8312f" d="M14 6.5V4h4v2.5c.003.5.504.64.504.64L16 8.5l-2.505-1.358S14.001 7 14 6.5"/><path fill="#fbb8ab" d="M7 15a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8v11a4 4 0 0 1-4 4H11a4 4 0 0 1-4-4z"/><path fill="#f3eef8" d="M17 14s-1-2-2 0c0 0-3 4.5-3 7.5c0 1 .5 3.5 4 3.5s4-2.5 4-3.5c0-3-3-7.5-3-7.5"/><path fill="#ff8687" d="M14 5c-2-1-1-3 1-3c1 0 6 1 6 1c1.5.5 1 2 0 2z"/></g></symbol>
+      <symbol id="f-luggage" viewBox="0 0 32 32"><g fill="none"><path fill="#636363" fill-rule="evenodd" d="M14 3h-1v3h6V3h-1v2h-4z" clip-rule="evenodd"/><path fill="#212121" fill-rule="evenodd" d="M14.19 1.5c-.662 0-1.19.544-1.19 1.2v.8h1v-.8c0-.116.092-.2.19-.2h3.62c.098 0 .19.084.19.2v.8h1v-.8c0-.656-.528-1.2-1.19-1.2zM12 30.1c-.55 0-1-.45-1-1V28h2v1.1c0 .55-.44 1-1 1m8 0c-.55 0-1-.45-1-1V28h2v1.1c0 .55-.44 1-1 1" clip-rule="evenodd"/><path fill="#00a6ed" d="M21.72 28.47H10.28C8.469 28.47 7 27.01 7 25.211V8.73c0-1.8 1.469-3.259 3.28-3.259h11.44c1.811 0 3.28 1.46 3.28 3.259V25.2a3.27 3.27 0 0 1-3.28 3.269"/><path fill="#26eafc" fill-rule="evenodd" d="M11 27c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1s1 .45 1 1v17c0 .55-.44 1-1 1m5 0c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1s1 .45 1 1v17c0 .55-.44 1-1 1m4-1c0 .55.45 1 1 1c.56 0 1-.45 1-1V9c0-.55-.45-1-1-1s-1 .45-1 1z" clip-rule="evenodd"/><path fill="#f4f4f4" d="m20.81 10.77l-1.74 1.74c-.24.24-.62.24-.85 0l-3.47-3.47a.59.59 0 0 1 0-.85l1.74-1.74c.24-.24.62-.24.85 0l3.47 3.47c.23.23.23.61 0 .85"/></g></symbol>
+      <symbol id="f-mango" viewBox="0 0 32 32"><g fill="none"><path fill="#00d26a" d="M5.535 2.49L1 4.788C2.113 7.544 5.014 8.756 7.465 7.51L12.5 5c-1.113-2.756-4.75-3.65-6.965-2.51"/><path fill="#ffb02e" d="m11.343 4.798l-1.17.534C6.17 7.168 4.124 11.715 5.357 15.984a26.95 26.95 0 0 0 5.206 9.788l.885 1.067a8.74 8.74 0 0 0 10.38 2.359c3.794-1.74 5.86-5.935 4.964-10.055l-.348-1.58a27 27 0 0 0-3.53-8.645l-.495-.779a8.74 8.74 0 0 0-11.076-3.34"/></g></symbol>
+      <symbol id="f-money-bag" viewBox="0 0 32 32"><g fill="none" fill-rule="evenodd" clip-rule="evenodd"><path fill="#f3c07b" d="M17.44 3.385c.33.38.89.45 1.3.16c.8-.57 1.84.29 1.43 1.17l-2.42 2.77h-3.87l-2.44-2.8c-.41-.89.63-1.75 1.43-1.18l.07.05c.41.29.97.21 1.29-.17l.87-1.04a.955.955 0 0 1 1.47 0zM4 21.225c0-6.54 5.3-11.84 11.84-11.84s11.84 5.3 11.83 11.84c0 4.83-3.92 8.75-8.75 8.75h-6.17c-4.83 0-8.75-3.92-8.75-8.75"/><path fill="#8c5543" d="M14.12 7.465h3.44c.61 0 1.11.5 1.11 1.11s-.5 1.11-1.11 1.11h-3.44c-.61 0-1.11-.5-1.11-1.11s.5-1.11 1.11-1.11m1.72 11.88h.07c1.5.04 2.7 1.26 2.7 2.76c0 1.28-.87 2.35-2.05 2.67v1.12c0 .4-.32.72-.72.72s-.72-.32-.72-.72v-1.12a2.77 2.77 0 0 1-2.05-2.67c0-.4.32-.72.72-.72s.72.32.72.72c0 .74.59 1.33 1.32 1.33s1.33-.6 1.33-1.33s-.6-1.33-1.33-1.33h-.07a2.765 2.765 0 0 1-2.69-2.76c0-1.28.87-2.35 2.05-2.67v-1.12c0-.4.32-.72.72-.72s.72.32.72.72v1.12c1.18.32 2.05 1.39 2.05 2.67c0 .4-.32.72-.72.72s-.72-.32-.72-.72c0-.73-.6-1.33-1.33-1.33s-1.33.6-1.33 1.33s.6 1.33 1.33 1.33"/></g></symbol>
+      <symbol id="f-nest-with-eggs" viewBox="0 0 32 32"><g fill="none"><path fill="#00d26a" d="M21.166 26.57v-.578h-2.737A3.43 3.43 0 0 0 15 29.422v.193c0 .213.172.385.385.385h2.351a3.43 3.43 0 0 0 3.43-3.43"/><path fill="#7d4533" d="M2 19.09L30 7.895v5l-15.495 6.078H30v5.117h-7.43c-.153 0-.207.203-.074.28l1.727.997c1.31.756.773 2.758-.74 2.758a1.47 1.47 0 0 1-.738-.198l-5.486-3.167a5 5 0 0 0-2.5-.67H2z"/><rect width="15.714" height="9.709" x="8.143" y="5.811" fill="#b97028" rx="4.854"/><path fill="#7d4533" d="M12.857 15.52h6.286c2.241 0 4.117-1.611 4.596-3.77c-.402-1.556-1.78-2.703-3.418-2.703l-3.79 2.328l-4.852-2.328c-1.638 0-3.016 1.147-3.418 2.703c.479 2.159 2.355 3.77 4.596 3.77"/><path fill="#00a6ed" d="M15.934 7.01c-.854 0-1.655.425-2.134 1.13l-.043.063a7.3 7.3 0 0 0-1.224 4.791l.027.266a3.376 3.376 0 0 0 3.36 3.052a3.37 3.37 0 0 0 3.362-3.065l.03-.31a7.28 7.28 0 0 0-1.257-4.813a2.58 2.58 0 0 0-2.12-1.114"/><path fill="#26c9fc" d="M9.126 10.07a2.35 2.35 0 0 1 1.61-1.496a2.35 2.35 0 0 1 2.125.48a6.62 6.62 0 0 1 2.238 3.934l.047.278a3.07 3.07 0 0 1-5.904 1.595l-.086-.228a6.63 6.63 0 0 1-.053-4.497zm10.064-1a2.35 2.35 0 0 1 2.141-.49a2.35 2.35 0 0 1 1.602 1.478a6.62 6.62 0 0 1-.03 4.526l-.098.265a3.07 3.07 0 0 1-5.91-1.571l.039-.24a6.63 6.63 0 0 1 2.203-3.922z"/><path fill="#f3ad61" fill-rule="evenodd" d="M21.753 2.84a.5.5 0 0 0 .118.698c.866.616 1.85 1.888 2.645 3.555c-1.725-1.942-4.92-4.1-10.172-4.1a.5.5 0 0 0 0 1c2.422 0 4.363.484 5.895 1.186A8.5 8.5 0 0 0 18.505 5h-5.01c-2.11 0-4.04.77-5.527 2.044a9.6 9.6 0 0 1 2.13-2.114a.5.5 0 1 0-.58-.815c-2.114 1.508-4.531 4.556-4.531 9.17q0 .06.014.118v.093a8.495 8.495 0 0 0 8.494 8.495h5.01a8.495 8.495 0 0 0 8.487-8.858c-.038-2.216-.626-4.4-1.454-6.216c-.85-1.867-1.98-3.407-3.087-4.195a.5.5 0 0 0-.698.118m-8.756 2.97a4.854 4.854 0 1 0 0 9.71h1.587c2.1-.192 4.377-.836 6.211-2.847a.5.5 0 1 1 .739.674a9.25 9.25 0 0 1-2.945 2.173h.414a4.854 4.854 0 1 0 0-9.71z" clip-rule="evenodd"/></g></symbol>
+      <symbol id="f-oil-drum" viewBox="0 0 32 32"><g fill="none"><path fill="#00a6ed" d="M25 6H7v22h18z"/><path fill="#212121" d="M23.02 2h-3.03c-.55 0-.99.44-.99.98V4h5V2.98c0-.54-.44-.98-.98-.98"/><path fill="#26eafc" d="M20 6h1v22h-1zm2 0h2v22h-2z"/><path fill="#0074ba" d="M7 6h18c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1m0 24h18c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1m18-16H7c-.55 0-1-.45-1-1s.45-1 1-1h18c.55 0 1 .45 1 1s-.45 1-1 1M7 22h18c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1"/></g></symbol>
+      <symbol id="f-onion" viewBox="0 0 32 32"><g fill="none"><path fill="#d3883e" d="M18.23 28.028h-3.45c-.33 0-.6.27-.6.6v.12c0 .69.56 1.25 1.25 1.25h2.16c.69 0 1.25-.56 1.25-1.25v-.12a.617.617 0 0 0-.61-.6"/><path fill="#f3ad61" d="M19.21 4.288v-1.83c0-.42-.52-.62-.8-.3l-1.59 1.82c-.18.21-.5.21-.69 0l-1.59-1.82a.456.456 0 0 0-.8.3v1.84c0 1.14-.69 2.17-1.74 2.62c-4.11 1.74-7 5.81-7 10.56c0 6.08 5.07 11.31 11.15 11.48c6.49.18 11.8-5.03 11.8-11.47c0-4.75-2.89-8.83-7-10.57a2.87 2.87 0 0 1-1.74-2.63"/><path fill="#e19747" d="M10.3 25.318c1.64 2.3 3.84 3.56 6.18 3.56s4.53-1.27 6.18-3.56c1.61-2.25 2.49-5.23 2.49-8.39c0-4-1.44-7.72-3.85-9.94l-.62.67c2.22 2.05 3.55 5.52 3.55 9.27c0 5.31-2.646 9.754-6.154 10.804c1.344-2.013 2.057-6.514 2.064-10.814c0-3.76-.5-7.2-1.37-9.44l-.75.29c.82 2.12 1.31 5.54 1.31 9.15c0 3.04-.34 5.88-.94 8.02c-.555 1.96-1.208 2.83-1.698 3.026a6 6 0 0 1-.424 0c-.49-.196-1.143-1.065-1.698-3.026c-.61-2.14-.94-4.99-.94-8.02c0-3.62.49-7.04 1.31-9.15l-.75-.29c-.87 2.23-1.37 5.68-1.37 9.44c0 4.3.717 8.8 2.063 10.814c-3.508-1.052-6.153-5.495-6.153-10.804c0-3.75 1.33-7.22 3.55-9.27l-.62-.67c-2.41 2.22-3.85 5.94-3.85 9.94c0 3.16.88 6.14 2.49 8.39"/></g></symbol>
+      <symbol id="f-pineapple" viewBox="0 0 32 32"><g fill="none"><path fill="#86d72f" d="M11.445 5.455C10.792 3.92 9.547 2.637 7.9 2.007a6.33 6.33 0 0 0 .327 4.711A5.78 5.78 0 0 0 4 7c1.405 2.963 4.826 4.309 7.733 3.086l.002.005l.11-.053l.108-.05l-.002-.006c2.787-1.477 3.91-4.977 2.504-7.94a5.8 5.8 0 0 0-3.01 3.413"/><path fill="#f3ad61" d="M15.678 8.96v-.085a7.22 7.22 0 0 1 6.092 4.111l1.137 2.397l-.136.223l1.953 3.93h.127a7.2 7.2 0 0 1 .411 3.467l-.059.048l-.847 2.543v.107a7.2 7.2 0 0 1-3.17 2.928l-1.071.508a7.2 7.2 0 0 1-4.327.593l-.042-.066l-2.578-1s-.052.016-.05.03a7.2 7.2 0 0 1-2.361-2.47l.032-.037l-1.965-4.132l-.056.03l-1.135-2.394a7.22 7.22 0 0 1 .683-7.338l.036.057l1.869-1.776v-.09q.404-.263.851-.475l1.072-.508q.445-.211.902-.357l.053.079z"/><path fill="#e19747" d="m13.029 10.546l2.132 1.335a.255.255 0 0 0 .388-.184l.313-2.529a.26.26 0 0 0-.117-.247l-.067-.046a7.2 7.2 0 0 0-2.632.329l-.138 1.086a.28.28 0 0 0 .121.256m-4.713 1.807a7.2 7.2 0 0 1 1.905-1.81l.918.597a.26.26 0 0 1 .117.247l-.315 2.495a.255.255 0 0 1-.389.185L8.421 12.73a.28.28 0 0 1-.122-.256zm2.441 13.871a7 7 0 0 1-.274-.522l-1.715-3.617c.064-.14.235-.225.366-.133l2.132 1.335a.26.26 0 0 1 .117.247l-.315 2.495c-.021.145-.17.222-.311.195m5.031 3.506a7.3 7.3 0 0 1-2.67-1.035l-.004-.047l.313-2.518a.255.255 0 0 1 .389-.185l2.131 1.336a.22.22 0 0 1 .117.246zm9.475-6.726a7.3 7.3 0 0 1-.907 2.697l-1.92-1.195a.26.26 0 0 1-.117-.247l.315-2.495a.255.255 0 0 1 .389-.185l2.16 1.35a.2.2 0 0 1 .08.075m-2.356-7.621l1.714 3.615q.126.266.23.537c-.058.127-.234.217-.366.131l-2.131-1.335a.26.26 0 0 1-.117-.247l.315-2.495c.021-.166.209-.26.355-.206m-11.685 1.932L9.09 15.98a.255.255 0 0 0-.389.184l-.315 2.495a.26.26 0 0 0 .117.247l2.132 1.335a.255.255 0 0 0 .389-.184l.314-2.495a.22.22 0 0 0-.116-.247m4.021.741a.255.255 0 0 0 .389-.184l.315-2.496a.26.26 0 0 0-.117-.246l-2.132-1.336a.255.255 0 0 0-.389.185l-.314 2.495a.26.26 0 0 0 .117.247zm4.599-2.181a.255.255 0 0 0 .389-.184l.315-2.496a.26.26 0 0 0-.117-.246l-2.132-1.336a.255.255 0 0 0-.389.185l-.315 2.495a.26.26 0 0 0 .117.247zm-3.968 5.227l-2.131-1.336a.255.255 0 0 0-.389.185l-.315 2.495a.26.26 0 0 0 .117.247l2.132 1.335a.255.255 0 0 0 .388-.184l.315-2.496a.26.26 0 0 0-.117-.246m4.599-2.182l-2.131-1.335a.255.255 0 0 0-.389.185l-.315 2.495a.26.26 0 0 0 .117.247l2.132 1.335a.255.255 0 0 0 .388-.184l.315-2.496a.26.26 0 0 0-.117-.246m-2.049 4.839a.255.255 0 0 0-.389.184l-.314 2.496a.26.26 0 0 0 .116.246l2.132 1.336a.255.255 0 0 0 .389-.185l.315-2.495a.26.26 0 0 0-.117-.247z"/></g></symbol>
+      <symbol id="f-potato" viewBox="0 0 32 32"><g fill="none"><path fill="#f3ad61" d="M23.257 2.926c-4.2-1.98-9.22-.7-11.96 3.04l-5.24 7.14c-3.95 5.38-2 13.03 4.04 15.87c5.33 2.51 11.67.19 14.14-5.15l3.71-8.04c2.23-4.84.14-10.58-4.69-12.86"/><path fill="#d3883e" d="M21.367 6.546a1.4 1.4 0 1 1-2.8 0a1.4 1.4 0 0 1 2.8 0m-2.87 8.78a1.83 1.83 0 1 0 0-3.66a1.83 1.83 0 0 0 0 3.66m-8.5 5.36a1.68 1.68 0 1 0 0-3.36a1.68 1.68 0 0 0 0 3.36m2.47 3.19a1.16 1.16 0 1 1-2.32 0a1.16 1.16 0 0 1 2.32 0m12.03-8.06a1.16 1.16 0 1 0 0-2.32a1.16 1.16 0 0 0 0 2.32"/></g></symbol>
+      <symbol id="f-poultry-leg" viewBox="0 0 32 32"><g fill="none"><path fill="#d3d3d3" d="M2.987 10.459c1.07.94 2.71.94 3.79 0c.21-.19.53-.19.73.01l5.94 5.89l2.95-2.98l-5.94-5.89c-.2-.2-.21-.52-.02-.73a2.9 2.9 0 0 0-.03-3.79a2.885 2.885 0 0 0-5.04 1.88c0 .3-.25.55-.55.55c-.72.01-1.45.3-2 .85c-1.14 1.18-1.09 3.11.17 4.21"/><path fill="#d3883e" d="M15.067 27.459c3.51 3.48 9.21 3.41 12.63-.2c3.26-3.45 3.19-8.93-.16-12.3a8.82 8.82 0 0 0-7.9-2.44c-1.13.21-2.29-.12-3.11-.93l-1.66-1.65c-.93-.93-2.44-.92-3.36.01l-1.53 1.54c-.93.93-.92 2.44.01 3.36l1.62 1.61c.84.83 1.19 2.02.98 3.18c-.48 2.76.34 5.7 2.48 7.82"/><path fill="#a56953" d="M23.667 16.759a1.2 1.2 0 1 0 0-2.4a1.2 1.2 0 0 0 0 2.4m2.84 5.649a1.95 1.95 0 1 0 0-3.9a1.95 1.95 0 0 0 0 3.9m-2.98-3.39a.86.86 0 1 1-1.72 0a.86.86 0 0 1 1.72 0" opacity=".7"/></g></symbol>
+      <symbol id="f-receipt" viewBox="0 0 32 32"><g fill="none"><path fill="#d3d3d3" d="m25.05 3.105l-1.02-.94a.63.63 0 0 0-.85 0l-1.02.94c-.14.13-.37.13-.51 0l-1.02-.94a.63.63 0 0 0-.85 0l-1.02.94c-.14.13-.37.13-.51 0l-1.02-.94a.63.63 0 0 0-.85 0l-1.03.94c-.14.13-.37.13-.51 0l-1.02-.94a.63.63 0 0 0-.85 0l-1.02.94c-.14.13-.37.13-.51 0l-1.02-.95c-.16-.15-.42-.03-.42.19v27.65h14.61a2.39 2.39 0 0 0 2.39-2.39V2.345c0-.22-.26-.33-.42-.18l-1.03.95a.38.38 0 0 1-.5-.01"/><path fill="#9b9b9b" d="M12.25 8h12.5c.14 0 .25-.11.25-.25v-1.5c0-.14-.11-.25-.25-.25h-12.5c-.14 0-.25.11-.25.25v1.5c0 .14.11.25.25.25m.25 2a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm-.5 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm-.5 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5M22.5 10a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm-.5 3.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm-.5 3.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm-.5 5.495v-1.56c0-.52-.42-.94-.94-.94H6.94c-.52 0-.94.42-.94.94v1.56a2.5 2.5 0 0 0 2.5 2.5h16a2.5 2.5 0 0 1-2.5-2.5"/></g></symbol>
+      <symbol id="f-red-apple" viewBox="0 0 32 32"><g fill="none"><path fill="#00d26a" d="M10.25 2H4.22a5.92 5.92 0 0 0 5.92 5.92h6.03C16.18 4.66 13.52 2 10.25 2"/><path fill="#f8312f" d="M18.09 7.38c-1.34.57-2.86.57-4.2 0c-4.2-1.77-9.04.26-10.72 4.51a16.72 16.72 0 0 0 0 12.29a9.227 9.227 0 0 0 11.06 5.49c1.15-.32 2.37-.32 3.52 0a9.203 9.203 0 0 0 11.06-5.49c1.56-3.95 1.56-8.34 0-12.29c-1.67-4.25-6.51-6.28-10.72-4.51"/></g></symbol>
+      <symbol id="f-roll-of-paper" viewBox="0 0 32 32"><g fill="none"><path fill="#9b9b9b" d="M15.028 14h10v10h-10z"/><path fill="#f4f4f4" d="M25.028 24c2.761 0 5-4.477 5-10s-2.239-10-5-10h-5v10c0 5.523 2.238 10 5 10"/><path fill="#d3d3d3" d="M7.028 4h18c-2.762 0-5 4.477-5 10v14a1 1 0 0 1-1 1h-16a1 1 0 0 1-1-1V14c0-9 4.5-10 5-10"/><path fill="#7d4533" d="M27.028 14c0 2.21-.896 4-2 4s-2-1.79-2-4s.895-4 2-4s2 1.79 2 4"/></g></symbol>
+      <symbol id="f-salt" viewBox="0 0 32 32"><g fill="none"><path fill="#aeddff" d="M20.598 29.98h-9.19c-2.1 0-3.71-1.89-3.36-3.96l2.44-14.66l5.515-1.985l5.515 1.985l2.44 14.65c.34 2.08-1.26 3.97-3.36 3.97"/><path fill="#f4f4f4" d="M19.708 17.86h-7.41c-.38 0-.71.28-.77.65l-1.09 6.54c-.24 1.45.88 2.77 2.35 2.77h6.43c1.47 0 2.59-1.32 2.35-2.77l-1.09-6.54a.79.79 0 0 0-.77-.65"/><path fill="#d3d3d3" d="M19.508 2h-7.02c-2.31 0-4.03 2.12-3.56 4.38c.15.7.76 1.2 1.56 1.2l5.516 1.56l5.515-1.56c.786 0 1.409-.5 1.559-1.2c.47-2.26-1.26-4.38-3.57-4.38"/><path fill="#9b9b9b" d="M12.988 4.19a.54.54 0 1 0 0-1.08a.54.54 0 0 0 0 1.08m6.08 0a.54.54 0 1 0 0-1.08a.54.54 0 0 0 0 1.08m-3.95 1.21a.54.54 0 1 1-1.08 0a.54.54 0 0 1 1.08 0m2.89 0a.54.54 0 1 1-1.08 0a.54.54 0 0 1 1.08 0m-1.44-1.75a.54.54 0 1 1-1.08 0a.54.54 0 0 1 1.08 0m-6.08 3.93h11.04v3.77h-11.04z"/></g></symbol>
+      <symbol id="f-school" viewBox="0 0 32 32"><g fill="none"><path fill="#8c5543" d="M30 16.01H2l1.72-4.31c.17-.43.58-.71 1.04-.71h22.48c.46 0 .87.28 1.04.71z"/><path fill="#c3ef3c" d="M17.51 3.33h2.69c.16 0 .29.13.29.29v1.42c0 .16-.13.29-.29.29h-2.08c-.33 0-.6-.27-.6-.6v-1.4z"/><path fill="#00f397" d="M19.1 4.33H16v-2h3.1c.22 0 .4.18.4.4v1.19c.01.23-.17.41-.4.41"/><path fill="#ffdea7" d="M2 16h7v14H2zm28 0h-7v14h7z" opacity=".7"/><path fill="#ffce7c" d="M22.72 13.96L16.57 7.9a.79.79 0 0 0-1.12 0L9.3 13.96a.98.98 0 0 0-.29.68v15.37h3.967l3.014-1.207l3.014 1.207h4.005V14.63c-.01-.25-.11-.49-.29-.67"/><path fill="#83cbff" d="M4.72 21H3.28c-.15 0-.28-.13-.28-.28v-2.44c0-.15.13-.28.28-.28h1.44c.15 0 .28.13.28.28v2.44c0 .16-.12.28-.28.28M8 20.72v-2.44c0-.15-.13-.28-.28-.28H6.28c-.15 0-.28.13-.28.28v2.44c0 .15.13.28.28.28h1.44c.16 0 .28-.12.28-.28m-3 4v-2.44c0-.15-.13-.28-.28-.28H3.28c-.15 0-.28.13-.28.28v2.44c0 .15.13.28.28.28h1.44c.16 0 .28-.12.28-.28m3 0v-2.44c0-.15-.13-.28-.28-.28H6.28c-.15 0-.28.13-.28.28v2.44c0 .15.13.28.28.28h1.44c.16 0 .28-.12.28-.28M25.72 21h-1.44c-.15 0-.28-.13-.28-.28v-2.44c0-.15.13-.28.28-.28h1.44c.15 0 .28.13.28.28v2.44c0 .16-.12.28-.28.28m1.56 0h1.44c.16 0 .28-.12.28-.28v-2.44c0-.15-.13-.28-.28-.28h-1.44c-.15 0-.28.13-.28.28v2.44c0 .15.13.28.28.28m-1.56 4h-1.44c-.15 0-.28-.13-.28-.28v-2.44c0-.15.13-.28.28-.28h1.44c.15 0 .28.13.28.28v2.44c0 .16-.12.28-.28.28m1.56 0h1.44c.16 0 .28-.12.28-.28v-2.44c0-.15-.13-.28-.28-.28h-1.44c-.15 0-.28.13-.28.28v2.44c0 .15.13.28.28.28"/><path fill="#fff" d="M16 18a3 3 0 1 0 0-6a3 3 0 0 0 0 6"/><path fill="#7d4533" d="M15.51 6.2V2.47c0-.26.21-.47.47-.47h.06c.26 0 .47.21.47.47v3.743q.07.046.13.107l7.03 7.03c.21.21.33.49.33.79l-.01 1.82c.01.01.01.03.01.05c0 .28-.22.5-.5.5s-.5-.22-.5-.5q.001-.015.005-.025q.005-.011.005-.025H23v-1.21c0-.26-.11-.51-.29-.69l-6.15-6.15a.79.79 0 0 0-1.12 0l-6.15 6.15c-.19.18-.29.43-.29.69v1.21h-.01q0 .014.005.025L9 16.01c0 .28-.22.5-.5.5s-.5-.22-.5-.5q0-.015.005-.025l.005-.025H8v-1.82c0-.29.12-.58.33-.79l7.03-7.03a1 1 0 0 1 .15-.12m-.01 8.71q0 .027.003.054a.5.5 0 0 0 .147.406l1.48 1.48c.09.1.22.15.35.15q.195 0 .36-.15c.2-.2.2-.51 0-.71L16.5 14.8v-1.3c0-.28-.22-.5-.5-.5s-.5.22-.5.5zM19.01 30h-6.05v-5.3c0-.39.31-.7.7-.7h4.65c.39 0 .7.31.7.7z"/></g></symbol>
+      <symbol id="f-shopping-cart" viewBox="0 0 32 32"><g fill="none"><path fill="#9b9b9b" d="M7.17 21.757L22.94 23l1.042-4h.536c1.372 0 2.494 1.34 2.494 2.885V22c0 1.608-1.203 3-2.634 3H3c-.547 0-1 .382-1 .956S2.447 27 2.994 27h21.425C26.943 27 29 24.756 29 22v-.115C29 19.192 26.993 17 24.518 17h-.015l.004-.012a.495.495 0 0 0 .393-.469v-.038a.47.47 0 0 0-.168-.359L27.37 6H5.2C3.44 6 2 7.432 2 9.253l.52 8.495c.15 2.517 2.52 3.84 4.65 4.009M21.616 16H20v-4h2.605zm1.236-5H20V8.007l1.95.002c.84 0 1.45.776 1.25 1.582zM19 8.006V11h-4.38V8zm-5.38-.007V11h-4.6V7.994zm-5.6-.006V11H4.111L4 9.193c0-.666.54-1.204 1.21-1.204zM4.173 12H8.02v4h-3.6zm.308 5H8.02v2.83l-.68-.053c-1.34-.11-2.74-.875-2.82-2.149zm4.539 2.91V17h4.6v3.272zm5.6.44V17H19v3.62q0 .039.006.076zm5.38.25V17h1.369l-.679 2.747a1.28 1.28 0 0 1-.69.853M14.62 12H19v4h-4.38zm-5.6 0h4.6v4h-4.6z"/><path fill="#bebebe" d="M22.804 23.97c-.562-.131-.912-.688-.774-1.225l4.884-18.977c.138-.537.721-.871 1.282-.74c.562.132.912.69.774 1.227L24.086 23.23c-.138.547-.71.871-1.282.74"/><path fill="#0084ce" d="M27 5h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1M5.5 30a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m18 0a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3"/></g></symbol>
+      <symbol id="f-soap" viewBox="0 0 32 32"><g fill="none"><path fill="#ff6dc6" d="M14.142 3.833a6 6 0 0 1 8.485 0l5.657 5.657a6 6 0 0 1 0 8.485l-9.9 9.9a6 6 0 0 1-8.485 0l-5.656-5.657a6 6 0 0 1 0-8.485l2.253-3.025l2.876-2.105z"/><path fill="#ffb2ff" d="M25.92 13.192a1 1 0 0 1 0 1.415L14.606 25.92a1 1 0 0 1-1.414 0l-7.07-7.07a1 1 0 0 1 0-1.415L17.434 6.121a1 1 0 0 1 1.414 0zm-6.364-7.778a2 2 0 0 0-2.828 0L5.414 16.728a2 2 0 0 0 0 2.828l7.071 7.071a2 2 0 0 0 2.829 0l11.313-11.313a2 2 0 0 0 0-2.829z"/><path fill="#f3eef8" d="M4.5 7a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m4.902 1.574a2 2 0 0 0-2.828 2.828zM24 26.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0"/><path fill="#e1d8ec" d="M5.5 17a3.5 3.5 0 1 0 0-7a3.5 3.5 0 0 0 0 7m20 10a4.5 4.5 0 1 0 0-9a4.5 4.5 0 0 0 0 9"/></g></symbol>
+      <symbol id="f-spaghetti" viewBox="0 0 32 32"><g fill="none"><path fill="#d3d3d3" d="m30.02 3.49l-6.75.27C22.87 2.73 21.87 2 20.69 2h-7.72c-.41 0-.75.34-.75.75s.34.75.75.75h6.33v.52h-6.33c-.41 0-.75.34-.75.75s.34.75.75.75h6.33v.52h-6.33c-.41 0-.75.34-.75.75s.34.75.75.75h7.72c1.17 0 2.17-.73 2.58-1.76l6.75.27z"/><path fill="#9b9b9b" d="M20.74 30.23h-9.28a7.28 7.28 0 0 1-7.28-7.28v-2.88h23.84v2.88a7.28 7.28 0 0 1-7.28 7.28"/><path fill="#d3d3d3" d="M22.01 14.85c3.2 0 5.8 2.6 5.8 5.8s-2.6 5.8-5.8 5.8H10.02c-3.2 0-5.8-2.6-5.8-5.8s2.6-5.8 5.8-5.8zm0-2.22H10.02A8.02 8.02 0 0 0 2 20.65a8.02 8.02 0 0 0 8.02 8.02h11.99a8.02 8.02 0 0 0 8.02-8.02c-.01-4.43-3.6-8.02-8.02-8.02"/><path fill="#d3d3d3" d="M22.01 14.85c3.2 0 5.8 2.6 5.8 5.8s-2.6 5.8-5.8 5.8H10.02c-3.2 0-5.8-2.6-5.8-5.8s2.6-5.8 5.74-5.8h11.99"/><path fill="#fcd53f" d="M18.52 2a.5.5 0 0 1 .5.5v9.959a14.3 14.3 0 0 1 7.44 4.151c3.52 3.71.83 9.83-4.28 9.83H10.02c-5.11 0-7.8-6.13-4.28-9.83a14.25 14.25 0 0 1 8.27-4.298V4.51a.5.5 0 0 1 1 0v7.69q.49-.036.99-.04v-6a.5.5 0 0 1 1 0v6.028q.515.032 1.02.1V2.5a.5.5 0 0 1 .5-.5"/><path fill="#fff478" d="M25.67 18.033c.395-.012.726.3.737.696c.09 3.143-2.372 6.238-6.057 6.238h-8.7c-3.684 0-6.148-3.084-6.057-6.238a.717.717 0 1 1 1.434.042c-.07 2.427 1.827 4.762 4.623 4.762h8.7c2.795 0 4.692-2.345 4.623-4.762a.717.717 0 0 1 .696-.738"/><path fill="#f8312f" d="m20.79 13.66l-.11-.04a12.38 12.38 0 0 0-9.08 0l-.1.04c-1.6.63-2.65 2.17-2.65 3.89a4.17 4.17 0 0 0 2.68 3.9l.21.08a12.38 12.38 0 0 0 9.08-.06a4.18 4.18 0 0 0 2.63-3.88v-.04c0-1.71-1.06-3.26-2.66-3.89"/><path fill="#6d4534" d="M16.1 16.38a1.48 1.48 0 1 0 0-2.96a1.48 1.48 0 0 0 0 2.96m-3.09 3.83a1.48 1.48 0 1 0 0-2.96a1.48 1.48 0 0 0 0 2.96m7.98-1.37a1.48 1.48 0 1 1-2.96 0a1.48 1.48 0 0 1 2.96 0"/></g></symbol>
+      <symbol id="f-sponge" viewBox="0 0 32 32"><g fill="none"><path fill="#ff8687" d="M4.005 16.382q-.013.288.005.588L4 17v2.966s-.064 1.967 1 2.995s5.5 5.989 5.5 5.989c2 1.996 5.157.651 6 0c1.003-.776 2.034-2.3 3.098-3.872c1.252-1.851 2.55-3.77 3.901-4.613c4-2.495 4.5-3.493 4.5-4.491V11.98l-.002-.145q.008-.21-.003-.418c-.099 1.928-1.303 3.951-2.93 4.365c-1.212.308-3.894 1.8-5.015 4.08c-1.505 3.061-3.291 5.47-4.514 6.122c-1.222.652-4.012 1.02-5.517-1.02c-.49-.514-1.051-1.18-1.689-1.937c-.834-.99-1.798-2.132-2.897-3.285a5.1 5.1 0 0 1-1.427-3.36"/><path fill="#f9c23c" d="M4.531 14.224c.654-1.33 1.849-2.093 3.506-3.056c3.507-2.037 4.204-4.176 6.6-7.193c2.422-3.05 5.329-2.033 6.782-.508L27.07 9.14c2.006 2.04.502 6.504-2.006 7.142c-1.212.308-3.894 1.8-5.015 4.08c-1.505 3.061-3.291 5.47-4.514 6.122c-1.222.652-4.012 1.02-5.517-1.02c-1.13-1.186-2.648-3.189-4.586-5.222c-1.937-2.033-1.555-4.69-.9-6.02"/><path fill="#e19747" d="M17 6.5a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0m6 3.5a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-7 5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-7.5.5a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3M21 16a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-4-3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-6 1a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-2 6.5a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0m5 2.5a1 1 0 1 0 0-2a1 1 0 0 0 0 2m4.5-13a.5.5 0 1 0 0-1a.5.5 0 0 0 0 1"/></g></symbol>
+      <symbol id="f-sport-utility-vehicle" viewBox="0 0 32 32"><g fill="none"><path fill="#212121" d="M14 7a1 1 0 0 0-1 1v1h1V8h11v1h1V8a1 1 0 0 0-1-1z"/><path fill="#d3d3d3" d="M14 7h1v1h-1zm2 0h1v1h-1zm3 0h-1v1h1zm1 0h1v1h-1zm5 0h-1v1h1zm-3 0h1v1h-1z"/><path fill="#636363" d="M29.49 23H27v-8h2.49c.28 0 .51.23.51.51v6.98c-.01.29-.23.51-.51.51"/><path fill="#5092ff" d="M27.05 9H11.59c-.36 0-.69.21-.85.53l-.235.47L9.5 13.5L7.01 17h-2C3.51 17 3 17.5 3 19v7h25v-9l-1-3.5l1-3.5v-.05a.95.95 0 0 0-.95-.95"/><path fill="#d3d3d3" d="M28.13 24H2.87a.87.87 0 0 0-.87.87v1.26c0 .48.39.87.87.87h25.26c.48 0 .87-.39.87-.87v-1.26a.877.877 0 0 0-.87-.87"/><path fill="#fff478" d="M5 20c0-.55-.45-1-1-1H3v3h1c.55 0 1-.45 1-1z"/><path fill="#321b41" d="M11.99 26.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0m14 0a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0"/><path fill="#f4f4f4" d="M10 26.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m14 0a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"/><path fill="#26c9fc" d="M22.034 17h-4.068a.964.964 0 0 1-.966-.96v-5.08c0-.53.433-.96.966-.96h4.068c.533 0 .966.43.966.96v5.08c0 .53-.433.96-.966.96M15 16.04v-5.08c0-.53-.435-.96-.97-.96H10.5L7 17h7.03c.535 0 .97-.43.97-.96M25.96 10H28v7h-2.04a.96.96 0 0 1-.96-.96v-5.08c0-.53.43-.96.96-.96"/><path fill="#f8312f" d="M28 19h-.5a1.5 1.5 0 0 0-1.498 1.57c.04.81.739 1.43 1.548 1.43H28z"/><path fill="#d3d3d3" d="M11.13 18h.39c.27 0 .48-.22.48-.48v-2.04a.48.48 0 0 0-.48-.48h-.39c-.62 0-1.13.51-1.13 1.13v.74c0 .63.51 1.13 1.13 1.13m4.37 1h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m4 0h1c.28 0 .5-.22.5-.5s-.22-.5-.5-.5h-1c-.28 0-.5.22-.5.5s.22.5.5.5"/></g></symbol>
+      <symbol id="f-stethoscope" viewBox="0 0 32 32"><g fill="none"><path fill="#635994" d="M6.019 5A.99.99 0 0 0 7 4c0-.552-.44-1-.981-1H5L4 4l1 1zM18 20.1c0-3.1 2.072-5.117 5-5.1c3 .018 5 2.181 5 5v2.005h-2V20c0-2.185-1-3-3-3c-2.096 0-3 .914-3 3v3.622C20 27.143 17.417 30 14 30s-6-2.867-6-6.378v-4.677c-3.77-.428-6-3.3-5.992-7.445l-.001-.09C2.004 11.3 2 11.117 2 11l1-1s1.004 1.085 1.004 1c.015 4 2.004 6 5 6S14 15 14 11c0 .136 1-1 1-1l1 1v.5c0 4.147-2.226 7.02-6 7.445v4.677C10 25.907 11.782 28 14 28s4-2.093 4-4.378zM11 4c0 .552.44 1 .981 1H13l1-1l-1-1h-1.019A.99.99 0 0 0 11 4"/><path fill="#00a6ed" d="M4.598 3H5v2h-.5c-.484 0-.5.25-.5.5V11H2V5.611A2.607 2.607 0 0 1 4.598 3M27 25a3 3 0 1 0 0-6a3 3 0 0 0 0 6M13 3h.402A2.607 2.607 0 0 1 16 5.611V11h-2V5.5c0-.25-.016-.5-.5-.5H13z"/><path fill="#3f5fff" d="M27 23.5a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3"/></g></symbol>
+      <symbol id="f-straight-ruler" viewBox="0 0 32 32"><g fill="none"><path fill="#bebebe" d="M21.913 29.37L2.653 10.11c-.87-.87-.87-2.27 0-3.13l4.31-4.3a2.206 2.206 0 0 1 2.808-.27l-.11.754l.803-.112l1.672 1.671v.692h.692l1.746 1.746l-.113.816l.799-.13l1.689 1.69l-.127.8l.784-.144l1.752 1.752l-.118.81l.792-.135l1.66 1.66l-.08.744l.743-.081l1.776 1.775l-.073.752l.753-.072l1.677 1.678l-.087.737l.738-.086l1.833 1.833v.678h.628a2.2 2.2 0 0 1-.258 2.822l-4.3 4.3c-.86.87-2.27.87-3.13.01"/><path fill="#8d65c5" d="m28.93 21.517l.413.413q.15.151.266.32l-1.903 1.904a.5.5 0 1 1-.707-.707zm-2.48-2.48l.707.707l-1.175 1.214a.5.5 0 0 1-.719-.696zm-2.34-2.34l.706.707l-1.93 1.93a.5.5 0 1 1-.707-.707zm-2.44-2.44l.707.707l-1.175 1.214a.5.5 0 0 1-.719-.696zm-2.34-2.34l.706.707l-1.93 1.93a.5.5 0 1 1-.707-.707zm-2.42-2.42l.706.707l-1.187 1.207a.5.5 0 1 1-.713-.702zm-2.35-2.35l.706.707l-1.93 1.93a.5.5 0 1 1-.707-.707zm-2.43-2.43l.706.707l-1.175 1.205a.5.5 0 1 1-.716-.698zm-1.644-1.643l-1.93 1.93a.5.5 0 0 1-.707-.707l1.9-1.9q.183.12.344.283z"/></g></symbol>
+      <symbol id="f-syringe" viewBox="0 0 32 32"><g fill="none"><path fill="#9b9b9b" d="m21.572 9.488l6.578-5.924c.238-.203.56.12.357.357L22.584 10.5zM8.285 26.64l-2.901-2.902l-2.125 2.124l2.902 2.902z"/><path fill="#aeddff" d="M18.86 7.707a1 1 0 0 0-1.414 0l-1.345 1.345l-.133.903l-.907.137l-.978.978l-.147.917l-.92.15l-.913.913l-.135.905l-.909.14l-5.352 5.351a1 1 0 0 0 0 1.414l5.432 5.433a1 1 0 0 0 1.414 0l11.74-11.74a1 1 0 0 0 0-1.414l-1.218-1.218l.885-.885a1 1 0 0 0 0-1.415l-1.414-1.414a1 1 0 0 0-1.414 0l-.886.886z"/><path fill="#0074ba" d="m16.107 9.046l-1.06 1.061l1.19 1.191a.75.75 0 0 0 1.061-1.06zm-2.03 2.031l1.16 1.16a.75.75 0 0 1-1.06 1.061l-1.16-1.16zm-1.97 1.969l1.191 1.191a.75.75 0 0 1-1.06 1.061l-1.192-1.191z"/><path fill="#5092ff" d="M5.393 19.536a1 1 0 0 0-1.414 0l-.707.707a1 1 0 0 0 0 1.414l7.071 7.071a1 1 0 0 0 1.414 0l.707-.707a1 1 0 0 0 0-1.414zM3.51 25.259a.75.75 0 0 0-1.061 1.06l3.182 3.182a.75.75 0 1 0 1.06-1.06z"/></g></symbol>
+      <symbol id="f-teddy-bear" viewBox="0 0 32 32"><g fill="none"><path fill="#d3883e" d="M11.5 7.07a2.5 2.5 0 1 0 0-5a2.5 2.5 0 0 0 0 5m9 0a2.5 2.5 0 1 0 0-5a2.5 2.5 0 0 0 0 5m-2.937 8.491a3 3 0 0 1 4.123-.998l6.83 4.166a3 3 0 0 1-3.126 5.122l-6.829-4.167a3 3 0 0 1-.998-4.123M3.598 18.68a3 3 0 0 0 3 5.195l6.928-4a3 3 0 0 0-3-5.196z"/><path fill="#e19747" d="M24 10.152c0 4.418-3.582 5.918-8 5.918s-8-1.5-8-5.918s4.5-7.582 8-7.582s8 3.164 8 7.582"/><path fill="#ff822d" d="M24 10.152c0 4.418-3.582 5.918-8 5.918s-8-1.5-8-5.918s4.5-7.582 8-7.582s8 3.164 8 7.582"/><path fill="#e19747" d="M21.23 15.017c1.697-.902 2.77-2.446 2.77-4.865c0-4.418-4.5-7.582-8-7.582s-8 3.164-8 7.582c0 2.419 1.073 3.963 2.77 4.865a8 8 0 1 0 10.461 0"/><path fill="#d3883e" d="M7.54 22.52a3.5 3.5 0 0 1 4.898.718l.896 1.203a3.5 3.5 0 0 1-5.616 4.18l-.895-1.203a3.5 3.5 0 0 1 .717-4.897m16.931 0a3.5 3.5 0 0 0-4.897.718l-.896 1.203a3.5 3.5 0 0 0 5.615 4.18l.896-1.203a3.5 3.5 0 0 0-.718-4.897"/><path fill="#ffdea7" d="M21.856 5.212a1.5 1.5 0 0 0-2.38-1.738a9.2 9.2 0 0 1 2.38 1.738m-9.332-1.738a1.5 1.5 0 0 0-2.38 1.738a9.2 9.2 0 0 1 2.38-1.738M19.5 11.5c0 1.38-1.567 3-3.5 3s-3.5-1.62-3.5-3S14.067 9 16 9s3.5 1.12 3.5 2.5M21 22.07v.042a3.5 3.5 0 0 0-1.426 1.126l-.896 1.203a3.5 3.5 0 0 0-.69 2.219c-.61.264-1.282.41-1.988.41c-.702 0-1.37-.144-1.976-.405a3.5 3.5 0 0 0-.69-2.224l-.896-1.203A3.5 3.5 0 0 0 11 22.107v-.037a5 5 0 0 1 10 0m-9.736 2.08a2 2 0 0 0-3.209 2.39l.896 1.203a2 2 0 1 0 3.209-2.389zm12.282-.41a2 2 0 0 0-2.798.41l-.896 1.204a2 2 0 0 0 3.209 2.389l.895-1.204a2 2 0 0 0-.41-2.798"/><path fill="#000" d="M14 8.5a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0m5 0a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0m-3.958 1.799A.5.5 0 0 1 15.5 10h1a.5.5 0 0 1 .458.299c.053.121-.01.254-.104.347l-.5.5a.5.5 0 0 1-.708 0l-.5-.5c-.093-.093-.157-.226-.104-.347"/></g></symbol>
+      <symbol id="f-ticket" viewBox="0 0 32 32"><g fill="none"><path fill="#f9c23c" d="M27.81 9H22.7c-.25 0-.46.174-.53.42c-.19.665-.8 1.157-1.51 1.157s-1.32-.481-1.51-1.157a.56.56 0 0 0-.53-.42H4.19C2.98 9 2 10.003 2 11.242v10.516C2 22.997 2.98 24 4.19 24h14.43c.25 0 .46-.174.53-.42c.19-.665.8-1.157 1.51-1.157s1.32.481 1.51 1.157c.07.246.28.42.53.42h5.11c1.21 0 2.19-1.003 2.19-2.242V11.242C30 10.003 29.02 9 27.81 9m-7.15 11.642c-.87 0-1.66-.743-1.66-1.634s.79-1.602 1.66-1.602s1.596.711 1.596 1.602c0 .89-.726 1.634-1.596 1.634m0-5.038c-.87 0-1.648-.727-1.648-1.618c0-.89.778-1.617 1.648-1.617s1.621.727 1.621 1.617c0 .891-.751 1.618-1.621 1.618"/><path fill="#d3883e" d="M10.116 14H5.884C5.395 14 5 13.569 5 13.035s.395-.965.884-.965h4.232c.489 0 .884.431.884.965c0 .545-.395.965-.884.965m-4.532 5h9.842c.313 0 .584-.223.574-.5c0-.277-.26-.5-.584-.5H5.584c-.323 0-.584.223-.584.5s.26.5.584.5m0 2h9.842c.313 0 .584-.232.574-.5c0-.277-.26-.5-.584-.5H5.584c-.323 0-.584.223-.584.5s.26.5.584.5m19.155-4h2.522c.41 0 .739.33.739.739v2.522c0 .41-.33.739-.739.739H24.74a.737.737 0 0 1-.739-.739V17.74c0-.41.33-.739.739-.739"/></g></symbol>
+      <symbol id="f-tomato" viewBox="0 0 32 32"><g fill="none"><path fill="#008463" d="M15.99 5a1 1 0 0 1 1 1v4.42a1 1 0 1 1-2 0V6a1 1 0 0 1 1-1"/><path fill="#f8312f" d="M19.97 9.99H12c-5.53 0-10 4.48-10 10c0 5.53 4.48 10 10 10h7.96c5.53 0 10-4.48 10-10c.01-5.52-4.47-10-9.99-10"/><path fill="#00d26a" d="M15.4 12.66H9.64c-3.13 0-5.66-2.53-5.66-5.66h5.76c3.13 0 5.66 2.53 5.66 5.66M27.97 7h-5.76c-3.13 0-5.66 2.53-5.66 5.66h5.76c3.13 0 5.66-2.53 5.66-5.66"/><path fill="#00f397" d="M5.75 15.07h5.77a5.65 5.65 0 0 0 4.468-2.187a5.65 5.65 0 0 0 4.472 2.187h5.76c0-3.12-2.54-5.66-5.66-5.66h-9.15c-3.13 0-5.66 2.53-5.66 5.66"/></g></symbol>
+      <symbol id="f-toolbox" viewBox="0 0 32 32"><g fill="none"><path fill="#321b41" d="M19.54 8.25c.12 0 .21.1.21.21v2.17h-7.5V8.46c0-.12.1-.21.21-.21zm0-2.25h-7.07A2.46 2.46 0 0 0 10 8.46v4.42h12V8.46C22 7.1 20.9 6 19.54 6"/><path fill="#f8312f" d="M28.44 29.99H3.56c-.86 0-1.56-.7-1.56-1.56V18.005l.991-.457L2 17.004V13.12C2 11.39 3.4 10 5.12 10h21.75c1.73 0 3.12 1.4 3.12 3.12v3.898l-.743.5l.743.487V28.44c.01.85-.69 1.55-1.55 1.55"/><path fill="#ca0b4a" d="M30 17H2v1h28z"/><path fill="#d3d3d3" d="M7 18.03a2 2 0 0 0 2 2c1.1 0 2-.9 1.99-2v-1.35c0-.34-.27-.62-.62-.62H7.62c-.34 0-.62.27-.62.62zm14 0a2 2 0 0 0 2 2c1.1 0 2-.9 1.99-2v-1.35c0-.34-.27-.62-.62-.62h-2.75c-.34 0-.62.27-.62.62zm4.5 5.02h-19c-.28 0-.5.22-.5.5s.22.5.5.5h19c.28 0 .5-.22.5-.5c0-.27-.22-.5-.5-.5m-19 3h19c.28 0 .5.23.5.5c0 .28-.22.5-.5.5h-19c-.28 0-.5-.22-.5-.5s.22-.5.5-.5"/></g></symbol>
+      <symbol id="f-toothbrush" viewBox="0 0 32 32"><g fill="none"><path fill="#83cbff" d="M11.08 3.74a1.056 1.056 0 0 1 1.48 0a1.024 1.024 0 0 1 0 1.47L9.35 8.437l-1.107-.553l-.373-.927zm2.858 2.85a1.056 1.056 0 0 1 1.48 0a1.056 1.056 0 0 1 0 1.48L12.2 11.287l-1.23-.301l-.25-1.178z"/><path fill="#aeddff" d="M11.128 2.31a1.026 1.026 0 0 0-1.47 0L6.44 5.523l.468.989L7.92 7l3.219-3.213a1.043 1.043 0 0 0-.01-1.477m2.851 2.85a1.054 1.054 0 0 0-1.477 0L9.29 8.38l.385.956l1.092.52l3.213-3.21a1.047 1.047 0 0 0 0-1.487m1.378 2.861a1.056 1.056 0 0 1 1.48 0c.414.404.414 1.066.01 1.48l-3.218 3.217l-1.208-.456l-.272-1.023z"/><path fill="#f8312f" d="M20.72 17.324a12.3 12.3 0 0 0-3.876-2.637a12.3 12.3 0 0 1-3.876-2.636L6.609 5.629a2.086 2.086 0 0 0-2.986 0a2.137 2.137 0 0 0 0 3.016l6.062 6.122l.287.3l13.893 14.042a2.98 2.98 0 0 0 4.252 0a3.053 3.053 0 0 0 0-4.295z"/></g></symbol>
+      <symbol id="f-wine-glass" viewBox="0 0 32 32"><g fill="none"><path fill="#aeddff" d="m25.6 10.12l-3.29-7.66a.75.75 0 0 0-.69-.46H10.54c-.3 0-.58.18-.69.46l-3.29 7.66A6.89 6.89 0 0 0 9.81 19l4.92 2.46c.34.17.56.52.56.9v6.36H11.8c-.4 0-.75.31-.76.72s.32.74.73.74h8.58c.4 0 .75-.31.76-.72a.724.724 0 0 0-.73-.74h-3.55v-6.35c0-.38.22-.73.56-.9l4.95-2.48a6.873 6.873 0 0 0 3.26-8.87"/><path fill="#fff" d="M22.37 12.93c-.39 0-.76-.23-.92-.61l-3.29-7.66c-.22-.51.02-1.1.52-1.31a1 1 0 0 1 1.31.52l3.29 7.66c.22.51-.02 1.1-.52 1.31q-.195.09-.39.09"/><path fill="#bb1d80" d="M23.21 10h-.623l-.661.916l-1.48-.916H8.95c-.43 0-.83.26-1 .66a5.39 5.39 0 0 0 2.54 6.94l4.46 2.23c.71.35 1.54.35 2.25 0l4.47-2.23c2.55-1.28 3.67-4.32 2.54-6.94c-.17-.41-.56-.66-1-.66"/><path fill="#ff6dc6" d="m20.453 10l.997 2.32c.16.38.53.61.92.61q.195 0 .39-.09c.5-.21.74-.8.52-1.31L22.621 10z"/></g></symbol>
+      <symbol id="f-wrench" viewBox="0 0 32 32"><path fill="#b4acbc" d="m3.236 5.897l2.772 2.77a.634.634 0 0 0 .908 0l1.753-1.752a.633.633 0 0 0 0-.906l-2.773-2.77a.644.644 0 0 1 .296-1.08a5.51 5.51 0 0 1 5.137 1.385a5.51 5.51 0 0 1 1.395 5.684l9.997 10.063a5.51 5.51 0 0 1 7.124 6.527a.646.646 0 0 1-1.08.285l-2.773-2.77a.634.634 0 0 0-.908 0l-1.753 1.752a.633.633 0 0 0 0 .906l2.773 2.77a.644.644 0 0 1-.296 1.08a5.51 5.51 0 0 1-5.137-1.385a5.51 5.51 0 0 1-1.416-5.62L9.21 12.732a5.51 5.51 0 0 1-7.054-6.55a.646.646 0 0 1 1.08-.285"/></symbol>
+    </svg>
+
+    <a class="lien-evitement" href="#contenu">Aller au contenu</a>
+
+    <div class="app">
+      <nav class="navigation" aria-label="Navigation principale">
+        <a class="nav-marque" href="#aujourdhui">
+          <span class="marque"><svg class="logo"><use href="#logo-nid" /></svg>Nid</span>
+          <span class="mono doux">Foyer d’Alex et Sam</span>
+        </a>
+        <ul>
+          <li><a href="#aujourdhui" data-vue="aujourdhui"><span class="nav-ico"><svg><use href="#i-aujourdhui" /></svg></span><span>Aujourd’hui</span></a></li>
+          <li><a href="#courses" data-vue="courses"><span class="nav-ico"><svg><use href="#i-panier" /></svg></span><span>Courses</span></a></li>
+          <li><a href="#a-faire" data-vue="a-faire"><span class="nav-ico"><svg><use href="#i-taches" /></svg></span><span>À faire</span></a></li>
+          <li><a href="#foyer" data-vue="foyer"><span class="nav-ico"><svg><use href="#i-maison" /></svg></span><span>Foyer</span></a></li>
+          <li><a href="#nous" data-vue="nous"><span class="nav-ico"><svg><use href="#i-nous" /></svg></span><span>Nous</span></a></li>
+        </ul>
+        <div class="nav-pied">
+          <span class="mono">Synchronisation</span>
+          <p id="nav-synchro">Vos deux téléphones sont à jour. Hors ligne, rien ne se perd.</p>
+        </div>
+      </nav>
+
+      <div class="colonne">
+        <header class="barre">
+          <a class="marque" href="#aujourdhui" aria-label="Nid, aujourd’hui"><svg class="logo"><use href="#logo-nid" /></svg><span class="marque-nom">Nid</span></a>
+          <span class="pastille pastille-maquette mono">Maquette</span>
+          <span class="barre-espace"></span>
+          <a class="synchro" id="synchro" href="#nous" data-etat="ok" aria-label="Synchronisé avec Sam. Voir le foyer">
+            <span class="duo" aria-hidden="true"><span class="avatar a">A</span><span class="avatar b">S</span></span>
+            <span class="voyant" aria-hidden="true"></span>
+            <span class="synchro-texte" aria-hidden="true">Synchronisé</span>
+          </a>
+          <button id="bouton-theme" class="bouton bouton-icone" type="button" aria-label="Thème&nbsp;: celui du système. Changer de thème" title="Thème&nbsp;: celui du système. Changer de thème">
+            <svg><use href="#i-systeme" /></svg>
+          </button>
+        </header>
+
+        <main id="contenu" tabindex="-1">
+          <!-- ================= AUJOURD’HUI ================= -->
+          <section class="vue" data-vue="aujourdhui" aria-labelledby="titre-aujourdhui">
+            <h1 id="titre-aujourdhui" tabindex="-1">Aujourd’hui</h1>
+            <p class="mono doux">Mercredi 25 novembre</p>
+            <p class="chapeau">Bonjour Alex. <strong>3 choses à faire</strong> aujourd’hui et <strong><span data-compte-liste>15</span> articles</strong> sur la liste. Sam a ajouté 3 articles ce matin.</p>
+
+            <section class="bloc" aria-labelledby="t-jour">
+              <div class="bloc-tete"><h2 id="t-jour">À faire aujourd’hui</h2><a class="mono" href="#a-faire">Tout voir</a></div>
+              <ul class="taches">
+                <li class="tache" data-tache="eau" data-pour="a">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Payer la facture d’eau"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Payer la facture d’eau</p><ul class="tache-meta"><li class="retard">En retard de 2 j</li><li>Administratif</li></ul></div>
+                  <span class="avatar a"><span aria-hidden="true">A</span><span class="vh">Pour Alex</span></span>
+                </li>
+                <li class="tache" data-tache="assurance" data-pour="b">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Rappeler l’assurance habitation"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Rappeler l’assurance habitation</p><ul class="tache-meta"><li><svg><use href="#i-horloge" /></svg>14 h</li><li>Administratif</li></ul></div>
+                  <span class="avatar b"><span aria-hidden="true">S</span><span class="vh">Pour Sam</span></span>
+                </li>
+                <li class="tache" data-tache="poubelles" data-pour="nous">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Sortir les poubelles"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Sortir les poubelles</p><ul class="tache-meta"><li>Ce soir</li><li><svg><use href="#i-repeter" /></svg>Chaque mercredi</li></ul></div>
+                  <span class="avatar nous"><span aria-hidden="true">A+S</span><span class="vh">Pour vous deux</span></span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-courses-jour">
+              <div class="bloc-tete"><h2 id="t-courses-jour">Courses</h2><span class="mono"><span data-compte-liste>15</span> articles</span></div>
+              <ul class="tuiles" id="apercu-courses" aria-label="Premiers articles de la liste"></ul>
+              <div class="actions"><a class="bouton bouton-plein" href="#courses">Ouvrir la liste</a><button class="bouton" type="button" data-pars><svg><use href="#i-cloche" /></svg>Je pars faire les courses</button></div>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-manque">
+              <div class="bloc-tete"><h2 id="t-manque">Il manque sûrement</h2><span class="mono">D’après vos achats</span></div>
+              <ul class="suggestions" data-suggestions></ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-maison-jour">
+              <div class="bloc-tete"><h2 id="t-maison-jour">Maison</h2><a class="mono" href="#maison">Tout voir</a></div>
+              <ul class="routines">
+                <li class="routine" data-routine="douche">
+                  <span class="routine-nom">Nettoyer la douche</span>
+                  <div class="jauge" data-niveau="urgent" style="--v: 92%"><span></span></div>
+                  <span class="routine-etat urgent">À faire · salle de bains</span>
+                  <button class="bouton bouton-petit" type="button" data-fait>Fait</button>
+                </li>
+                <li class="routine" data-routine="clim">
+                  <span class="routine-nom">Changer le filtre de la clim</span>
+                  <div class="jauge" data-niveau="bientot" style="--v: 96%"><span></span></div>
+                  <span class="routine-etat">Dans 3 jours · équipement</span>
+                  <button class="bouton bouton-petit" type="button" data-fait>Fait</button>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-bientot">
+              <div class="bloc-tete"><h2 id="t-bientot">Bientôt</h2><a class="mono" href="#foyer">Foyer</a></div>
+              <ul class="lignes">
+                <li><a class="ligne" href="#voiture"><svg class="ico"><use href="#f-automobile" /></svg><span><strong>Contrôle technique</strong><span class="sous">Voiture d’Alex · pour Alex</span></span><span class="droite urgent">Dans 12 j</span></a></li>
+                <li><a class="ligne" href="#voyage"><svg class="ico"><use href="#f-desert-island" /></svg><span><strong>Vacances aux îles</strong><span class="sous">6 sur 14 préparatifs</span></span><span class="droite">Dans 25 j</span></a></li>
+                <li><a class="ligne" href="#enfant"><svg class="ico"><use href="#f-stethoscope" /></svg><span><strong>Pédiatre de Léo</strong><span class="sous"><svg class="cadenas"><use href="#i-cadenas" /></svg> Santé chiffrée</span></span><span class="droite">12 janv.</span></a></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-point">
+              <div class="bloc-tete"><h2 id="t-point">Point de la semaine</h2><span class="mono">Dim. 29 nov.</span></div>
+              <p class="doux" style="margin: 0">10 minutes à deux pour se répartir la semaine. Rappel envoyé à vous deux dimanche à 18 h.</p>
+              <div class="actions"><a class="bouton" href="#nous">Préparer</a></div>
+            </section>
+          </section>
+
+          <!-- ================= COURSES ================= -->
+          <section class="vue" data-vue="courses" aria-labelledby="titre-courses" hidden>
+            <h1 id="titre-courses" tabindex="-1">Courses <span class="compte-titre" data-compte-sup>15</span></h1>
+
+            <div class="pilules" role="group" aria-label="Listes">
+              <button class="pilule" type="button" aria-pressed="true"><svg><use href="#i-panier" /></svg>Supermarché <span data-compte-liste>15</span></button>
+              <button class="pilule" type="button" aria-pressed="false" data-maquette="Maquette : la liste Marché (5 articles) s’ouvrirait ici.">Marché 5</button>
+              <button class="pilule" type="button" aria-pressed="false" data-maquette="Maquette : la liste Pharmacie et bébé s’ouvrirait ici.">Pharmacie et bébé 3</button>
+              <button class="pilule" type="button" aria-pressed="false" data-maquette="Maquette : la liste Bricolage, alimentée par la tâche « Peindre la chambre ».">Bricolage 3</button>
+              <button class="pilule" type="button" aria-pressed="false" data-maquette="Maquette : créer une liste (magasin, occasion, modèle).">+ Liste</button>
+            </div>
+
+            <div class="actions" data-hors-magasin>
+              <button class="bouton bouton-plein" type="button" id="mode-magasin" aria-pressed="false"><svg><use href="#i-magasin" /></svg>Mode magasin</button>
+              <button class="bouton" type="button" data-pars><svg><use href="#i-cloche" /></svg>Je pars faire les courses</button>
+            </div>
+
+            <div class="magasin" aria-label="Mode magasin">
+              <div class="magasin-ligne">
+                <span class="mono">Supermarché du quartier · ordre appris</span>
+                <span class="mono" id="progression-texte">0 sur 15</span>
+              </div>
+              <div class="progression" aria-hidden="true"><span id="progression-barre"></span></div>
+              <div class="magasin-ligne">
+                <button class="bouton bouton-petit" type="button" id="annuler" disabled><svg><use href="#i-annuler" /></svg>Annuler</button>
+                <button class="bouton bouton-petit bouton-acide" type="button" id="terminer">Courses terminées</button>
+              </div>
+            </div>
+
+            <button class="saisie-rapide" type="button" data-ouvrir-saisie data-hors-magasin><svg><use href="#i-plus" /></svg>Ajouter un article ou une tâche…</button>
+
+            <section class="bloc" aria-labelledby="t-acheter">
+              <div class="bloc-tete"><h2 id="t-acheter">À acheter</h2><span class="mono">Touchez pour cocher</span></div>
+              <div id="rayons"></div>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-manque-courses" data-hors-magasin>
+              <div class="bloc-tete"><h2 id="t-manque-courses">Il manque sûrement</h2><span class="mono">D’après vos achats</span></div>
+              <ul class="suggestions" data-suggestions></ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-recents" data-hors-magasin>
+              <div class="bloc-tete"><h2 id="t-recents">Récents</h2><span class="mono">Touchez pour ajouter</span></div>
+              <ul class="tuiles" id="recents"></ul>
+            </section>
+
+            <div class="demo" data-hors-magasin>
+              <span class="mono">Démo de la synchronisation</span>
+              <p>Simulez le téléphone de Sam : ses ajouts apparaissent ici en direct. Hors ligne, tout reste utilisable et part au retour du réseau.</p>
+              <div class="actions" style="margin: 0">
+                <button class="bouton bouton-petit" type="button" data-demo="ajout"><span class="avatar b" aria-hidden="true">S</span>Sam ajoute un article</button>
+                <button class="bouton bouton-petit" type="button" data-demo="reseau" aria-pressed="false"><svg><use href="#i-nuage-barre" /></svg><span>Passer hors ligne</span></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================= À FAIRE ================= -->
+          <section class="vue" data-vue="a-faire" aria-labelledby="titre-a-faire" hidden>
+            <h1 id="titre-a-faire" tabindex="-1">À faire <span class="compte-titre">8</span></h1>
+            <div class="pilules" role="group" aria-label="Filtrer les tâches" id="filtres">
+              <button class="pilule" type="button" aria-pressed="true" data-filtre="tout">Tout</button>
+              <button class="pilule" type="button" aria-pressed="false" data-filtre="a"><span class="avatar a" aria-hidden="true">A</span>Alex</button>
+              <button class="pilule" type="button" aria-pressed="false" data-filtre="b"><span class="avatar b" aria-hidden="true">S</span>Sam</button>
+              <button class="pilule" type="button" aria-pressed="false" data-filtre="nous">Nous deux</button>
+              <button class="pilule" type="button" aria-pressed="false" data-filtre="libre">Au premier libre</button>
+            </div>
+
+            <section class="bloc groupe" aria-labelledby="g-retard">
+              <div class="bloc-tete"><h2 id="g-retard">En retard</h2><span class="mono">1</span></div>
+              <ul class="taches">
+                <li class="tache" data-tache="eau" data-pour="a">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Payer la facture d’eau"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Payer la facture d’eau</p><ul class="tache-meta"><li class="retard">En retard de 2 j</li><li>Administratif</li><li><svg><use href="#i-repeter" /></svg>Tous les mois</li></ul></div>
+                  <span class="avatar a"><span aria-hidden="true">A</span><span class="vh">Pour Alex</span></span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc groupe" aria-labelledby="g-jour">
+              <div class="bloc-tete"><h2 id="g-jour">Aujourd’hui</h2><span class="mono">2</span></div>
+              <ul class="taches">
+                <li class="tache" data-tache="assurance" data-pour="b">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Rappeler l’assurance habitation"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Rappeler l’assurance habitation</p><ul class="tache-meta"><li><svg><use href="#i-horloge" /></svg>14 h</li><li>Administratif</li><li>Créée par Alex</li></ul></div>
+                  <span class="avatar b"><span aria-hidden="true">S</span><span class="vh">Pour Sam</span></span>
+                </li>
+                <li class="tache" data-tache="poubelles" data-pour="nous">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Sortir les poubelles"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Sortir les poubelles</p><ul class="tache-meta"><li>Ce soir</li><li><svg><use href="#i-repeter" /></svg>Chaque mercredi</li><li>Maison</li></ul></div>
+                  <span class="avatar nous"><span aria-hidden="true">A+S</span><span class="vh">Pour vous deux</span></span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc groupe" aria-labelledby="g-semaine">
+              <div class="bloc-tete"><h2 id="g-semaine">Cette semaine</h2><span class="mono">3</span></div>
+              <ul class="taches" id="taches-semaine">
+                <li class="tache" data-tache="garage" data-pour="a">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Prendre rendez-vous au garage"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Prendre rendez-vous au garage</p><ul class="tache-meta"><li>Avant vendredi</li><li>Voiture</li><li>Créée par Sam</li></ul></div>
+                  <span class="avatar a"><span aria-hidden="true">A</span><span class="vh">Pour Alex</span></span>
+                </li>
+                <li class="tache" data-tache="peinture" data-pour="nous">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Choisir la peinture de la chambre"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Choisir la peinture de la chambre</p><ul class="tache-meta"><li>Samedi</li><li><svg><use href="#i-dossier" /></svg>Chambre de bébé</li><li><svg><use href="#i-panier" /></svg>3 articles liés</li></ul></div>
+                  <span class="avatar nous"><span aria-hidden="true">A+S</span><span class="vh">Pour vous deux</span></span>
+                </li>
+                <li class="tache" data-tache="ordonnance" data-pour="b">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Renouveler l’ordonnance"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Renouveler l’ordonnance</p><ul class="tache-meta"><li>Jeudi</li><li>Santé</li></ul></div>
+                  <span class="avatar b"><span aria-hidden="true">S</span><span class="vh">Pour Sam</span></span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc groupe" aria-labelledby="g-plus-tard">
+              <div class="bloc-tete"><h2 id="g-plus-tard">Plus tard</h2><span class="mono">2</span></div>
+              <ul class="taches">
+                <li class="tache" data-tache="papiers" data-pour="libre">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Trier les papiers de 2025"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Trier les papiers de 2025</p><ul class="tache-meta"><li>Un jour</li><li>Administratif</li></ul></div>
+                  <span class="avatar libre"><span aria-hidden="true">?</span><span class="vh">Au premier libre</span></span>
+                </li>
+                <li class="tache" data-tache="filtre" data-pour="a">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Changer le filtre de la clim"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Changer le filtre de la clim</p><ul class="tache-meta"><li>Dans 3 j</li><li><svg><use href="#i-repeter" /></svg>90 j après la dernière fois</li></ul></div>
+                  <span class="avatar a"><span aria-hidden="true">A</span><span class="vh">Pour Alex</span></span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-projets">
+              <div class="bloc-tete"><h2 id="t-projets">Projets</h2><span class="mono">2 en cours</span></div>
+              <ul class="projets" style="list-style: none; margin: 0; padding: 0">
+                <li class="projet">
+                  <h3>Chambre de bébé</h3>
+                  <span class="mono doux">4 sur 12 tâches · 3 articles</span>
+                  <div class="barre-fine" style="--v: 33%"><span></span></div>
+                </li>
+                <li class="projet">
+                  <h3>Terrasse</h3>
+                  <span class="mono doux">2 sur 6 tâches · avant les fêtes</span>
+                  <div class="barre-fine" style="--v: 33%"><span></span></div>
+                </li>
+              </ul>
+            </section>
+          </section>
+
+          <!-- ================= MAISON ================= -->
+          <section class="vue" data-vue="maison" aria-labelledby="titre-maison" hidden>
+            <a class="retour" href="#foyer"><svg><use href="#i-chevron-gauche" /></svg>Foyer</a>
+            <h1 id="titre-maison" tabindex="-1">Maison</h1>
+            <p class="chapeau">L’entretien selon le besoin, pas selon le calendrier. La jauge se remplit avec le temps ; « Fait » la vide et compte pour celui ou celle qui l’a fait.</p>
+
+            <section class="bloc" aria-labelledby="p-sdb">
+              <div class="bloc-tete"><h2 id="p-sdb">Salle de bains</h2><span class="mono">1 à faire</span></div>
+              <ul class="routines">
+                <li class="routine" data-routine="douche">
+                  <span class="routine-nom">Nettoyer la douche</span>
+                  <div class="jauge" data-niveau="urgent" style="--v: 92%"><span></span></div>
+                  <span class="routine-etat urgent">À faire · chaque semaine · dernière fois par Sam</span>
+                  <button class="bouton bouton-petit" type="button" data-fait>Fait</button>
+                </li>
+                <li class="routine" data-routine="serviettes">
+                  <span class="routine-nom">Changer les serviettes</span>
+                  <div class="jauge" style="--v: 40%"><span></span></div>
+                  <span class="routine-etat">Ça va · chaque semaine</span>
+                  <button class="bouton bouton-petit" type="button" data-fait>Fait</button>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="p-cuisine">
+              <div class="bloc-tete"><h2 id="p-cuisine">Cuisine</h2><span class="mono">1 bientôt</span></div>
+              <ul class="routines">
+                <li class="routine" data-routine="hotte">
+                  <span class="routine-nom">Dégraisser la hotte</span>
+                  <div class="jauge" data-niveau="bientot" style="--v: 74%"><span></span></div>
+                  <span class="routine-etat">Bientôt · chaque mois</span>
+                  <button class="bouton bouton-petit" type="button" data-fait>Fait</button>
+                </li>
+                <li class="routine" data-routine="frigo">
+                  <span class="routine-nom">Nettoyer le frigo</span>
+                  <div class="jauge" style="--v: 52%"><span></span></div>
+                  <span class="routine-etat">Ça va · toutes les 2 semaines</span>
+                  <button class="bouton bouton-petit" type="button" data-fait>Fait</button>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="p-exterieur">
+              <div class="bloc-tete"><h2 id="p-exterieur">Extérieur</h2><span class="mono">Tout va bien</span></div>
+              <ul class="routines">
+                <li class="routine" data-routine="pelouse">
+                  <span class="routine-nom">Tondre la pelouse</span>
+                  <div class="jauge" style="--v: 61%"><span></span></div>
+                  <span class="routine-etat">Ça va · toutes les 2 semaines</span>
+                  <button class="bouton bouton-petit" type="button" data-fait>Fait</button>
+                </li>
+                <li class="routine" data-routine="terrasse">
+                  <span class="routine-nom">Balayer la terrasse</span>
+                  <div class="jauge" style="--v: 22%"><span></span></div>
+                  <span class="routine-etat">Ça va · chaque semaine</span>
+                  <button class="bouton bouton-petit" type="button" data-fait>Fait</button>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-equipements">
+              <div class="bloc-tete"><h2 id="t-equipements">Équipements</h2><span class="mono">Entretien périodique</span></div>
+              <ul class="equipements">
+                <li class="equipement"><strong>Filtre de la clim</strong><span class="mono bientot-texte">Dans 3 jours</span><br /><span class="mono">Tous les 90 j · dernière fois le 27 août par Alex</span></li>
+                <li class="equipement"><strong>Piles des détecteurs de fumée</strong><span class="mono">Dans 4 mois</span><br /><span class="mono">Chaque année</span></li>
+                <li class="equipement"><strong>Détartrer le chauffe-eau</strong><span class="mono">Dans 8 mois</span><br /><span class="mono">Tous les 2 ans</span></li>
+                <li class="equipement"><strong>Climatiseur du salon</strong><span class="mono">Garantie jusqu’en juin 2027</span><br /><span class="mono">Facture et notice en photo</span></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-reparations">
+              <div class="bloc-tete"><h2 id="t-reparations">Réparations</h2><span class="mono">1 en cours</span></div>
+              <ul class="lignes">
+                <li><div class="ligne"><svg class="ico"><use href="#f-droplet" /></svg><span><strong>Fuite sous l’évier</strong><span class="sous">Signalée par Sam · 2 photos · plombier contacté · devis 18 000 F</span></span><span class="droite urgent">En cours</span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-hammer-and-wrench" /></svg><span><strong>Volet roulant de la chambre</strong><span class="sous">Réparé le 3 oct. · 12 500 F · garantie 1 an</span></span><span class="droite ok">Réparé</span></div></li>
+              </ul>
+              <div class="actions"><button class="bouton" type="button" data-maquette="Maquette : photo du problème, artisan, devis ; plus tard coût final, facture et garantie. Elle rejoint ensuite l’historique."><svg><use href="#i-plus" /></svg>Signaler une réparation</button></div>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-contacts">
+              <div class="bloc-tete"><h2 id="t-contacts">Contacts</h2><span class="mono">Artisans</span></div>
+              <ul class="lignes">
+                <li><div class="ligne"><svg class="ico"><use href="#f-toolbox" /></svg><span><strong>Plombier</strong><span class="sous">2 interventions · dernière le 2 sept.</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-light-bulb" /></svg><span><strong>Électricien</strong><span class="sous">1 intervention · le 15 mai</span></span></div></li>
+              </ul>
+            </section>
+          </section>
+
+          <!-- ================= FOYER ================= -->
+          <section class="vue" data-vue="foyer" aria-labelledby="titre-foyer" hidden>
+            <h1 id="titre-foyer" tabindex="-1">Foyer</h1>
+            <p class="chapeau">Tout ce que vous suivez dans le temps : la maison, les voitures, les enfants, les papiers, et vos projets.</p>
+
+            <section class="bloc" aria-labelledby="t-fiches">
+              <div class="bloc-tete"><h2 id="t-fiches">Fiches</h2><span class="mono">5</span></div>
+              <ul class="fiches">
+                <li><a class="fiche" href="#maison"><svg class="ico"><use href="#f-house" /></svg><strong>Maison</strong><span class="sous alerte-texte">1 entretien à faire</span><span class="sous">1 réparation en cours</span></a></li>
+                <li><a class="fiche" href="#voiture"><svg class="ico"><use href="#f-automobile" /></svg><strong>Voiture d’Alex</strong><span class="sous alerte-texte">Contrôle technique dans 12 j</span><span class="sous">48 250 km</span></a></li>
+                <li><button class="fiche" type="button" data-maquette="Maquette : même fiche que la voiture d’Alex (kilométrage, échéances, carnet, documents)."><svg class="ico"><use href="#f-sport-utility-vehicle" /></svg><strong>Voiture de Sam</strong><span class="sous">Tout est à jour</span><span class="sous">Vidange à 62 000 km</span></button></li>
+                <li><a class="fiche" href="#enfant"><svg class="ico"><use href="#f-child" /></svg><strong>Léo</strong><span class="sous">Pédiatre le 12 janv.</span><span class="fiche-cadenas"><svg><use href="#i-cadenas" /></svg>Santé chiffrée</span></a></li>
+                <li><button class="fiche" type="button" data-maquette="Maquette : pièces d’identité, contrats, assurances, abonnements, avec leurs dates d’expiration."><svg class="ico"><use href="#f-identification-card" /></svg><strong>Papiers</strong><span class="sous alerte-texte">Passeport de Sam : expire en avril</span><span class="sous">12 documents</span></button></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-projets-foyer">
+              <div class="bloc-tete"><h2 id="t-projets-foyer">Projets</h2><span class="mono">3 en cours</span></div>
+              <ul class="lignes">
+                <li><a class="ligne" href="#voyage"><svg class="ico"><use href="#f-desert-island" /></svg><span><strong>Vacances aux îles</strong><span class="sous">20 déc. au 3 janv. · 6 sur 14 préparatifs</span></span><span class="droite">Dans 25 j</span></a></li>
+                <li><button class="ligne" type="button" data-maquette="Maquette : projet avec tâches, liste d’achats et budget."><svg class="ico"><use href="#f-teddy-bear" /></svg><span><strong>Chambre de bébé</strong><span class="sous">4 sur 12 tâches · 3 articles à acheter</span></span><span class="droite">Avant mai</span></button></li>
+                <li><button class="ligne" type="button" data-maquette="Maquette : projet de travaux avec devis, artisans, budget et photos avant et après."><svg class="ico"><use href="#f-hammer-and-wrench" /></svg><span><strong>Terrasse</strong><span class="sous">2 sur 6 tâches · budget 120 000 F</span></span><span class="droite">Avant les fêtes</span></button></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-echeances">
+              <div class="bloc-tete"><h2 id="t-echeances">Prochaines échéances</h2><span class="mono">Toutes fiches</span></div>
+              <ul class="lignes">
+                <li><a class="ligne" href="#maison"><svg class="ico"><use href="#f-wrench" /></svg><span><strong>Filtre de la clim</strong><span class="sous">Maison</span></span><span class="droite urgent">28 nov.</span></a></li>
+                <li><a class="ligne" href="#voiture"><svg class="ico"><use href="#f-automobile" /></svg><span><strong>Contrôle technique</strong><span class="sous">Voiture d’Alex</span></span><span class="droite urgent">7 déc.</span></a></li>
+                <li><button class="ligne" type="button" data-maquette="Maquette : renouvellement à vérifier, rappel un mois avant."><svg class="ico"><use href="#f-receipt" /></svg><span><strong>Assurance habitation</strong><span class="sous">Papiers · renouvellement</span></span><span class="droite">31 déc.</span></button></li>
+                <li><a class="ligne" href="#enfant"><svg class="ico"><use href="#f-stethoscope" /></svg><span><strong>Pédiatre</strong><span class="sous">Léo · <svg class="cadenas"><use href="#i-cadenas" /></svg> chiffré</span></span><span class="droite">12 janv.</span></a></li>
+                <li><button class="ligne" type="button" data-maquette="Maquette : rappel six mois avant l’expiration, et avant chaque voyage."><svg class="ico"><use href="#f-identification-card" /></svg><span><strong>Passeport de Sam</strong><span class="sous">Papiers · expire le 28 avril</span></span><span class="droite">28 avr.</span></button></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-modeles-foyer">
+              <div class="bloc-tete"><h2 id="t-modeles-foyer">Créer depuis un modèle</h2></div>
+              <div class="actions" style="margin-top: 0">
+                <button class="bouton bouton-petit" type="button" data-maquette="Maquette : dates, destination ; Nid crée préparatifs, valises de chacun, vérification des passeports et budget.">Voyage</button>
+                <button class="bouton bouton-petit" type="button" data-maquette="Maquette : modèle, année, kilométrage ; Nid propose contrôle technique, vidange, pneus et assurance.">Voiture</button>
+                <button class="bouton bouton-petit" type="button" data-maquette="Maquette : fiche Personne avec santé chiffrée, école, activités, tailles.">Enfant</button>
+                <button class="bouton bouton-petit" type="button" data-maquette="Maquette : réparation rattachée à la maison ou à une voiture.">Réparation</button>
+                <button class="bouton bouton-petit" type="button" data-maquette="Maquette : travaux avec devis, artisans et budget.">Travaux</button>
+              </div>
+            </section>
+          </section>
+
+          <!-- ================= VOITURE ================= -->
+          <section class="vue" data-vue="voiture" aria-labelledby="titre-voiture" hidden>
+            <a class="retour" href="#foyer"><svg><use href="#i-chevron-gauche" /></svg>Foyer</a>
+            <h1 id="titre-voiture" tabindex="-1">Voiture d’Alex</h1>
+            <p class="sous-titre">Citadine · 2019 · essence · assurée jusqu’au 1er février</p>
+
+            <section class="bloc" aria-labelledby="t-km">
+              <div class="bloc-tete"><h2 id="t-km">Kilométrage</h2><span class="mono">Demandé chaque mois</span></div>
+              <div class="grand-chiffre">
+                <span><strong>48 250 km</strong><span class="sous">Relevé par Alex il y a 6 jours</span></span>
+                <button class="bouton bouton-petit" type="button" data-maquette="Maquette : saisir le compteur. Nid recalcule les échéances au kilométrage.">Mettre à jour</button>
+              </div>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-echeances-voiture">
+              <div class="bloc-tete"><h2 id="t-echeances-voiture">Échéances</h2><span class="mono">Date ou km, au premier atteint</span></div>
+              <ul class="lignes">
+                <li><div class="ligne"><svg class="ico"><use href="#f-automobile" /></svg><span><strong>Contrôle technique</strong><span class="sous">Rendez-vous à prendre · pour Alex</span></span><span class="droite urgent">7 déc.</span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-oil-drum" /></svg><span><strong>Vidange</strong><span class="sous">Tous les 15 000 km ou 12 mois</span></span><span class="droite">Dans 1 750 km</span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-wrench" /></svg><span><strong>Pneus</strong><span class="sous">À vérifier à 55 000 km</span></span><span class="droite">Dans 6 750 km</span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-receipt" /></svg><span><strong>Assurance</strong><span class="sous">Renouvellement</span></span><span class="droite">1er févr.</span></div></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-carnet">
+              <div class="bloc-tete"><h2 id="t-carnet">Carnet d’entretien</h2><span class="mono">2026 : 51 800 F</span></div>
+              <ul class="lignes">
+                <li><div class="ligne"><svg class="ico"><use href="#f-oil-drum" /></svg><span><strong>Vidange et filtre</strong><span class="sous">3 oct. · 45 100 km · Garage du centre · facture</span></span><span class="droite">14 800 F</span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-wrench" /></svg><span><strong>Plaquettes avant</strong><span class="sous">12 juin · 41 900 km · facture</span></span><span class="droite">22 000 F</span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-battery" /></svg><span><strong>Batterie</strong><span class="sous">8 févr. · 39 500 km</span></span><span class="droite">15 000 F</span></div></li>
+              </ul>
+              <div class="actions"><button class="bouton" type="button" data-maquette="Maquette : date, kilométrage, coût, garage et photo de la facture."><svg><use href="#i-plus" /></svg>Entretien ou réparation</button></div>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-docs-voiture">
+              <div class="bloc-tete"><h2 id="t-docs-voiture">Documents</h2><span class="mono">3</span></div>
+              <ul class="lignes">
+                <li><div class="ligne"><svg class="ico"><use href="#f-identification-card" /></svg><span><strong>Carte grise</strong><span class="sous">Photo</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-receipt" /></svg><span><strong>Attestation d’assurance</strong><span class="sous">PDF · valable jusqu’au 1er févr.</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-receipt" /></svg><span><strong>Factures</strong><span class="sous">5 photos</span></span></div></li>
+              </ul>
+            </section>
+          </section>
+
+          <!-- ================= VOYAGE ================= -->
+          <section class="vue" data-vue="voyage" aria-labelledby="titre-voyage" hidden>
+            <a class="retour" href="#foyer"><svg><use href="#i-chevron-gauche" /></svg>Foyer</a>
+            <h1 id="titre-voyage" tabindex="-1">Vacances aux îles</h1>
+            <p class="sous-titre">Du 20 décembre au 3 janvier · dans 25 jours</p>
+            <div class="avancement">
+              <div class="chiffres"><span>Préparatifs</span><span>6 sur 14</span></div>
+              <div class="barre-fine" style="--v: 43%"><span></span></div>
+            </div>
+
+            <section class="bloc" aria-labelledby="t-avant">
+              <div class="bloc-tete"><h2 id="t-avant">Avant de partir</h2><span class="mono">4 sur 8 affichées</span></div>
+              <ul class="taches">
+                <li class="tache faite" data-tache="v-hebergement" data-pour="b">
+                  <button class="case" type="button" aria-pressed="true" aria-label="Terminer&nbsp;: Réserver l’hébergement"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Réserver l’hébergement</p><ul class="tache-meta"><li>Fait par Sam</li><li>Confirmation jointe</li></ul></div>
+                  <span class="avatar b"><span aria-hidden="true">S</span><span class="vh">Pour Sam</span></span>
+                </li>
+                <li class="tache" data-tache="v-passeports" data-pour="a">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Vérifier les passeports"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Vérifier les passeports</p><ul class="tache-meta"><li class="retard">Celui de Sam expire en avril</li><li>Papiers</li></ul></div>
+                  <span class="avatar a"><span aria-hidden="true">A</span><span class="vh">Pour Alex</span></span>
+                </li>
+                <li class="tache" data-tache="v-voisine" data-pour="b">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Demander à la voisine d’arroser"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Demander à la voisine d’arroser</p><ul class="tache-meta"><li>Avant le 18 déc.</li></ul></div>
+                  <span class="avatar b"><span aria-hidden="true">S</span><span class="vh">Pour Sam</span></span>
+                </li>
+                <li class="tache" data-tache="v-frigo" data-pour="nous">
+                  <button class="case" type="button" aria-pressed="false" aria-label="Terminer&nbsp;: Vider le frigo"><svg><use href="#i-valider" /></svg></button>
+                  <div><p class="tache-titre">Vider le frigo</p><ul class="tache-meta"><li>La veille du départ</li></ul></div>
+                  <span class="avatar nous"><span aria-hidden="true">A+S</span><span class="vh">Pour vous deux</span></span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-valises">
+              <div class="bloc-tete"><h2 id="t-valises">Valises</h2><span class="mono">Listes réutilisées</span></div>
+              <ul class="lignes">
+                <li><button class="ligne" type="button" data-maquette="Maquette : liste à cocher, reprise du dernier voyage."><svg class="ico"><use href="#f-luggage" /></svg><span><strong>Valise d’Alex</strong><span class="sous">Reprise du voyage de juillet</span></span><span class="droite">12 sur 20</span></button></li>
+                <li><button class="ligne" type="button" data-maquette="Maquette : liste à cocher, reprise du dernier voyage."><svg class="ico"><use href="#f-luggage" /></svg><span><strong>Valise de Sam</strong><span class="sous">Reprise du voyage de juillet</span></span><span class="droite">8 sur 18</span></button></li>
+                <li><button class="ligne" type="button" data-maquette="Maquette : liste à cocher, modèle « Enfant 2 ans »."><svg class="ico"><use href="#f-teddy-bear" /></svg><span><strong>Sac de Léo</strong><span class="sous">Modèle « Enfant 2 ans »</span></span><span class="droite">5 sur 25</span></button></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-achats-voyage">
+              <div class="bloc-tete"><h2 id="t-achats-voyage">À acheter avant de partir</h2></div>
+              <ul class="suggestions">
+                <li class="suggestion"><svg class="ico" aria-hidden="true" focusable="false"><use href="#f-lotion-bottle" /></svg><span><strong>Crème solaire</strong><span class="mono">Indice 50 · pour Léo aussi</span></span><button class="bouton bouton-petit" type="button" data-suggestion="creme">Ajouter</button></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-reservations">
+              <div class="bloc-tete"><h2 id="t-reservations">Réservations et documents</h2><span class="mono">4</span></div>
+              <ul class="lignes">
+                <li><div class="ligne"><svg class="ico"><use href="#f-airplane" /></svg><span><strong>Billets d’avion</strong><span class="sous">Aller le 20 déc. à 7 h 10 · retour le 3 janv. · PDF</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-house" /></svg><span><strong>Hébergement</strong><span class="sous">14 nuits · confirmation · arrivée après 14 h</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-automobile" /></svg><span><strong>Location de voiture</strong><span class="sous">Retrait à l’aéroport · siège enfant réservé</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-ticket" /></svg><span><strong>Sortie en bateau</strong><span class="sous">Le 26 déc. · 2 billets adultes, 1 enfant</span></span></div></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-budget">
+              <div class="bloc-tete"><h2 id="t-budget">Budget</h2><span class="mono">XPF</span></div>
+              <div class="avancement" style="margin-top: 0">
+                <div class="chiffres"><span>Dépensé 212 000 F</span><span>Prévu 350 000 F</span></div>
+                <div class="barre-fine" style="--v: 61%"><span></span></div>
+              </div>
+            </section>
+          </section>
+
+          <!-- ================= ENFANT ================= -->
+          <section class="vue" data-vue="enfant" aria-labelledby="titre-enfant" hidden>
+            <a class="retour" href="#foyer"><svg><use href="#i-chevron-gauche" /></svg>Foyer</a>
+            <h1 id="titre-enfant" tabindex="-1">Léo</h1>
+            <p class="sous-titre">2 ans · né le 14 mars 2024</p>
+            <div class="chiffre"><svg><use href="#i-cadenas" /></svg><span>La santé de Léo est chiffrée sur vos deux téléphones. Le serveur ne stocke que des données illisibles ; les rappels disent seulement « Rappel santé ».</span></div>
+
+            <section class="bloc" aria-labelledby="t-sante">
+              <div class="bloc-tete"><h2 id="t-sante">Santé</h2><span class="mono">Chiffrée</span></div>
+              <ul class="lignes">
+                <li><div class="ligne"><svg class="ico"><use href="#f-stethoscope" /></svg><span><strong>Pédiatre</strong><span class="sous">12 janv. à 9 h 30 · Dr Martin · Sam l’emmène</span></span><span class="droite">Dans 48 j</span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-syringe" /></svg><span><strong>Vaccins</strong><span class="sous">Dernier fait le 2 nov. · prochain noté pour janvier</span></span></div></li>
+                <li><div class="ligne"><svg><use href="#i-coeur" /></svg><span><strong>Allergies et traitements</strong><span class="sous">Aucune allergie connue · aucun traitement en cours</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-receipt" /></svg><span><strong>Ordonnances</strong><span class="sous">2 photos chiffrées</span></span></div></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-mesures">
+              <div class="bloc-tete"><h2 id="t-mesures">Mesures</h2><span class="mono">Chiffrées</span></div>
+              <div class="grand-chiffre">
+                <span><strong>88 cm · 12,4 kg</strong><span class="sous">Le 2 novembre, chez le pédiatre</span></span>
+                <button class="bouton bouton-petit" type="button" data-maquette="Maquette : nouvelle mesure, avec la courbe des précédentes.">Ajouter</button>
+              </div>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-quotidien">
+              <div class="bloc-tete"><h2 id="t-quotidien">Vie quotidienne</h2></div>
+              <ul class="lignes">
+                <li><div class="ligne"><svg class="ico"><use href="#f-school" /></svg><span><strong>Crèche</strong><span class="sous">Réunion des parents le 4 déc. à 18 h</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-bathtub" /></svg><span><strong>Bébés nageurs</strong><span class="sous">Le samedi à 9 h · payé jusqu’en décembre</span></span></div></li>
+                <li><div class="ligne"><svg class="ico"><use href="#f-straight-ruler" /></svg><span><strong>Tailles</strong><span class="sous">Vêtements 24 mois · pointure 23</span></span></div></li>
+              </ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-stocks">
+              <div class="bloc-tete"><h2 id="t-stocks">Stocks</h2><span class="mono">Réapprovisionnement</span></div>
+              <ul class="suggestions">
+                <li class="suggestion"><span class="monogramme" aria-hidden="true">Co</span><span><strong>Couches taille 4</strong><span class="mono">Environ 6 jours restants</span></span><button class="bouton bouton-petit" type="button" data-suggestion="couches">Ajouter</button></li>
+              </ul>
+            </section>
+
+            <p class="avertissement">Informations saisies par vous. Nid n’est pas un avis médical.</p>
+          </section>
+
+          <!-- ================= NOUS ================= -->
+          <section class="vue" data-vue="nous" aria-labelledby="titre-nous" hidden>
+            <h1 id="titre-nous" tabindex="-1">Nous</h1>
+            <p class="chapeau">Alex et Sam. La liste de courses et les tâches sont <strong>les mêmes sur vos deux téléphones</strong>, en temps réel.</p>
+
+            <section class="bloc" aria-labelledby="t-synchro">
+              <div class="bloc-tete"><h2 id="t-synchro">Synchronisation</h2><span class="mono" id="synchro-detail">À jour</span></div>
+              <ul class="appareils">
+                <li class="appareil"><svg><use href="#i-telephone" /></svg><span><strong>iPhone d’Alex</strong><br /><span class="mono">Cet appareil</span></span><span class="mono" id="etat-alex">À jour</span></li>
+                <li class="appareil"><svg><use href="#i-telephone" /></svg><span><strong>iPhone de Sam</strong><br /><span class="mono">Vu il y a 4 s</span></span><span class="mono" id="etat-sam">À jour</span></li>
+              </ul>
+              <p class="doux" style="margin: 12px 4px 0; font-size: 15px">Hors ligne, au fond du magasin par exemple, tout reste utilisable : vos modifications sont gardées et envoyées au retour du réseau, sans rien écraser.</p>
+              <div class="actions">
+                <button class="bouton" type="button" data-maquette="Maquette : QR code à scanner avec l’autre téléphone ; il transmet aussi la clé qui chiffre la santé, sans passer par le serveur."><svg><use href="#i-lien" /></svg>Inviter quelqu’un</button>
+                <button class="bouton" type="button" data-demo="ajout"><span class="avatar b" aria-hidden="true">S</span>Sam ajoute un article</button>
+                <button class="bouton" type="button" data-demo="reseau" aria-pressed="false"><svg><use href="#i-nuage-barre" /></svg><span>Passer hors ligne</span></button>
+              </div>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-porteurs">
+              <div class="bloc-tete"><h2 id="t-porteurs">Qui porte quoi</h2><span class="mono">Touchez pour changer</span></div>
+              <p class="doux" style="margin: 0 0 12px; font-size: 15px">Porter un domaine, c’est y penser : prévoir, organiser, pas seulement faire. Les nouvelles tâches du domaine lui reviennent par défaut.</p>
+              <ul class="domaines" id="domaines"></ul>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-point-semaine">
+              <div class="bloc-tete"><h2 id="t-point-semaine">Point de la semaine</h2><span class="mono">Dim. 29 nov. · 10 min</span></div>
+              <ol class="etapes">
+                <li>Ce qui a été fait, et un merci</li>
+                <li>Ce qui traîne (2 tâches)</li>
+                <li>La semaine qui vient : 4 échéances</li>
+                <li>Repas et courses</li>
+                <li>On se répartit</li>
+              </ol>
+              <div class="actions"><button class="bouton bouton-acide" type="button" data-maquette="Maquette : le point guidé s’ouvrirait ici, étape par étape, sur un seul téléphone ou les deux.">Commencer le point</button></div>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-equilibre">
+              <div class="bloc-tete"><h2 id="t-equilibre">Équilibre</h2><span class="mono">4 dernières semaines</span></div>
+              <div class="equilibre">
+                <div class="equilibre-ligne"><span class="mono">Conçu</span><div class="partage" role="img" aria-label="Conçu&nbsp;: Alex 55&nbsp;%, Sam 45&nbsp;%"><span class="a" style="width: 55%">Alex 55 %</span><span class="b" style="width: 45%">Sam 45 %</span></div></div>
+                <div class="equilibre-ligne"><span class="mono">Fait</span><div class="partage" role="img" aria-label="Fait&nbsp;: Alex 48&nbsp;%, Sam 52&nbsp;%"><span class="a" style="width: 48%">Alex 48 %</span><span class="b" style="width: 52%">Sam 52 %</span></div></div>
+              </div>
+              <p class="doux" style="margin: 12px 0 0; font-size: 15px">Plutôt équilibré. « Conçu » compte les tâches créées et les domaines portés, « Fait » les tâches terminées selon leur effort. Pas de classement ; masquable dans les réglages.</p>
+            </section>
+
+            <section class="bloc" aria-labelledby="t-modeles">
+              <div class="bloc-tete"><h2 id="t-modeles">Modèles</h2><span class="mono">Tâches + articles</span></div>
+              <ul class="modeles">
+                <li><button class="modele" type="button" data-maquette="Maquette : 24 tâches et 18 articles seraient créés, à répartir entre vous."><svg class="ico"><use href="#f-baby" /></svg><span><strong>Préparer l’arrivée de bébé</strong><span class="mono">24 tâches · 18 articles</span></span></button></li>
+                <li><button class="modele" type="button" data-maquette="Maquette : la valise maternité deviendrait une liste à cocher partagée."><svg class="ico"><use href="#f-baby-bottle" /></svg><span><strong>Valise maternité</strong><span class="mono">32 articles</span></span></button></li>
+                <li><button class="modele" type="button" data-maquette="Maquette : la trousse cyclone serait vérifiée chaque début de saison."><svg class="ico"><use href="#f-battery" /></svg><span><strong>Trousse cyclone</strong><span class="mono">14 articles · chaque saison</span></span></button></li>
+                <li><button class="modele" type="button" data-maquette="Maquette : la liste de départ en vacances serait versée dans À faire et Courses."><svg class="ico"><use href="#f-house" /></svg><span><strong>Départ en vacances</strong><span class="mono">11 tâches · 9 articles</span></span></button></li>
+              </ul>
+            </section>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <button class="fab" type="button" data-ouvrir-saisie aria-label="Ajouter un article ou une tâche"><svg><use href="#i-plus" /></svg></button>
+
+    <dialog class="feuille" id="saisie" aria-labelledby="titre-saisie">
+      <form method="dialog" id="form-saisie">
+        <div class="feuille-tete">
+          <h2 id="titre-saisie">Ajouter</h2>
+          <button class="bouton bouton-icone" type="button" data-fermer aria-label="Fermer"><svg><use href="#i-croix" /></svg></button>
+        </div>
+        <label class="mono" for="champ-saisie">Articles ou tâches, séparés par des virgules</label>
+        <input class="champ" id="champ-saisie" type="text" autocomplete="off" value="2 l lait, pain, payer l’eau avant le 5 @Sam" />
+        <p class="aide">« 2 kg », « x3 » pour les quantités ; « demain », « samedi », « avant le 5 » pour les dates ; « @Sam », « @nous » pour assigner.</p>
+        <ul class="apercu" id="apercu" aria-live="polite"></ul>
+        <div class="actions"><button class="bouton bouton-acide" type="submit" id="valider-saisie">Ajouter</button><button class="bouton" type="button" data-fermer>Annuler</button></div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+
+    <script>
+      (() => {
+        "use strict";
+        const $ = (s, el = document) => el.querySelector(s);
+        const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+        const INSECABLE = " ";
+        const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const sansAccents = (s) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().replace(/œ/g, "oe");
+        const insecables = (s) => s.replace(/ ([:;!?»%])/g, INSECABLE + "$1").replace(/« /g, "«" + INSECABLE);
+        const majuscule = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+        // Typographie française à l'affichage : espaces insécables.
+        function typographie(racine) {
+          const parcours = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT);
+          let n;
+          while ((n = parcours.nextNode())) {
+            if (n.parentElement.closest("script, style, code")) continue;
+            const v = n.nodeValue
+              .replace(/ ([:;!?»·%])/g, INSECABLE + "$1")
+              .replace(/« /g, "«" + INSECABLE)
+              .replace(/(\d) (?=\d{3}\b)/g, "$1" + INSECABLE)
+              .replace(/(\d) (?=[^\s\d])/g, "$1" + INSECABLE);
+            if (v !== n.nodeValue) n.nodeValue = v;
+          }
+        }
+        function iconesDecoratives(racine) {
+          $$("svg:not([hidden])", racine).forEach((s) => {
+            s.setAttribute("aria-hidden", "true");
+            s.setAttribute("focusable", "false");
+          });
+        }
+
+        // ---------- Annonces ----------
+        const toast = $("#toast");
+        let minuterieToast;
+        function annoncer(texte) {
+          toast.textContent = texte;
+          typographie(toast);
+          toast.hidden = false;
+          clearTimeout(minuterieToast);
+          minuterieToast = setTimeout(() => (toast.hidden = true), 3600);
+        }
+        document.addEventListener("click", (e) => {
+          const b = e.target.closest("[data-maquette]");
+          if (b) annoncer(b.dataset.maquette);
+        });
+
+        // ---------- Synchronisation simulée ----------
+        const etat = { horsLigne: false, enAttente: 0, recusEnAttente: [] };
+        const pluriel = (n, s, p) => `${n} ${n > 1 ? p : s}`;
+        function majSynchro(mode) {
+          const pastille = $("#synchro");
+          pastille.dataset.etat = mode;
+          let court, long;
+          if (mode === "ok") (court = "Synchronisé"), (long = "Vos deux téléphones sont à jour. Hors ligne, rien ne se perd.");
+          else if (mode === "en-cours") (court = "Synchro…"), (long = "Synchronisation en cours…");
+          else {
+            court = "Hors ligne";
+            long = etat.enAttente
+              ? `Hors ligne : ${pluriel(etat.enAttente, "modification gardée", "modifications gardées")} sur ce téléphone, envoyées au retour du réseau.`
+              : "Hors ligne : tout reste utilisable, les modifications seront envoyées au retour du réseau.";
+          }
+          $(".synchro-texte", pastille).textContent = court;
+          pastille.setAttribute("aria-label", insecables(`${long} Voir le foyer`));
+          $("#nav-synchro").textContent = long;
+          $("#synchro-detail").textContent = mode === "ok" ? "À jour" : mode === "en-cours" ? "En cours" : "Hors ligne";
+          $("#etat-alex").textContent = mode === "hors-ligne" ? (etat.enAttente ? `${etat.enAttente} en attente` : "Hors ligne") : mode === "ok" ? "À jour" : "Envoi…";
+          $("#etat-sam").textContent = mode === "ok" ? "À jour" : "Pas encore reçu";
+          [pastille, $("#nav-synchro"), $("#synchro-detail")].forEach(typographie);
+        }
+        // Une modification faite ici : envoyée tout de suite, ou gardée si hors ligne.
+        function signaler(texte) {
+          if (etat.horsLigne) {
+            etat.enAttente++;
+            majSynchro("hors-ligne");
+            annoncer(`${texte} · gardé hors ligne, envoyé au retour du réseau`);
+          } else annoncer(`${texte} · Sam le voit aussi`);
+        }
+        function basculerReseau() {
+          etat.horsLigne = !etat.horsLigne;
+          $$("[data-demo=reseau]").forEach((b) => {
+            b.setAttribute("aria-pressed", String(etat.horsLigne));
+            b.lastElementChild.textContent = etat.horsLigne ? "Revenir en ligne" : "Passer hors ligne";
+          });
+          if (etat.horsLigne) {
+            majSynchro("hors-ligne");
+            annoncer("Hors ligne : la liste et les tâches restent utilisables.");
+            return;
+          }
+          majSynchro("en-cours");
+          setTimeout(
+            () => {
+              const envoyes = etat.enAttente;
+              const recus = etat.recusEnAttente.splice(0);
+              etat.enAttente = 0;
+              recus.forEach((a) => appliquerAjoutSam(a, false));
+              majSynchro("ok");
+              const morceaux = [];
+              if (envoyes) morceaux.push(`${pluriel(envoyes, "modification envoyée", "modifications envoyées")} à Sam`);
+              if (recus.length) morceaux.push(`${pluriel(recus.length, "ajout reçu", "ajouts reçus")} de Sam`);
+              annoncer(`De retour en ligne. ${morceaux.length ? majuscule(morceaux.join(", ")) + "." : "Tout était déjà à jour."}`);
+            },
+            reduit ? 300 : 1200,
+          );
+        }
+
+        // ---------- Catalogue et liste de courses ----------
+        // [nom, icône Fluent Emoji Flat (ou null : pastille à initiales), rayon]
+        const CATALOGUE = {
+          bananes: ["Bananes", "banana", "fruits"],
+          tomates: ["Tomates", "tomato", "fruits"],
+          salade: ["Salade", "leafy-green", "fruits"],
+          oignons: ["Oignons", "onion", "fruits"],
+          mangues: ["Mangues", "mango", "fruits"],
+          avocats: ["Avocats", "avocado", "fruits"],
+          pommes: ["Pommes", "red-apple", "fruits"],
+          citrons: ["Citrons", "lemon", "fruits"],
+          carottes: ["Carottes", "carrot", "fruits"],
+          ail: ["Ail", "garlic", "fruits"],
+          concombre: ["Concombre", "cucumber", "fruits"],
+          ananas: ["Ananas", "pineapple", "fruits"],
+          brocolis: ["Brocolis", "broccoli", "fruits"],
+          patates: ["Pommes de terre", "potato", "fruits"],
+          coco: ["Noix de coco", "coconut", "fruits"],
+          baguette: ["Baguette", "baguette-bread", "boulangerie"],
+          pain: ["Pain", "baguette-bread", "boulangerie"],
+          croissants: ["Croissants", "croissant", "boulangerie"],
+          lait: ["Lait", "glass-of-milk", "cremerie"],
+          oeufs: ["Œufs", "egg", "cremerie"],
+          beurre: ["Beurre", "butter", "cremerie"],
+          fromage: ["Fromage", "cheese-wedge", "cremerie"],
+          yaourts: ["Yaourts", null, "cremerie"],
+          poulet: ["Poulet", "poultry-leg", "frais"],
+          poisson: ["Poisson", "fish", "frais"],
+          pates: ["Pâtes", "spaghetti", "epicerie"],
+          riz: ["Riz", "cooked-rice", "epicerie"],
+          cafe: ["Café", "hot-beverage", "epicerie"],
+          miel: ["Miel", "honey-pot", "epicerie"],
+          sel: ["Sel", "salt", "epicerie"],
+          conserves: ["Conserves", "canned-food", "epicerie"],
+          jus: ["Jus de fruits", "beverage-box", "boissons"],
+          eau: ["Eau", "droplet", "boissons"],
+          vin: ["Vin", "wine-glass", "boissons"],
+          glace: ["Glace", "ice-cream", "surgeles"],
+          papier: ["Papier toilette", "roll-of-paper", "maison"],
+          eponges: ["Éponges", "sponge", "maison"],
+          savon: ["Savon", "soap", "maison"],
+          dentifrice: ["Dentifrice", "toothbrush", "maison"],
+          piles: ["Piles", "battery", "maison"],
+          ampoules: ["Ampoules", "light-bulb", "maison"],
+          biberons: ["Biberons", "baby-bottle", "bebe"],
+          couches: ["Couches", null, "bebe"],
+          creme: ["Crème solaire", "lotion-bottle", "maison"],
+        };
+        const RAYONS = [
+          ["fruits", "Fruits et légumes"],
+          ["boulangerie", "Boulangerie"],
+          ["cremerie", "Crèmerie"],
+          ["frais", "Boucherie, poissonnerie"],
+          ["epicerie", "Épicerie"],
+          ["boissons", "Boissons"],
+          ["surgeles", "Surgelés"],
+          ["maison", "Hygiène et maison"],
+          ["bebe", "Bébé"],
+          ["divers", "Divers"],
+        ];
+        let liste = [
+          { id: "bananes", precision: "x6" },
+          { id: "tomates", precision: "1 kg" },
+          { id: "salade" },
+          { id: "oignons" },
+          { id: "mangues", par: "b" },
+          { id: "lait", precision: "2 l", urgent: true },
+          { id: "oeufs", precision: "x12" },
+          { id: "beurre" },
+          { id: "yaourts", precision: "x8" },
+          { id: "baguette", precision: "x2" },
+          { id: "pates" },
+          { id: "cafe", par: "b" },
+          { id: "riz", precision: "1 kg" },
+          { id: "papier", par: "b" },
+          { id: "eponges" },
+        ];
+        let recents = ["pommes", "fromage", "poulet", "citrons", "poisson", "miel", "croissants", "jus", "carottes", "ail", "concombre", "ananas"];
+        const SUGGESTIONS = [
+          ["fromage", "Tous les 8 j environ · dernier achat il y a 9 j"],
+          ["citrons", "Toutes les 2 semaines · il y a 15 j"],
+          ["jus", "Chaque semaine · il y a 8 j"],
+        ];
+        const AJOUTS_SAM = [{ id: "avocats", precision: "x3" }, { id: "conserves", precision: "thon" }, { id: "savon" }, { id: "glace" }, { id: "piles", precision: "AA" }];
+        let coches = 0;
+        let dernierCoche = null;
+
+        const icone = (id) => {
+          const [nom, ico] = CATALOGUE[id];
+          return ico
+            ? `<svg class="ico" aria-hidden="true" focusable="false"><use href="#f-${ico}"/></svg>`
+            : `<span class="monogramme" aria-hidden="true">${nom.slice(0, 2)}</span>`;
+        };
+        function tuile(a, surListe) {
+          const [nom] = CATALOGUE[a.id];
+          const details = [a.precision, a.urgent ? "urgent" : "", a.par === "b" ? "ajouté par Sam" : ""].filter(Boolean).join(", ");
+          const nomAccessible = surListe ? `${nom}${details ? ", " + details : ""}. Cocher` : `Ajouter ${nom}`;
+          const classes = ["tuile", surListe ? "sur-liste" : "recente", a.nouvelle ? "nouvelle" : "", a.ajoutee ? "ajoutee" : ""].join(" ");
+          return `<li><button type="button" class="${classes}" data-id="${a.id}" aria-label="${nomAccessible}">${
+            a.urgent ? '<span class="drapeau">Urgent</span>' : ""
+          }${a.par === "b" ? '<span class="avatar b par">S</span>' : ""}${icone(a.id)}<span class="tuile-nom">${nom}</span>${
+            a.precision ? `<span class="tuile-precision">${a.precision}</span>` : ""
+          }</button></li>`;
+        }
+        function rendreCourses() {
+          const zone = $("#rayons");
+          zone.innerHTML =
+            RAYONS.map(([cle, titre]) => {
+              const articles = liste.filter((a) => CATALOGUE[a.id][2] === cle);
+              if (!articles.length) return "";
+              return `<section class="rayon" aria-labelledby="r-${cle}"><h3 class="mono" id="r-${cle}">${titre}<span>${articles.length}</span></h3><ul class="tuiles">${articles
+                .map((a) => tuile(a, true))
+                .join("")}</ul></section>`;
+            }).join("") || '<p class="vide">Liste vide : tout est acheté.</p>';
+          $("#recents").innerHTML = recents.map((id) => tuile({ id }, false)).join("");
+          $("#apercu-courses").innerHTML = liste.slice(0, 6).map((a) => tuile(a, true)).join("");
+          $$("[data-suggestions]").forEach((ul) => {
+            ul.innerHTML = SUGGESTIONS.map(([id, texte]) => {
+              const surListe = liste.some((a) => a.id === id);
+              return `<li class="suggestion">${icone(id)}<span><strong>${CATALOGUE[id][0]}</strong><span class="mono">${texte}</span></span><button class="bouton bouton-petit" type="button" data-suggestion="${id}" ${surListe ? "disabled" : ""}>${surListe ? "Sur la liste" : "Ajouter"}</button></li>`;
+            }).join("");
+          });
+          const n = liste.length;
+          $$("[data-compte-liste]").forEach((el) => (el.textContent = n));
+          $("[data-compte-sup]").textContent = n;
+          $("#progression-texte").textContent = `${coches} sur ${coches + n}`;
+          $("#progression-barre").style.width = `${(coches / Math.max(1, coches + n)) * 100}%`;
+          $("#annuler").disabled = !dernierCoche;
+          liste.forEach((a) => delete a.ajoutee);
+          [zone, $("#recents"), $("#apercu-courses"), ...$$("[data-suggestions]")].forEach(typographie);
+        }
+        function cocher(id, bouton) {
+          const article = liste.find((a) => a.id === id);
+          if (!article) return;
+          const index = $$("#rayons .tuile").indexOf(bouton);
+          bouton.classList.add("cochee");
+          setTimeout(
+            () => {
+              liste = liste.filter((a) => a !== article);
+              recents = [id, ...recents.filter((r) => r !== id)].slice(0, 12);
+              coches++;
+              dernierCoche = article;
+              rendreCourses();
+              const tuiles = $$("#rayons .tuile");
+              (tuiles[Math.min(index, tuiles.length - 1)] || $("#t-acheter")).focus?.();
+            },
+            reduit ? 0 : 200,
+          );
+          signaler(`${CATALOGUE[id][0]} coché`);
+        }
+        function ajouter(id, precision) {
+          if (liste.some((a) => a.id === id)) return annoncer(`${CATALOGUE[id][0]} est déjà sur la liste.`);
+          liste.push({ id, precision, par: "a", ajoutee: true });
+          recents = recents.filter((r) => r !== id);
+          rendreCourses();
+        }
+        function appliquerAjoutSam(a, annonce = true) {
+          liste = liste.filter((x) => x.id !== a.id);
+          const article = { ...a, par: "b", nouvelle: true };
+          liste.push(article);
+          recents = recents.filter((r) => r !== a.id);
+          rendreCourses();
+          if (annonce) annoncer(`Sam vient d’ajouter ${CATALOGUE[a.id][0]}${a.precision ? " (" + a.precision + ")" : ""}`);
+          setTimeout(() => {
+            article.nouvelle = false;
+            $(`#rayons .tuile[data-id="${a.id}"]`)?.classList.remove("nouvelle");
+          }, 6000);
+        }
+        function samAjoute() {
+          const a = AJOUTS_SAM.shift();
+          if (!a) return annoncer("Sam n’a plus rien à ajouter pour cette démo.");
+          if (etat.horsLigne) {
+            etat.recusEnAttente.push(a);
+            return annoncer("Sam vient d’ajouter un article. Vous êtes hors ligne : il arrivera au retour du réseau.");
+          }
+          if (location.hash !== "#courses" && location.hash !== "#nous") location.hash = "#courses";
+          appliquerAjoutSam(a);
+          if (location.hash === "#courses")
+            $(`#rayons .tuile[data-id="${a.id}"]`)?.scrollIntoView({ block: "center", behavior: reduit ? "auto" : "smooth" });
+        }
+
+        document.addEventListener("click", (e) => {
+          const t = e.target.closest(".tuile");
+          if (t?.classList.contains("sur-liste")) return cocher(t.dataset.id, t);
+          if (t?.classList.contains("recente")) {
+            ajouter(t.dataset.id);
+            return signaler(`${CATALOGUE[t.dataset.id][0]} ajouté`);
+          }
+          const s = e.target.closest("[data-suggestion]");
+          if (s) {
+            ajouter(s.dataset.suggestion);
+            return signaler(`${CATALOGUE[s.dataset.suggestion][0]} ajouté`);
+          }
+          if (e.target.closest("[data-pars]"))
+            return annoncer("Notification envoyée à Sam : « Alex part faire les courses. Il te faut quelque chose ? »");
+          const d = e.target.closest("[data-demo]");
+          if (d) return d.dataset.demo === "ajout" ? samAjoute() : basculerReseau();
+        });
+
+        // Mode magasin
+        const boutonMagasin = $("#mode-magasin");
+        function modeMagasin(actif) {
+          document.body.classList.toggle("mode-magasin", actif);
+          boutonMagasin.setAttribute("aria-pressed", String(actif));
+          if (actif) {
+            coches = 0;
+            dernierCoche = null;
+            rendreCourses();
+            annoncer("Mode magasin : grandes tuiles, rayons dans l’ordre de ce magasin, écran maintenu allumé.");
+          }
+        }
+        boutonMagasin.addEventListener("click", () => modeMagasin(true));
+        $("#terminer").addEventListener("click", () => {
+          modeMagasin(false);
+          annoncer(`Bilan envoyé à Sam : ${pluriel(coches, "article acheté", "articles achetés")}, ${pluriel(liste.length, "reste", "restent")} sur la liste.`);
+        });
+        $("#annuler").addEventListener("click", () => {
+          if (!dernierCoche) return;
+          liste.push({ ...dernierCoche, ajoutee: true });
+          recents = recents.filter((r) => r !== dernierCoche.id);
+          coches = Math.max(0, coches - 1);
+          const nom = CATALOGUE[dernierCoche.id][0];
+          dernierCoche = null;
+          rendreCourses();
+          signaler(`${nom} remis sur la liste`);
+        });
+
+        // ---------- Tâches ----------
+        document.addEventListener("click", (e) => {
+          const c = e.target.closest(".case");
+          if (!c) return;
+          const li = c.closest(".tache");
+          const fait = c.getAttribute("aria-pressed") !== "true";
+          const cible = li.dataset.tache ? $$(`.tache[data-tache="${li.dataset.tache}"]`) : [li];
+          cible.forEach((x) => {
+            x.classList.toggle("faite", fait);
+            $(".case", x).setAttribute("aria-pressed", String(fait));
+          });
+          const titre = $(".tache-titre", li).textContent;
+          signaler(fait ? `« ${titre} » fait` : `« ${titre} » à refaire`);
+        });
+        $("#filtres").addEventListener("click", (e) => {
+          const b = e.target.closest("[data-filtre]");
+          if (!b) return;
+          $$("[data-filtre]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+          const f = b.dataset.filtre;
+          $$('.vue[data-vue="a-faire"] .groupe').forEach((g) => {
+            let visibles = 0;
+            $$(".tache", g).forEach((li) => {
+              const ok = f === "tout" || li.dataset.pour === f;
+              li.hidden = !ok;
+              if (ok) visibles++;
+            });
+            g.hidden = visibles === 0;
+          });
+        });
+
+        // ---------- Maison ----------
+        document.addEventListener("click", (e) => {
+          const b = e.target.closest("[data-fait]");
+          if (!b) return;
+          const r = b.closest(".routine");
+          const nom = $(".routine-nom", r).textContent;
+          $$(`.routine[data-routine="${r.dataset.routine}"]`).forEach((x) => {
+            const j = $(".jauge", x);
+            j.style.setProperty("--v", "0%");
+            j.removeAttribute("data-niveau");
+            const etatTexte = $(".routine-etat", x);
+            etatTexte.textContent = "Fait à l’instant par Alex";
+            etatTexte.classList.remove("urgent");
+            const bouton = $("[data-fait]", x);
+            bouton.disabled = true;
+            bouton.textContent = "Merci";
+          });
+          signaler(`${nom} : jauge remise à zéro`);
+        });
+
+        // ---------- Nous : qui porte quoi ----------
+        const PORTEURS = { a: ["A", "Alex"], b: ["S", "Sam"], nous: ["A+S", "vous deux"] };
+        const SUIVANT = { a: "b", b: "nous", nous: "a" };
+        const domaines = [
+          ["Courses", "b"], ["Repas", "a"], ["Linge", "b"], ["Administratif", "a"], ["Santé", "b"],
+          ["Finances", "a"], ["Maison", "nous"], ["Voiture", "a"], ["Famille et amis", "b"], ["Bébé", "nous"],
+        ];
+        function rendreDomaines() {
+          $("#domaines").innerHTML = domaines
+            .map(([nom, p], i) => {
+              const [initiale, qui] = PORTEURS[p];
+              return `<li><button class="domaine" type="button" data-domaine="${i}" aria-label="${nom}${INSECABLE}: porté par ${qui}. Changer"><span>${nom}</span><span class="avatar ${p}" aria-hidden="true">${initiale}</span></button></li>`;
+            })
+            .join("");
+        }
+        $("#domaines").addEventListener("click", (e) => {
+          const b = e.target.closest("[data-domaine]");
+          if (!b) return;
+          const i = +b.dataset.domaine;
+          domaines[i][1] = SUIVANT[domaines[i][1]];
+          rendreDomaines();
+          $(`[data-domaine="${i}"]`).focus();
+          signaler(`${domaines[i][0]} : porté par ${PORTEURS[domaines[i][1]][1]}`);
+        });
+
+        // ---------- Saisie rapide (analyseur de démonstration) ----------
+        const MEMBRE = { sam: "b", toi: "b", alex: "a", moi: "a", nous: "nous" };
+        const NOM_MEMBRE = { a: "Alex", b: "Sam", nous: "vous deux" };
+        const INDEX = Object.fromEntries(Object.entries(CATALOGUE).flatMap(([id, [nom]]) => {
+          const cle = sansAccents(nom);
+          return [[cle, id], [cle.replace(/s$/, ""), id]];
+        }));
+        function analyser(texte) {
+          return texte
+            .split(/[,;\n]+/)
+            .map((m) => m.trim())
+            .filter(Boolean)
+            .map((morceau) => {
+              let reste = ` ${morceau} `;
+              let pour = null, quand = null, precision = null;
+              reste = reste.replace(/@(\p{L}+)/u, (_, n) => ((pour = MEMBRE[sansAccents(n)] || null), " "));
+              reste = reste.replace(/\s(avant le \d{1,2}|aujourd[’']hui|demain|ce soir|ce week-end|(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)(?: prochain)?)(?=\s)/i, (_, d) => ((quand = d), " "));
+              reste = reste.replace(/^\s*(\d+(?:[.,]\d+)?)\s*(kg|g|l|cl|ml)?\s+/i, (_, q, u) => ((precision = u ? `${q} ${u.toLowerCase()}` : `x${q}`), " "));
+              reste = reste.replace(/\s+x\s?(\d+)\s*$/i, (_, q) => ((precision = `x${q}`), " "));
+              reste = reste.replace(/\s+/g, " ").trim();
+              const id = INDEX[sansAccents(reste)] || INDEX[sansAccents(reste).replace(/s$/, "")];
+              if (!pour && !quand && (id || reste.split(" ").length <= 2)) return { type: "article", id, nom: id ? CATALOGUE[id][0] : majuscule(reste), precision };
+              return { type: "tache", titre: majuscule(reste), pour: pour || "a", quand };
+            });
+        }
+        const champ = $("#champ-saisie");
+        const dialogue = $("#saisie");
+        function apercu() {
+          const elements = analyser(champ.value);
+          $("#apercu").innerHTML = elements
+            .map((x) =>
+              x.type === "article"
+                ? `<li>${x.id ? icone(x.id) : `<span class="monogramme" aria-hidden="true">${x.nom.slice(0, 2)}</span>`}<span><strong>${x.nom}${x.precision ? " · " + x.precision : ""}</strong><span class="mono">Courses · Supermarché</span></span></li>`
+                : `<li><span class="icone-tache" aria-hidden="true"><svg><use href="#i-taches"/></svg></span><span><strong>${x.titre}</strong><span class="mono">À faire · ${[x.quand, "pour " + NOM_MEMBRE[x.pour]].filter(Boolean).join(" · ")}</span></span></li>`,
+            )
+            .join("");
+          $("#valider-saisie").textContent = elements.length ? `Ajouter ${elements.length > 1 ? "les " + elements.length : "l’élément"}` : "Ajouter";
+          $("#valider-saisie").disabled = !elements.length;
+          typographie($("#apercu"));
+        }
+        champ.addEventListener("input", apercu);
+        $$("[data-ouvrir-saisie]").forEach((b) =>
+          b.addEventListener("click", () => {
+            apercu();
+            dialogue.showModal();
+            champ.focus();
+            champ.select();
+          }),
+        );
+        $$("[data-fermer]").forEach((b) => b.addEventListener("click", () => dialogue.close()));
+        $("#form-saisie").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const elements = analyser(champ.value);
+          elements.forEach((x) => {
+            if (x.type === "article") {
+              let id = x.id;
+              if (!id) {
+                id = "perso-" + sansAccents(x.nom).replace(/\W+/g, "-");
+                CATALOGUE[id] = [x.nom, null, "divers"];
+              }
+              ajouter(id, x.precision);
+            } else {
+              const li = document.createElement("li");
+              li.className = "tache";
+              li.dataset.pour = x.pour;
+              const [initiale, qui] = PORTEURS[x.pour];
+              li.innerHTML = `<button class="case" type="button" aria-pressed="false" aria-label="Terminer${INSECABLE}: ${x.titre}"><svg aria-hidden="true" focusable="false"><use href="#i-valider"/></svg></button><div><p class="tache-titre">${x.titre}</p><ul class="tache-meta">${x.quand ? `<li>${x.quand}</li>` : ""}<li>Ajoutée à l’instant</li></ul></div><span class="avatar ${x.pour}"><span aria-hidden="true">${initiale}</span><span class="vh">Pour ${qui}</span></span>`;
+              $("#taches-semaine").prepend(li);
+              typographie(li);
+            }
+          });
+          dialogue.close();
+          signaler(`${pluriel(elements.length, "élément ajouté", "éléments ajoutés")}`);
+        });
+
+        // ---------- Navigation par ancre ----------
+        const VUES = {
+          aujourdhui: "Aujourd’hui", courses: "Courses", "a-faire": "À faire", foyer: "Foyer", nous: "Nous",
+          maison: "Maison", voiture: "Voiture d’Alex", voyage: "Vacances aux îles", enfant: "Léo",
+        };
+        const PARENT = { maison: "foyer", voiture: "foyer", voyage: "foyer", enfant: "foyer" };
+        function afficherVue(deplacerFocus) {
+          const id = location.hash.slice(1);
+          const vue = id in VUES ? id : "aujourdhui";
+          const onglet = PARENT[vue] || vue;
+          $$(".vue").forEach((s) => (s.hidden = s.dataset.vue !== vue));
+          $$(".navigation ul a").forEach((a) => (a.dataset.vue === onglet ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+          document.title = `${VUES[vue]} · Nid`;
+          if (vue !== "courses" && document.body.classList.contains("mode-magasin")) modeMagasin(false);
+          if (deplacerFocus) {
+            window.scrollTo(0, 0);
+            $(`.vue[data-vue="${vue}"] h1`).focus({ preventScroll: true });
+          }
+        }
+        addEventListener("hashchange", () => afficherVue(true));
+
+        // ---------- Thème commun : système, clair, sombre ----------
+        const CLE = "skazy-outils:theme";
+        const racine = document.documentElement;
+        const boutonTheme = $("#bouton-theme");
+        const NOMS = {
+          systeme: `Thème${INSECABLE}: celui du système. Changer de thème`,
+          light: `Thème${INSECABLE}: clair. Changer de thème`,
+          dark: `Thème${INSECABLE}: sombre. Changer de thème`,
+        };
+        const ICONES = { systeme: "#i-systeme", light: "#i-soleil", dark: "#i-lune" };
+        const metas = $$('meta[name="theme-color"]');
+        const couleursInitiales = metas.map((m) => m.content);
+        const lireTheme = () => {
+          try {
+            const t = JSON.parse(localStorage.getItem(CLE));
+            return t === "light" || t === "dark" ? t : null;
+          } catch {
+            return null;
+          }
+        };
+        let theme = lireTheme();
+        function appliquerTheme(t) {
+          theme = t;
+          if (t) racine.dataset.theme = t;
+          else delete racine.dataset.theme;
+          const etatTheme = t || "systeme";
+          boutonTheme.setAttribute("aria-label", NOMS[etatTheme]);
+          boutonTheme.title = NOMS[etatTheme];
+          $("use", boutonTheme).setAttribute("href", ICONES[etatTheme]);
+          const fond = getComputedStyle(racine).getPropertyValue("--fond").trim();
+          metas.forEach((m, i) => (m.content = t ? fond : couleursInitiales[i]));
+        }
+        boutonTheme.addEventListener("click", () => {
+          const suivant = theme === null ? "light" : theme === "light" ? "dark" : null;
+          try {
+            if (suivant) localStorage.setItem(CLE, JSON.stringify(suivant));
+            else localStorage.removeItem(CLE);
+          } catch {}
+          appliquerTheme(suivant);
+        });
+        addEventListener("storage", (e) => {
+          if (e.key === CLE || e.key === null) appliquerTheme(lireTheme());
+        });
+        addEventListener("pageshow", (e) => {
+          if (e.persisted) appliquerTheme(lireTheme());
+        });
+
+        // ---------- Démarrage ----------
+        rendreCourses();
+        rendreDomaines();
+        appliquerTheme(theme);
+        iconesDecoratives(document);
+        typographie(document.body);
+        afficherVue(false);
+      })();
+    </script>
+  </body>
+</html>

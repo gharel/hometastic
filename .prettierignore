@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dev-dist/
+coverage/
+playwright-report/
+test-results/
+package-lock.json
+# Référence visuelle figée, écrite à la main : ne pas la reformater.
+maquette/
+docs/captures/
+src/icones/fluent.json

@@ -1,0 +1,436 @@
+/* Composants propres à l’application (formulaires, feuilles, listes à cocher), dans la charte de Nid. */
+
+.chargement {
+  min-height: 100dvh;
+}
+.tache-meta > span:not(:last-child)::after {
+  content: '·';
+  margin: 0 6px;
+}
+.tache-corps {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.tache-titre {
+  display: block;
+}
+.tache .case + .tache-corps + span:empty {
+  width: 0;
+}
+.tache.faite .tache-titre {
+  text-decoration: line-through;
+  color: var(--texte-doux);
+}
+
+.lien-bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--primaire);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lien-bouton svg {
+  width: 18px;
+  height: 18px;
+}
+.lien-bouton[aria-pressed='true'] {
+  background: var(--primaire-doux);
+}
+.bloc-tete a.lien,
+a.lien {
+  color: var(--primaire);
+  font-weight: 700;
+  text-decoration: none;
+}
+.entete-liste {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+.entete-liste .doux a {
+  color: var(--primaire);
+  font-weight: 700;
+}
+.titre-avec-icone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.titre-avec-icone .ico {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  margin-top: 10px;
+}
+.titre-avec-icone h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.aide {
+  margin: 8px 4px 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.attente {
+  color: var(--texte-doux) !important;
+}
+.vide {
+  margin: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--ombre);
+  color: var(--texte-doux);
+  text-align: center;
+}
+.bloc > .vide + .repli,
+.repli {
+  margin-top: 10px;
+}
+.repli > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--texte-doux);
+  font-weight: 700;
+  cursor: pointer;
+}
+.pilule[aria-current='page'] {
+  background: var(--primaire);
+  color: var(--sur-primaire);
+  box-shadow: none;
+}
+a.pilule {
+  text-decoration: none;
+  color: inherit;
+}
+.synchro[data-etat='local'] .voyant {
+  background: var(--bientot);
+}
+.barre-fine.depasse span {
+  background: var(--alerte);
+}
+.ligne > svg:not(.ico) {
+  stroke-width: 2;
+}
+.ligne .sous .cadenas {
+  margin-right: 4px;
+}
+
+/* Saisie d’un article et suggestions du catalogue */
+.saisie-article {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.saisie-article .champ {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  background: var(--surface);
+  box-shadow: var(--ombre);
+  border-color: var(--bord-controle);
+}
+.bouton-icone-plein {
+  width: 48px;
+  min-height: 48px;
+  padding: 0;
+  flex: none;
+  border-radius: 14px;
+}
+.propositions {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  list-style: none;
+  margin: 0 -16px;
+  padding: 10px 16px 4px;
+}
+.propositions::-webkit-scrollbar {
+  display: none;
+}
+.proposition {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 14px 4px 6px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--ombre);
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.proposition .ico,
+.proposition .monogramme {
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  font-size: 12px;
+}
+.tuiles.edition .tuile {
+  outline: 2px dashed var(--miel);
+  outline-offset: -5px;
+}
+.tuiles.apercu .tuile {
+  text-decoration: none;
+}
+.rayon h3 span {
+  font-weight: 500;
+}
+
+/* Infos clés d’une fiche */
+.infos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 14px 0 0;
+}
+.infos > div {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--ombre);
+}
+.infos dt {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--texte-doux);
+}
+.infos dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.chiffre {
+  margin-bottom: 0;
+}
+
+/* Feuilles et formulaires */
+dialog.feuille {
+  max-height: 92dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.formulaire {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+.champ-groupe {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.champ-groupe > label,
+.legende {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texte-doux);
+}
+textarea.champ {
+  min-height: 84px;
+  resize: vertical;
+  font-weight: 500;
+  font-family: inherit;
+}
+select.champ {
+  font-weight: 600;
+}
+.champ {
+  font-family: inherit;
+  color: var(--texte);
+  min-width: 0;
+}
+.champ:focus-visible {
+  outline: 3px solid var(--primaire);
+  outline-offset: 1px;
+}
+.ligne-champs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.choix {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.choix .legende {
+  width: 100%;
+  margin-bottom: 2px;
+  padding: 0;
+}
+.choix label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  font-weight: 650;
+  cursor: pointer;
+}
+.choix label .ico {
+  width: 24px;
+  height: 24px;
+}
+.choix input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.choix label:has(input:checked) {
+  background: var(--primaire);
+  color: var(--sur-primaire);
+}
+.choix label:has(input:focus-visible) {
+  outline: 3px solid var(--primaire);
+  outline-offset: 2px;
+}
+.case-a-cocher {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-weight: 650;
+  cursor: pointer;
+}
+.case-a-cocher input {
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  flex: none;
+  accent-color: var(--primaire);
+}
+.case-a-cocher small {
+  display: block;
+  font-weight: 500;
+  color: var(--texte-doux);
+}
+.boutons-feuille {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.bouton-danger {
+  background: transparent;
+  color: var(--alerte);
+  box-shadow: inset 0 0 0 1.5px var(--alerte);
+}
+label.bouton {
+  cursor: pointer;
+  position: relative;
+}
+.menu-ajout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+.menu-ajout button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 120px;
+  padding: 14px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--fond);
+  box-shadow: var(--ombre);
+  text-align: left;
+  cursor: pointer;
+}
+.menu-ajout .ico {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 4px;
+}
+.menu-ajout strong {
+  font-size: 16px;
+}
+.menu-ajout span {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.code-secours {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 14px;
+  word-break: break-all;
+  user-select: all;
+}
+
+/* Premier lancement */
+.accueil {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: calc(28px + env(safe-area-inset-top)) 16px 48px;
+}
+.accueil .logo-grand {
+  width: 72px;
+  height: 72px;
+}
+.accueil h1 {
+  margin: 16px 0 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.accueil .formulaire {
+  margin-top: 22px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--ombre);
+}
+
+@media (max-width: 359px) {
+  .ligne-champs {
+    grid-template-columns: 1fr;
+  }
+  .menu-ajout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Liste « À voir » : illustration du genre à droite */
+.tache > .ico {
+  width: 30px;
+  height: 30px;
+}
