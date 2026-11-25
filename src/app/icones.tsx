@@ -87,6 +87,16 @@ const TRACES = {
       <path d="M16 2v4M8 2v4M3 10h18" />
     </>
   ),
+  partager: (
+    <>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
+    </>
+  ),
+  cloche: <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0" />,
+  nuage: <path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z" />,
 } satisfies Record<string, JSX.Element>;
 
 export type NomIcone = keyof typeof TRACES;

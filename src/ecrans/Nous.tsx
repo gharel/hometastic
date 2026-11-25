@@ -1,7 +1,9 @@
 import { useState } from 'preact/hooks';
-import { annoncer, autre, choisirMembre, depot, foyer, membreCourant, membres, ouvrir } from '../app/etat';
+import { annoncer, choisirMembre, depot, foyer, membreCourant, membres, ouvrir } from '../app/etat';
 import { Icone, Illustration } from '../app/icones';
 import { BlocTete } from '../composants/communs';
+import { estRelie, quitter } from '../donnees/synchro/synchro';
+import { BlocSynchro } from './Synchro';
 
 async function exporter() {
   const sauvegarde = await depot().exporter();
@@ -78,36 +80,7 @@ export function Nous() {
         </div>
       </section>
 
-      <section class="bloc" aria-labelledby="t-synchro">
-        <BlocTete titre="Synchronisation" id="t-synchro">
-          <span class="mono">Sur ce téléphone</span>
-        </BlocTete>
-        <ul class="appareils">
-          <li class="appareil">
-            <Icone nom="telephone" />
-            <span>
-              <strong>Ce téléphone</strong>
-              <br />
-              <span class="mono">Toutes les données, même hors ligne</span>
-            </span>
-            <span class="mono">Enregistré</span>
-          </li>
-          <li class="appareil">
-            <Icone nom="telephone" />
-            <span>
-              <strong>Téléphone {autre.value ? `de ${autre.value.nom}` : 'de l’autre membre'}</strong>
-              <br />
-              <span class="mono">Synchronisation en temps réel à brancher</span>
-            </span>
-            <span class="mono attente">À venir</span>
-          </li>
-        </ul>
-        <p class="aide">
-          La synchronisation entre vos deux téléphones arrive avec le service choisi à l’essai du lot 0
-          (Firebase recommandé, ADR 0002). D’ici là, une sauvegarde exportée ici peut être importée sur
-          l’autre téléphone.
-        </p>
-      </section>
+      <BlocSynchro />
 
       <section class="bloc" aria-labelledby="t-cle">
         <BlocTete titre="Santé chiffrée" id="t-cle" />
@@ -197,6 +170,13 @@ export function Nous() {
               )
             ) {
               await depot().toutEffacer();
+              if (estRelie()) {
+                // Le foyer partagé reste pour l’autre téléphone ; celui-ci repart de zéro.
+                quitter();
+                history.replaceState(null, '', '#/aujourdhui');
+                location.reload();
+                return;
+              }
               location.hash = '#/aujourdhui';
             }
           }}

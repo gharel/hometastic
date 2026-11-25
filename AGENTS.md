@@ -6,13 +6,14 @@ Les demandes explicites de l’utilisateur priment sur ce document.
 
 ## État du projet
 
-**Cadrage validé** le 25 novembre 2026 : plan, conception (briques, ADR 0003), santé chiffrée (ADR 0004), charte et maquette (`maquette/index.html`). Exigence n°1 : liste de courses et tâches synchronisées entre les deux téléphones dès le lot 1. Reste à trancher (voir `docs/DECISIONS.md`) : service de synchronisation et région (essai du lot 0). **Livré le 25 novembre 2026** : les quatre briques, puis animaux, finances et sorties (specs 001 et 002), sur un téléphone à la fois (stockage local IndexedDB via le dépôt, santé chiffrée), **en ligne** sur https://gharel.github.io/nid/ (dépôt public `gharel/nid`). Prochaine étape : l’essai de synchronisation (lot 0) et son branchement derrière `src/donnees/depot.ts`. Ne pas créer de projet Firebase ou Dexie Cloud sans accord explicite de l’utilisateur.
+**Cadrage validé** le 25 novembre 2026 : plan, conception (briques, ADR 0003), santé chiffrée (ADR 0004), charte et maquette (`maquette/index.html`). Exigence n°1 : liste de courses et tâches synchronisées entre les deux téléphones dès le lot 1. **Livré le 25 novembre 2026** : les quatre briques, puis animaux, finances et sorties (specs 001 et 002), sur un téléphone à la fois (stockage local IndexedDB via le dépôt, santé chiffrée), **en ligne** sur https://gharel.github.io/nid/ (dépôt public `gharel/nid`). **Synchronisation (26 novembre 2026)** : Firebase Spark validé (ADR 0002, spec 004), `StockageFirestore` derrière l’interface `Stockage`, invitation par lien, règles dans `firestore.rules` ; rappels par GitHub Actions (ADR 0005). Le projet Firebase est créé **par l’utilisateur** en suivant `docs/FIREBASE.md` ; ses valeurs publiques vont dans les variables du dépôt (`FIREBASE_CONFIG`, `FIREBASE_VAPID`, `RAPPELS_ACTIFS`), le compte de service dans le secret `FIREBASE_SERVICE_ACCOUNT` (jamais dans la conversation ni le dépôt). Sans ces variables, l’app reste locale. Reste l’essai sur les deux iPhone.
 
 ## Git et publication
 
 - Dépôt public `gharel/nid`. La branche `main` est publiée sur https://gharel.github.io/nid/ par `.github/workflows/pages.yml` (check, tests e2e, build puis publication) : **un envoi sur `main` est une publication**. Vérifier le workflow et la page publiée avant d’annoncer un déploiement réussi.
 - Actions épinglées par SHA (commentaire avec la version), comme dans Fournée.
-- Ne pas committer `node_modules/`, `dist/`, rapports de tests, `.env`, identifiants ni réglages d’IDE ; aucune donnée réelle (foyer fictif « Alex et Sam »).
+- `.github/workflows/rappels.yml` tourne toutes les 15 minutes quand `RAPPELS_ACTIFS` vaut `oui` ; ses journaux sont publics : `outils/rappels.mjs` n’y écrit que des nombres, jamais un titre, un nom ni un identifiant de foyer.
+- Ne pas committer `node_modules/`, `dist/`, rapports de tests, `.env`, identifiants ni réglages d’IDE ; aucune donnée réelle (foyer fictif « Guillaume et Hélène », animaux Martine et Rookie).
 - Fins de ligne LF (`.gitattributes`). Pas de `push --force`, de `reset --hard` ni de réécriture d’historique sans demande explicite.
 
 ## Le produit
@@ -38,7 +39,7 @@ docs/                 PLAN.md, BENCHMARK.md, DECISIONS.md (registre), adr/ (déc
 
 ## Commandes
 
-Outils : `node outils/icones.mjs` (télécharge les icônes Fluent du catalogue dans `src/icones/fluent.json`), `node outils/espaces.mjs <fichiers>` (échappe les espaces insécables écrites en dur), `node outils/extraire-css.mjs` (reprend la charte de la maquette, à ne relancer qu’en connaissance de cause : `src/styles/nid.css` a pu évoluer).
+Outils : `node outils/icones.mjs` (télécharge les icônes Fluent du catalogue dans `src/icones/fluent.json`), `node outils/espaces.mjs <fichiers>` (échappe les espaces insécables écrites en dur), `node outils/extraire-css.mjs` (reprend la charte de la maquette, à ne relancer qu’en connaissance de cause : `src/styles/nid.css` a pu évoluer), `node outils/rappels.mjs` (envoi des rappels, lancé par GitHub Actions ; exige `FIREBASE_SERVICE_ACCOUNT`).
 
 | Commande           | Rôle                                                                        |
 | ------------------ | --------------------------------------------------------------------------- |

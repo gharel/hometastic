@@ -1,0 +1,34 @@
+name: Rappels
+
+# Toutes les 15 minutes, envoie les rappels arrivés à l’heure (outils/rappels.mjs, ADR 0005).
+# GitHub peut retarder une exécution programmée de quelques minutes : un rappel part au plus tard
+# 24 h après son heure, une seule fois. Inactif tant que la variable RAPPELS_ACTIFS ne vaut pas « oui ».
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rappels
+  cancel-in-progress: false
+
+jobs:
+  envoyer:
+    if: vars.RAPPELS_ACTIFS == 'oui'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node outils/rappels.mjs
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

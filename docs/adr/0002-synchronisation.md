@@ -1,6 +1,6 @@
 # ADR 0002 : synchronisation du foyer
 
-- Statut : **proposé** : Firebase recommandé, confirmé ou non par l’essai du lot 0 (plan validé le 25 novembre 2026)
+- Statut : **accepté** : Firebase, formule Spark gratuite (décision de l’utilisateur le 26 novembre 2026 : « Ok tu peux partir sur firebase spark ») ; rappels par GitHub Actions (ADR 0005)
 - Date : 2026-11-25
 
 ## Contexte
@@ -28,7 +28,19 @@ Contrairement à Fournée, Nid n’a de sens que partagé : deux téléphones (p
 - **Blaze** : mêmes quotas gratuits, mais un moyen de paiement est obligatoire et aucun plafond de dépense n’est garanti hors quelques produits.
 - **Conséquence pour Nid, tout gratuit** : Spark pour les données, la connexion et les notifications ; une tâche **GitHub Actions programmée** (gratuite pour un dépôt public) envoie les rappels par Cloud Messaging ; les photos attendront (compressées dans Firestore, sous 1 Mo, ou un autre stockage gratuit).
 
-## Recommandation provisoire
+## Décision (26 novembre 2026)
+
+**Firebase, formule Spark**, sans carte bancaire :
+
+- **Firestore** avec cache persistant (IndexedDB) : `foyers/{foyerId}` (membres `uids`, secret d’invitation, fuseau) et une sous-collection par table du dépôt (`foyers/{foyerId}/taches/{id}`…). `StockageFirestore` implémente l’interface `Stockage` : le domaine et les écrans ne changent pas. Écritures sans attendre le serveur (hors ligne compris) ; la dernière écriture d’un document gagne.
+- **Authentication anonyme** : un compte par téléphone, sans e-mail ni mot de passe. Un téléphone devient membre en créant le foyer, ou avec le **lien d’invitation** `#/rejoindre/<foyer>.<secret>.<clé santé>` ; les règles (`firestore.rules`) n’acceptent l’ajout que si le secret présenté est celui du foyer.
+- La **clé de santé** ne quitte jamais le téléphone (table `cles` locale) sauf dans le lien d’invitation, à n’envoyer qu’à l’autre membre ; le serveur ne voit que des blocs chiffrés (ADR 0004).
+- **Cloud Messaging** pour les rappels, planifiés par GitHub Actions (ADR 0005).
+- Configuration publique injectée au build par les variables du dépôt (`FIREBASE_CONFIG`, `FIREBASE_VAPID`) ; sans elles, l’app reste locale. Firebase n’est chargé qu’à l’usage.
+- Région : **`australia-southeast1` (Sydney)**, la plus proche de Nouméa, choisie à la création du projet (`docs/FIREBASE.md`).
+- Photos : plus tard (Cloud Storage exige Blaze).
+
+## Recommandation initiale (25 novembre 2026)
 
 **Firebase**, parce qu’il couvre d’un bloc les cinq besoins durs (hors ligne, temps réel, comptes, push planifié, fichiers ; ce dernier est apparu avec les fiches et projets de l’ADR 0003). **Dexie Cloud** reste l’alternative si l’essai montre une meilleure fusion hors ligne et si la limite de 3 utilisateurs convient. Supabase est écarté : hors ligne à construire et mise en pause des projets inactifs.
 

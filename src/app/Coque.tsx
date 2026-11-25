@@ -8,6 +8,8 @@ import { Foyer } from '../ecrans/Foyer';
 import { Analyse } from '../ecrans/Analyse';
 import { Nous } from '../ecrans/Nous';
 import { Projet } from '../ecrans/Projet';
+import { Rejoindre } from '../ecrans/Rejoindre';
+import { etatSynchro, type EtatSynchro } from '../donnees/synchro/synchro';
 import { BoutonTheme } from './BoutonTheme';
 import { annoncer, annonce, depot, foyer, membres, ouvrir, pret, route } from './etat';
 import { Icone, type NomIcone } from './icones';
@@ -57,8 +59,40 @@ function Ecran({ r }: { r: Route }) {
       return <Nous />;
     case 'analyse':
       return <Analyse mois={r.id} />;
+    case 'rejoindre':
+      return <Rejoindre code={r.code} />;
   }
 }
+
+/** Pastille d’état de la synchronisation (en-tête et barre latérale). */
+const PASTILLES: Record<EtatSynchro, { etat: string; texte: string; detail: string }> = {
+  indisponible: {
+    etat: 'local',
+    texte: 'Sur ce téléphone',
+    detail: 'Tout fonctionne hors ligne. La synchronisation entre vos deux téléphones est à brancher (Nous).',
+  },
+  locale: {
+    etat: 'local',
+    texte: 'Sur ce téléphone',
+    detail: 'Tout fonctionne hors ligne. Activez la synchronisation dans Nous.',
+  },
+  connexion: { etat: 'en-cours', texte: 'Connexion…', detail: 'Connexion au foyer partagé.' },
+  synchronisee: {
+    etat: 'ok',
+    texte: 'Synchronisé',
+    detail: 'Les changements arrivent en temps réel sur l’autre téléphone.',
+  },
+  'hors-ligne': {
+    etat: 'hors-ligne',
+    texte: 'Hors ligne',
+    detail: 'Vos changements partiront au retour du réseau.',
+  },
+  erreur: {
+    etat: 'erreur',
+    texte: 'À vérifier',
+    detail: 'La synchronisation a rencontré un souci, voir Nous.',
+  },
+};
 
 function Annonce() {
   const [visible, setVisible] = useState(false);
@@ -129,8 +163,10 @@ export function Coque() {
   }, [cle]);
 
   if (!pret.value) return <div class="chargement" aria-busy="true" />;
+  if (r.ecran === 'rejoindre') return <Rejoindre code={r.code} />;
   const f = foyer.value;
   if (!f) return <Accueil />;
+  const pastille = PASTILLES[etatSynchro.value];
 
   return (
     <div class="app">
@@ -165,10 +201,8 @@ export function Coque() {
           ))}
         </ul>
         <div class="nav-pied">
-          <strong>Sur ce téléphone</strong>
-          <p>
-            Tout fonctionne hors ligne. La synchronisation entre vos deux téléphones est à brancher (Nous).
-          </p>
+          <strong>{pastille.texte}</strong>
+          <p>{pastille.detail}</p>
         </div>
       </nav>
 
@@ -178,7 +212,7 @@ export function Coque() {
             <Logo />
             <span class="marque-nom">Nid</span>
           </a>
-          <a class="synchro" href="#/nous" data-etat="local">
+          <a class="synchro" href="#/nous" data-etat={pastille.etat}>
             <span class="duo" aria-hidden="true">
               {membres.value.map((m) => (
                 <span key={m.id} class={`avatar ${m.couleur}`}>
@@ -187,8 +221,8 @@ export function Coque() {
               ))}
             </span>
             <span class="voyant" aria-hidden="true" />
-            <span class="synchro-texte">Sur ce téléphone</span>
-            <span class="vh"> : synchronisation à brancher, voir Nous</span>
+            <span class="synchro-texte">{pastille.texte}</span>
+            <span class="vh"> : {pastille.detail}</span>
           </a>
           <BoutonTheme />
         </header>

@@ -11,6 +11,7 @@ import { demarrerTypographie } from './app/typographie-dom';
 import { Depot } from './donnees/depot';
 import { StockageMemoire, type Stockage } from './donnees/stockage';
 import { StockageDexie } from './donnees/stockage-dexie';
+import { ouvrirStockageSynchronise } from './donnees/synchro/synchro';
 
 const montage = document.getElementById('app');
 if (!montage) throw new Error('Point de montage #app introuvable');
@@ -24,12 +25,14 @@ addEventListener('hashchange', () => {
 render(<Coque />, montage);
 demarrerTypographie(montage);
 
-function choisirStockage(): Stockage {
+async function choisirStockage(): Promise<Stockage> {
   // IndexedDB absent (navigation très privée) : l’app reste utilisable, sans conserver les données.
-  return typeof indexedDB === 'undefined' ? new StockageMemoire() : new StockageDexie();
+  const local = typeof indexedDB === 'undefined' ? new StockageMemoire() : new StockageDexie();
+  // Téléphone relié à un foyer partagé : Firestore (cache hors ligne), la clé santé restant locale.
+  return (await ouvrirStockageSynchronise(local)) ?? local;
 }
 
-void demarrer(new Depot(choisirStockage()));
+void choisirStockage().then((s) => demarrer(new Depot(s)));
 
 // Hors ligne : l’app est mise en cache ; une nouvelle version s’installe d’elle-même.
 registerSW({ immediate: true });

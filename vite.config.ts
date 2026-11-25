@@ -38,6 +38,8 @@ export default defineConfig(({ command, isPreview }) => ({
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         globIgnores: ['maquette/**', '**/*vietnamese*', '**/*cyrillic*', '**/*greek*'],
         navigateFallbackDenylist: [/\/maquette\//],
+        // Rappels reçus par notification (Firebase Cloud Messaging, ADR 0005).
+        importScripts: ['notifications-sw.js'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,

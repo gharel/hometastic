@@ -2,7 +2,7 @@
 
 Application web du foyer : les courses en un tap, les choses à faire sans rien oublier, tout le foyer suivi au même endroit (maison, voitures, enfants, papiers, voyages).
 
-> **Statut : les quatre briques (Liste, Tâche, Fiche, Projet) fonctionnent**, sur un téléphone à la fois (données dans le navigateur, hors ligne). **En ligne : https://gharel.github.io/nid/** (sur iPhone : Partager, puis « Sur l’écran d’accueil »). Prochaine étape : synchronisation entre les deux téléphones (ADR 0002). Specs : [001, les quatre briques](docs/specs/001-quatre-briques.md), [002, animaux, finances, sorties](docs/specs/002-animaux-finances-sorties.md), [003, analyse](docs/specs/003-analyse.md).
+> **Statut : les quatre briques (Liste, Tâche, Fiche, Projet) fonctionnent**, sur un téléphone à la fois (données dans le navigateur, hors ligne). **En ligne : https://gharel.github.io/nid/** (sur iPhone : Partager, puis « Sur l’écran d’accueil »). **Synchronisation entre les deux téléphones prête** (Firebase Spark, gratuit) : elle s’active dès que le projet Firebase du foyer est branché ([guide](docs/FIREBASE.md)) ; rappels par notification via GitHub Actions. Specs : [001, les quatre briques](docs/specs/001-quatre-briques.md), [002, animaux, finances, sorties](docs/specs/002-animaux-finances-sorties.md), [003, analyse](docs/specs/003-analyse.md), [004, synchronisation et rappels](docs/specs/004-synchronisation-rappels.md).
 
 ## Lancer l’application
 
@@ -29,12 +29,13 @@ Sans publicité ni télémétrie. **Santé chiffrée sur le téléphone** avant 
 
 ## Maquette
 
-`maquette/index.html` reste la référence visuelle (fichier autonome, données fictives). Elle montre aussi ce qui n’est pas encore construit : synchronisation en direct, mode magasin, point de la semaine.
+`maquette/index.html` reste la référence visuelle (fichier autonome, données fictives). Elle montre aussi ce qui n’est pas encore construit : mode magasin, point de la semaine.
 
 ## Documentation
 
 - [Analyse de Bring! et des applications existantes](docs/BENCHMARK.md)
 - [Plan produit et technique](docs/PLAN.md)
 - [Registre des décisions](docs/DECISIONS.md)
-- [Décisions d’architecture](docs/adr/) : pile technique, synchronisation, briques, santé chiffrée
+- [Décisions d’architecture](docs/adr/) : pile technique, synchronisation, briques, santé chiffrée, rappels
+- [Brancher Firebase](docs/FIREBASE.md) : synchronisation et rappels, pas à pas
 - [Consignes pour les agents et les contributeurs](AGENTS.md)
