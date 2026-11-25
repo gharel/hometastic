@@ -41,7 +41,7 @@ import {
   type Feuille as TypeFeuille,
 } from '../app/etat';
 import { Icone, IconeArticle, Illustration } from '../app/icones';
-import { CHAMPS_FICHE, TYPES_FICHE, TYPES_PROJET } from '../app/libelles';
+import { CHAMPS_FICHE, ICONES_LISTE, TYPES_FICHE, TYPES_PROJET, iconeListe } from '../app/libelles';
 import { nouvelId } from '../domaine/id';
 import { DOMAINES, estimer, formatDuree } from '../domaine/durees';
 import { modelePour } from '../domaine/modeles';
@@ -410,6 +410,8 @@ function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Pa
   const [rattache, setRattache] = useState(
     base.ficheId ? `f:${base.ficheId}` : base.projetId ? `p:${base.projetId}` : '',
   );
+  const [icone, setIcone] = useState(base.icone);
+  const [choixOuvert, setChoixOuvert] = useState(false);
   const enregistrer = (e: Event) => {
     e.preventDefault();
     if (!nom.trim()) return;
@@ -417,6 +419,7 @@ function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Pa
       ...base,
       nom: nom.trim(),
       type,
+      icone,
       ficheId: rattache.startsWith('f:') ? rattache.slice(2) : undefined,
       projetId: rattache.startsWith('p:') ? rattache.slice(2) : undefined,
     });
@@ -447,6 +450,37 @@ function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Pa
           ]}
           changer={setType}
         />
+        <div class="champ-groupe">
+          <span class="etiquette" id="liste-icone">
+            Icône
+          </span>
+          <div class="icone-actuelle" aria-labelledby="liste-icone">
+            <Illustration nom={iconeListe({ type, icone })} />
+            <button
+              type="button"
+              class="bouton"
+              aria-expanded={choixOuvert ? 'true' : 'false'}
+              onClick={() => setChoixOuvert(!choixOuvert)}
+            >
+              {choixOuvert ? 'Fermer le choix' : 'Changer l’icône'}
+            </button>
+            {icone && (
+              <button type="button" class="lien-bouton" onClick={() => setIcone(undefined)}>
+                Icône d’origine
+              </button>
+            )}
+          </div>
+          {choixOuvert && (
+            <ChoixIcones
+              choisie={iconeListe({ type, icone })}
+              entete={{ titre: 'Pour les listes', icones: ICONES_LISTE }}
+              choisir={(i) => {
+                setIcone(i);
+                setChoixOuvert(false);
+              }}
+            />
+          )}
+        </div>
         <Champ id="liste-lien" libelle="Rattachée à">
           <select
             id="liste-lien"

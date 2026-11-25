@@ -769,3 +769,10 @@ dialog .icone-choix {
   -webkit-hyphens: auto;
   hyphens: auto;
 }
+
+/* Icône d’une liste dans sa pastille (illustration en couleur, un peu plus grande que les pictos). */
+.pilule svg.ico {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+}

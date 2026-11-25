@@ -1,5 +1,5 @@
 import { normaliser } from '../domaine/catalogue';
-import type { TypeFiche, TypeProjet } from '../domaine/types';
+import type { TypeFiche, TypeListe, TypeProjet } from '../domaine/types';
 
 export const TYPES_FICHE: Record<TypeFiche, { nom: string; icone: string }> = {
   maison: { nom: 'Maison', icone: 'house' },
@@ -90,5 +90,46 @@ export const iconeFiche = (fiche: { type: TypeFiche; infos?: Record<string, stri
     : fiche.type === 'animal'
       ? iconeEspece(fiche.infos?.espece)
       : TYPES_FICHE[fiche.type].icone;
+
+/** Illustration par défaut d’une liste, selon son type. */
+const ICONE_TYPE_LISTE: Record<TypeListe, string> = {
+  courses: 'shopping-cart',
+  checklist: 'clipboard',
+  sorties: 'clapper-board',
+};
+
+export const iconeListe = (liste: { type: TypeListe; icone?: string | undefined }): string =>
+  liste.icone ?? ICONE_TYPE_LISTE[liste.type];
+
+/** Illustrations proposées en tête du choix d’icône d’une liste (avant celles du catalogue). */
+export const ICONES_LISTE: readonly { icone: string; nom: string; mots: string }[] = [
+  { icone: 'shopping-cart', nom: 'Courses', mots: 'supermarche chariot' },
+  { icone: 'basket', nom: 'Marché', mots: 'panier' },
+  { icone: 'shopping-bags', nom: 'Magasins', mots: 'shopping vetements' },
+  { icone: 'clipboard', nom: 'À cocher', mots: 'liste preparatifs' },
+  { icone: 'spiral-notepad', nom: 'Notes', mots: 'bloc idees' },
+  { icone: 'luggage', nom: 'Valise', mots: 'bagages voyage' },
+  { icone: 'backpack', nom: 'Sac à dos', mots: 'ecole rentree randonnee' },
+  { icone: 'desert-island', nom: 'Vacances', mots: 'ile' },
+  { icone: 'beach-with-umbrella', nom: 'Plage', mots: 'mer baignade' },
+  { icone: 'camping', nom: 'Camping', mots: 'tente' },
+  { icone: 'airplane', nom: 'Voyage', mots: 'avion' },
+  { icone: 'automobile', nom: 'Voiture', mots: 'route' },
+  { icone: 'house', nom: 'Maison', mots: 'logement' },
+  { icone: 'hammer-and-wrench', nom: 'Bricolage', mots: 'travaux outils' },
+  { icone: 'seedling', nom: 'Jardin', mots: 'plantes' },
+  { icone: 'broom', nom: 'Ménage', mots: 'entretien' },
+  { icone: 'pot-of-food', nom: 'Repas', mots: 'menus cuisine' },
+  { icone: 'party-popper', nom: 'Fête', mots: 'soiree' },
+  { icone: 'birthday-cake', nom: 'Anniversaire', mots: 'gateau' },
+  { icone: 'wrapped-gift', nom: 'Cadeaux', mots: 'idees cadeau' },
+  { icone: 'christmas-tree', nom: 'Noël', mots: 'sapin fetes' },
+  { icone: 'baby-bottle', nom: 'Bébé', mots: 'enfant' },
+  { icone: 'pill', nom: 'Pharmacie', mots: 'medicaments sante' },
+  { icone: 'paw-prints', nom: 'Animaux', mots: 'chat chien' },
+  { icone: 'clapper-board', nom: 'Films', mots: 'cinema series a voir' },
+  { icone: 'books', nom: 'Livres', mots: 'lecture' },
+  { icone: 'red-heart', nom: 'Envies', mots: 'favoris coeur' },
+];
 
 export const pluriel = (n: number, un: string, plusieurs: string) => `${n} ${n > 1 ? plusieurs : un}`;

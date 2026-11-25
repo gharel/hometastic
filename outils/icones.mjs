@@ -54,6 +54,21 @@ for (const n of [
   'pot-of-food',
   'balance-scale',
   'stopwatch',
+  // Choix d’icône d’une liste (ICONES_LISTE).
+  'shopping-bags',
+  'spiral-notepad',
+  'backpack',
+  'beach-with-umbrella',
+  'camping',
+  'airplane',
+  'seedling',
+  'birthday-cake',
+  'wrapped-gift',
+  'christmas-tree',
+  'baby-bottle',
+  'pill',
+  'books',
+  'red-heart',
 ]) {
   noms.add(n);
 }

@@ -3,7 +3,7 @@ import { useRef, useState } from 'preact/hooks';
 import { ajouterArticle, ajouterSortie, cocherArticle, decocherArticle, toutDecocher } from '../app/actions';
 import { articles, aujourdhui, fiches, listes, ouvrir, projets } from '../app/etat';
 import { Icone, IconeArticle, Illustration } from '../app/icones';
-import { pluriel } from '../app/libelles';
+import { iconeListe, pluriel } from '../app/libelles';
 import { BlocTete, BoutonModifier, Vide } from '../composants/communs';
 import { RAYONS, analyserArticle, chercherProduits, rayonDe } from '../domaine/catalogue';
 import { formatCourt, relatif } from '../domaine/dates';
@@ -397,8 +397,7 @@ export function Courses({ id }: { id?: string | undefined }) {
               href={`#/courses/${l.id}`}
               aria-current={l.id === liste?.id ? 'page' : undefined}
             >
-              {l.type === 'courses' && <Icone nom="panier" />}
-              {l.type === 'sorties' && <Icone nom="film" />}
+              <Illustration nom={iconeListe(l)} />
               {l.nom} {n}
             </a>
           );

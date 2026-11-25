@@ -1,6 +1,6 @@
 import { aujourdhui, devise, entrees, fiches, listes, articles, ouvrir, taches } from '../app/etat';
 import { Icone, Illustration } from '../app/icones';
-import { CHAMPS_FICHE, TYPES_FICHE, iconeFiche } from '../app/libelles';
+import { CHAMPS_FICHE, TYPES_FICHE, iconeFiche, iconeListe } from '../app/libelles';
 import { BlocTete, ListeTaches, Retour, Vide } from '../composants/communs';
 import { ecartJours, formatCourt } from '../domaine/dates';
 import { formatMontant } from '../domaine/montants';
@@ -36,7 +36,7 @@ export function ListesRattachees({
             return (
               <li key={l.id}>
                 <a class="ligne" href={`#/courses/${l.id}`}>
-                  <Illustration nom={l.type === 'courses' ? 'shopping-cart' : 'clipboard'} />
+                  <Illustration nom={iconeListe(l)} />
                   <span>
                     <strong>{l.nom}</strong>
                     <span class="sous">{l.type === 'courses' ? 'Courses' : 'À cocher'}</span>

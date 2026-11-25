@@ -33,3 +33,16 @@ describe('illustrations des fiches et des sorties', () => {
     for (const n of noms) expect(fluent.icones, n).toHaveProperty(n);
   });
 });
+
+describe('icône d’une liste', () => {
+  it('celle choisie, sinon celle du type', async () => {
+    const { iconeListe, ICONES_LISTE } = await import('../../src/app/libelles');
+    const fluent = (await import('../../src/icones/fluent.json')).default;
+    expect(iconeListe({ type: 'courses' })).toBe('shopping-cart');
+    expect(iconeListe({ type: 'checklist' })).toBe('clipboard');
+    expect(iconeListe({ type: 'sorties' })).toBe('clapper-board');
+    expect(iconeListe({ type: 'checklist', icone: 'luggage' })).toBe('luggage');
+    for (const { icone } of ICONES_LISTE) expect(fluent.icones, icone).toHaveProperty(icone);
+    expect(new Set(ICONES_LISTE.map((i) => i.icone)).size).toBe(ICONES_LISTE.length);
+  });
+});

@@ -28,7 +28,17 @@ function parRayon<T extends { rayon: string }>(elements: readonly T[]) {
   );
 }
 
-function Recherche({ id, valeur, changer }: { id: string; valeur: string; changer: (v: string) => void }) {
+function Recherche({
+  id,
+  valeur,
+  changer,
+  indication = 'Chercher : vis, savon…',
+}: {
+  id: string;
+  valeur: string;
+  changer: (v: string) => void;
+  indication?: string | undefined;
+}) {
   return (
     <>
       <label class="vh" for={id}>
@@ -39,7 +49,7 @@ function Recherche({ id, valeur, changer }: { id: string; valeur: string; change
         type="search"
         class="champ"
         autoComplete="off"
-        placeholder="Chercher : vis, savon…"
+        placeholder={indication}
         value={valeur}
         onInput={(e) => changer(e.currentTarget.value)}
       />
@@ -51,37 +61,56 @@ function Recherche({ id, valeur, changer }: { id: string; valeur: string; change
 export function ChoixIcones({
   choisie,
   choisir,
+  entete,
 }: {
   choisie: string | null;
   choisir: (icone: string) => void;
+  /** Section proposée avant le catalogue (icônes des listes), avec ses propres mots de recherche. */
+  entete?: { titre: string; icones: readonly { icone: string; nom: string; mots: string }[] } | undefined;
 }) {
   const [texte, setTexte] = useState('');
   const recherche = normaliser(texte);
-  const visibles = CHOIX_ICONES.filter((c: ChoixIcone) =>
-    correspond(`${normaliser(c.nom)} ${MOTS_PAR_ICONE.get(c.icone) ?? ''}`, recherche),
+  const enTete = (entete?.icones ?? []).filter((c) =>
+    correspond(normaliser(`${c.nom} ${c.mots}`), recherche),
+  );
+  const dejaProposees = new Set(enTete.map((c) => c.icone));
+  const visibles = CHOIX_ICONES.filter(
+    (c: ChoixIcone) =>
+      !dejaProposees.has(c.icone) &&
+      correspond(`${normaliser(c.nom)} ${MOTS_PAR_ICONE.get(c.icone) ?? ''}`, recherche),
+  );
+  const bouton = (c: { icone: string; nom: string }) => (
+    <li key={c.icone}>
+      <button
+        type="button"
+        class="icone-choix"
+        aria-pressed={c.icone === choisie ? 'true' : 'false'}
+        onClick={() => choisir(c.icone)}
+      >
+        <Illustration nom={c.icone} />
+        <span>{c.nom}</span>
+      </button>
+    </li>
   );
   return (
     <div class="choix-icones">
-      <Recherche id="chercher-icone" valeur={texte} changer={setTexte} />
-      {visibles.length === 0 && <p class="aide">Aucune icône pour « {texte} ».</p>}
+      <Recherche
+        id="chercher-icone"
+        valeur={texte}
+        changer={setTexte}
+        indication={entete ? 'Chercher : valise, Noël…' : undefined}
+      />
+      {visibles.length + enTete.length === 0 && <p class="aide">Aucune icône pour « {texte} ».</p>}
+      {entete && enTete.length > 0 && (
+        <section class="choix-rayon" aria-label={entete.titre}>
+          <h3>{entete.titre}</h3>
+          <ul class="grille-icones">{enTete.map(bouton)}</ul>
+        </section>
+      )}
       {parRayon(visibles).map(([cle, titre, liste]) => (
         <section key={cle} class="choix-rayon" aria-label={titre}>
           <h3>{titre}</h3>
-          <ul class="grille-icones">
-            {liste.map((c) => (
-              <li key={c.icone}>
-                <button
-                  type="button"
-                  class="icone-choix"
-                  aria-pressed={c.icone === choisie ? 'true' : 'false'}
-                  onClick={() => choisir(c.icone)}
-                >
-                  <Illustration nom={c.icone} />
-                  <span>{c.nom}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <ul class="grille-icones">{liste.map(bouton)}</ul>
         </section>
       ))}
     </div>
