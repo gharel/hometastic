@@ -42,7 +42,7 @@ export const MODELES: readonly Modele[] = [
       },
       { titre: 'Vermifuge', recurrence: { type: 'calendaire', unite: 'mois', intervalle: 3 }, dansJours: 7 },
       {
-        titre: 'Antiparasitaire (puces, tiques)',
+        titre: 'Antiparasitaire puces et tiques',
         recurrence: { type: 'calendaire', unite: 'mois', intervalle: 1 },
         dansJours: 7,
       },

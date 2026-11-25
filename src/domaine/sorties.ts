@@ -6,7 +6,7 @@ export const CATEGORIES_SORTIE: Record<CategorieSortie, { nom: string; icone: st
   film: { nom: 'Film', icone: 'clapper-board' },
   serie: { nom: 'Série', icone: 'television' },
   spectacle: { nom: 'Spectacle', icone: 'performing-arts' },
-  concert: { nom: 'Concert', icone: 'musical-notes' },
+  concert: { nom: 'Concert', icone: 'guitar' },
   soiree: { nom: 'Soirée', icone: 'party-popper' },
   expo: { nom: 'Expo', icone: 'framed-picture' },
   autre: { nom: 'Autre', icone: 'admission-tickets' },

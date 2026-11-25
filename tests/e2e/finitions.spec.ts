@@ -100,6 +100,63 @@ test('finitions à 360 px : ni ascenseur horizontal, ni contour qui traîne, ni 
   await controlerFinitions(page, 'toutes les icônes, recherche');
 });
 
+test('cohérence : saisie rapide, tuiles d’Aujourd’hui, case « Urgent », indications entières', async ({
+  page,
+}) => {
+  await creerFoyer(page);
+  await aller(page, 'Courses');
+  const saisie = page.getByRole('textbox', { name: 'Ajouter un article' });
+  // Saisie enchaînée sans attendre : aucun article perdu.
+  const noms = ['lait', 'pain', 'vis', 'café', 'bananes', 'mastic', 'déodorant', 'farine'];
+  for (const a of noms) {
+    await saisie.fill(a);
+    await saisie.press('Enter');
+  }
+  await expect(page.locator('.tuile.sur-liste')).toHaveCount(noms.length);
+
+  // La case et son libellé ne se touchent pas.
+  await page.getByRole('button', { name: 'Modifier les articles' }).click();
+  await page.locator('.tuile.sur-liste[data-article="Vis"]').click();
+  const ecart = await page.getByRole('dialog').evaluate((d) => {
+    const label = d.querySelector('label.case-a-cocher');
+    const caseACocher = label?.querySelector('input')?.getBoundingClientRect();
+    const texte = label?.querySelector('span')?.getBoundingClientRect();
+    return caseACocher && texte ? texte.left - caseACocher.right : -1;
+  });
+  expect(ecart).toBeGreaterThanOrEqual(10);
+  await page.getByRole('dialog').getByLabel('Urgent').check();
+  await enregistrer(page);
+  await page.getByRole('button', { name: 'Terminer' }).click();
+
+  // Aujourd’hui : de vraies tuiles (pas écrasées), l’urgent en premier, le reste annoncé.
+  await aller(page, 'Aujourd’hui');
+  const tuiles = page.locator('.tuiles-jour .tuile');
+  await expect(tuiles).toHaveCount(6);
+  expect((await tuiles.first().boundingBox())?.width ?? 0).toBeGreaterThan(90);
+  await expect(tuiles.first()).toContainText('Vis');
+  await expect(tuiles.first()).toContainText('Urgent');
+  await expect(page.getByRole('link', { name: 'Et 2 autres articles sur la liste' })).toBeVisible();
+
+  // Aucune indication de champ coupée sur les saisies principales.
+  for (const ecran of ['Courses', 'Nous'] as const) {
+    await aller(page, ecran);
+    const coupees = await page.evaluate(() => {
+      const ctx = document.createElement('canvas').getContext('2d');
+      if (!ctx) return ['pas de canvas'];
+      return [...document.querySelectorAll<HTMLInputElement>('main input[placeholder]')]
+        .filter((e) => {
+          if (!e.placeholder || e.getBoundingClientRect().width === 0) return false;
+          const s = getComputedStyle(e);
+          ctx.font = `${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
+          const place = e.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+          return ctx.measureText(e.placeholder).width > place + 1;
+        })
+        .map((e) => e.placeholder);
+    });
+    expect(coupees, ecran).toEqual([]);
+  }
+});
+
 test('choix d’icône à 360 px : ni ascenseur horizontal ni débordement dans la feuille', async ({ page }) => {
   await creerFoyer(page);
   await aller(page, 'Courses');

@@ -98,7 +98,7 @@ test('Toutes les icônes : galerie par rayon, recherche, ajout d’un geste', as
   await expect(page.getByRole('button', { name: 'Ruban adhésif', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Vis', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Ruban adhésif', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Ruban adhésif ajouté');
+  await expect(page.getByRole('status')).toContainText('Sur la liste : Ruban adhésif');
 
   await page.getByRole('link', { name: 'Supermarché' }).click();
   await expect(tuile(page, 'Ruban adhésif')).toBeVisible();

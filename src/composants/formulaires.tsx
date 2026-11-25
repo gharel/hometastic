@@ -432,7 +432,7 @@ function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Pa
             class="champ"
             required
             value={nom}
-            placeholder="Marché, Valise d’Hélène, Bricolage…"
+            placeholder="Valise, bricolage…"
             onInput={(e) => setNom(e.currentTarget.value)}
           />
         </Champ>
@@ -1292,7 +1292,7 @@ function FormSortie({ listeId, sortie }: { listeId: string; sortie?: Article | u
             class="champ"
             required
             value={nom}
-            placeholder="Un film, une pièce, un concert, une soirée…"
+            placeholder="Film, pièce, concert, soirée…"
             onInput={(e) => setNom(e.currentTarget.value)}
           />
         </Champ>
@@ -1324,7 +1324,7 @@ function FormSortie({ listeId, sortie }: { listeId: string; sortie?: Article | u
               id="sortie-lieu"
               class="champ"
               value={lieu}
-              placeholder="Cinéma, salle, chez des amis"
+              placeholder="Cinéma…"
               onInput={(e) => setLieu(e.currentTarget.value)}
             />
           </Champ>

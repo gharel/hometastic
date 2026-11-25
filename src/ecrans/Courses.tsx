@@ -102,13 +102,18 @@ function SaisieArticle({ liste }: { liste: Liste }) {
   const { nom } = analyserArticle(texte);
   const propositions = texte.trim().length >= 2 ? chercherProduits(nom, 6) : [];
   const ajouter = async (produitId?: string, nomProduit?: string) => {
-    const { precision } = analyserArticle(texte);
-    const saisie = nomProduit ? `${precision ? `${precision.replace(/^x/, '')} ` : ''}${nomProduit}` : texte;
-    if (liste.type === 'sorties') {
-      if (await ajouterSortie(liste.id, texte)) setTexte('');
-      return;
-    }
-    if (await ajouterArticle(liste.id, saisie, produitId)) setTexte('');
+    const envoye = texte;
+    if (!envoye.trim() && !nomProduit) return;
+    const { precision } = analyserArticle(envoye);
+    const saisie = nomProduit ? `${precision ? `${precision.replace(/^x/, '')} ` : ''}${nomProduit}` : envoye;
+    // Champ vidé tout de suite : l’article suivant peut être tapé sans attendre l’enregistrement
+    // (vidé après coup, il effaçait ce qui avait été tapé entre-temps).
+    setTexte('');
+    const ajoute =
+      liste.type === 'sorties'
+        ? await ajouterSortie(liste.id, envoye)
+        : await ajouterArticle(liste.id, saisie, produitId);
+    if (!ajoute) setTexte((t) => t || envoye);
   };
   return (
     <div class="saisie-zone">
@@ -131,7 +136,7 @@ function SaisieArticle({ liste }: { liste: Liste }) {
             liste.type === 'courses'
               ? 'Ajouter (ex. 2 l lait)'
               : liste.type === 'sorties'
-                ? 'Un film, un spectacle, une soirée…'
+                ? 'Film, pièce, concert…'
                 : 'Ajouter un élément'
           }
           value={texte}
@@ -422,8 +427,8 @@ export function Courses({ id }: { id?: string | undefined }) {
               )}
             </span>
             <button type="button" class="lien-bouton" onClick={() => ouvrir({ type: 'liste', liste })}>
-              <Icone nom="crayon" />
-              Liste
+              <Icone nom="reglages" />
+              Modifier la liste
             </button>
           </div>
           {liste.type === 'courses' ? (

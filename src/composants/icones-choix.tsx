@@ -39,7 +39,7 @@ function Recherche({ id, valeur, changer }: { id: string; valeur: string; change
         type="search"
         class="champ"
         autoComplete="off"
-        placeholder="Chercher : vis, colle, savon, mascara…"
+        placeholder="Chercher : vis, savon…"
         value={valeur}
         onInput={(e) => changer(e.currentTarget.value)}
       />

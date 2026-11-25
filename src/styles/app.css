@@ -3,9 +3,22 @@
 .chargement {
   min-height: 100dvh;
 }
-.tache-meta > span:not(:last-child)::after {
+/* Détails séparés par « · » : le point qui commence une ligne repliée est masqué
+   (décalage à gauche puis découpe), pour ne jamais laisser un point seul en fin de ligne. */
+.tache-meta:has(> span) {
+  margin-left: -16px;
+  clip-path: inset(0 0 0 16px);
+}
+.tache-meta > span {
+  position: relative;
+  padding-left: 16px;
+}
+.tache-meta > span::before {
   content: '·';
-  margin: 0 6px;
+  position: absolute;
+  left: 0;
+  width: 16px;
+  text-align: center;
 }
 .tache-corps {
   display: block;
@@ -248,7 +261,7 @@ a.pilule {
   background: var(--primaire-doux);
   color: var(--primaire);
 }
-.tuiles.apercu .tuile {
+.tuiles-jour .tuile {
   text-decoration: none;
 }
 .rayon h3 span {
@@ -281,6 +294,11 @@ a.pilule {
 }
 .chiffre {
   margin-bottom: 0;
+}
+.chiffre + .infos,
+.chiffre + .vide,
+.chiffre + .lignes {
+  margin-top: 10px;
 }
 
 /* Feuilles et formulaires */
@@ -374,17 +392,23 @@ select.champ {
   outline: 3px solid var(--primaire);
   outline-offset: 2px;
 }
-.case-a-cocher {
+/* « .feuille label » (bloc, texte doux) ne doit pas s’appliquer aux cases à cocher. */
+.case-a-cocher,
+.feuille label.case-a-cocher {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: flex-start;
+  margin: 0;
+  padding: 10px 0;
+  color: var(--texte);
   font-weight: 650;
+  line-height: 1.4;
   cursor: pointer;
 }
 .case-a-cocher input {
   width: 22px;
   height: 22px;
-  margin: 1px 0 0;
+  margin: 0;
   flex: none;
   accent-color: var(--primaire);
 }

@@ -2,7 +2,7 @@
 
 ## Contexte
 
-Demande du 27 novembre 2026 : « Permet de modifier un article de course ou une tâche ! Prévois des icônes pour tout ce qui est bricolage, comme vis, colle, mastic, bois, embout, grille, etc. Idem pour les produits d’hygiène et de beauté. Propose de changer l’icône et de voir toutes les icônes. » La modification existait (appui long, mode « Modifier ») mais restait trop discrète, et l’appui long ouvrait la feuille sous le doigt encore posé.
+Demande du 26 novembre 2026 : « Permet de modifier un article de course ou une tâche ! Prévois des icônes pour tout ce qui est bricolage, comme vis, colle, mastic, bois, embout, grille, etc. Idem pour les produits d’hygiène et de beauté. Propose de changer l’icône et de voir toutes les icônes. » La modification existait (appui long, mode « Modifier ») mais restait trop discrète, et l’appui long ouvrait la feuille sous le doigt encore posé.
 
 ## Critères d’acceptation
 

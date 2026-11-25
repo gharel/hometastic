@@ -31,7 +31,7 @@ test('Liste : courses à tuiles, cocher, remettre, liste à cocher', async ({ pa
   await expect(aAcheter('Lait')).toBeVisible();
 
   // Mode modification : précision et urgence.
-  await page.getByRole('button', { name: 'Modifier' }).click();
+  await page.getByRole('button', { name: 'Modifier les articles' }).click();
   await page.locator('.tuile[data-article="Bananes"]').click();
   await page.getByLabel('Quantité ou précision').fill('x6');
   await page.getByLabel('Urgent').check();

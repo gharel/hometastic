@@ -127,7 +127,7 @@ export function Nous() {
             id="code-saisi"
             class="champ"
             autoComplete="off"
-            placeholder="Coller le code de l’autre téléphone"
+            placeholder="Code reçu"
             value={codeSaisi}
             onInput={(e) => setCodeSaisi(e.currentTarget.value)}
           />

@@ -175,7 +175,12 @@ export function Analyse({ mois }: { mois?: string | undefined }) {
           {equilibre.equilibre ? (
             <p class="chiffre">
               <Illustration nom="balance-scale" />
-              <span>Plutôt équilibré ce mois-ci. Merci à vous deux.</span>
+              <span>
+                {equilibre.ecart > 0 &&
+                bilan.membres.find((m) => m.membreId === equilibre.moinsCharge)?.minutes === 0
+                  ? 'Encore peu de temps compté ce mois-ci : trop tôt pour parler d’équilibre.'
+                  : 'Plutôt équilibré ce mois-ci. Merci à vous deux.'}
+              </span>
             </p>
           ) : (
             <>

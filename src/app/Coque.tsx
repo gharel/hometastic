@@ -71,12 +71,12 @@ function Ecran({ r }: { r: Route }) {
 const PASTILLES: Record<EtatSynchro, { etat: string; texte: string; detail: string }> = {
   indisponible: {
     etat: 'local',
-    texte: 'Sur ce téléphone',
+    texte: 'Non partagé',
     detail: 'Tout fonctionne hors ligne. La synchronisation entre vos deux téléphones est à brancher (Nous).',
   },
   locale: {
     etat: 'local',
-    texte: 'Sur ce téléphone',
+    texte: 'Non partagé',
     detail: 'Tout fonctionne hors ligne. Activez la synchronisation dans Nous.',
   },
   connexion: { etat: 'en-cours', texte: 'Connexion…', detail: 'Connexion au foyer partagé.' },

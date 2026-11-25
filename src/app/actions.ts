@@ -17,9 +17,12 @@ import {
   moi,
   taches,
 } from './etat';
+import { etatSynchro } from '../donnees/synchro/synchro';
 
 const maintenant = () => new Date().toISOString();
-const ENREGISTRE = 'enregistré sur ce téléphone';
+/** « Tâche enregistrée sur ce téléphone », ou « Tâche enregistrée » quand le foyer est partagé. */
+const enregistre = (quoi: string, feminin = false) =>
+  `${quoi} enregistré${feminin ? 'e' : ''}${['indisponible', 'locale'].includes(etatSynchro.value) ? ' sur ce téléphone' : ''}`;
 
 // ---------- Foyer ----------
 export async function creerFoyer(
@@ -47,7 +50,7 @@ export async function modifierFoyer(foyer: Foyer) {
 // ---------- Liste ----------
 export async function enregistrerListe(liste: Liste) {
   await depot().mettre('listes', liste);
-  annoncer(`Liste « ${liste.nom} » ${ENREGISTRE}`);
+  annoncer(enregistre(`Liste « ${liste.nom} »`, true));
 }
 
 export async function supprimerListe(liste: Liste) {
@@ -102,7 +105,7 @@ export async function ajouterArticle(
     coche: undefined,
   };
   await depot().mettre('articles', article);
-  annoncer(`${nomFinal} ajouté`);
+  annoncer(`Sur la liste : ${nomFinal}`);
   return article;
 }
 
@@ -189,7 +192,7 @@ export async function enregistrerSortie(sortie: Article, achatAvant: string | un
   annoncer(
     sortie.billet === 'a-acheter'
       ? `${sortie.nom} : rappel pour acheter les billets`
-      : `${sortie.nom} ${ENREGISTRE}`,
+      : enregistre(`Sortie « ${sortie.nom} »`, true),
   );
 }
 
@@ -213,7 +216,7 @@ export const nouvelleTache = (defauts: Partial<Tache> = {}): Tache => ({
 
 export async function enregistrerTache(tache: Tache) {
   await depot().mettre('taches', tache);
-  annoncer(`Tâche ${ENREGISTRE}`);
+  annoncer(enregistre('Tâche', true));
 }
 
 export async function basculerTache(tache: Tache, aujourdhui: string) {
@@ -283,7 +286,7 @@ export async function enregistrerFiche(
             ? `${modele.taches.length} échéances habituelles`
             : 'son échéance habituelle'
         }`
-      : `Fiche « ${fiche.nom} » ${ENREGISTRE}`,
+      : enregistre(`Fiche « ${fiche.nom} »`, true),
   );
 }
 
@@ -304,12 +307,12 @@ export async function releverKm(fiche: Fiche, valeur: number) {
     ...fiche,
     km: { valeur, le: maintenant().slice(0, 10), par: moi.value?.id },
   });
-  annoncer(`Kilométrage ${ENREGISTRE}`);
+  annoncer(enregistre('Kilométrage'));
 }
 
 export async function enregistrerEntree(entree: Entree) {
   await depot().mettre('entrees', entree);
-  annoncer(`Historique ${ENREGISTRE}`);
+  annoncer('Ajouté à l’historique');
 }
 
 export async function supprimerEntree(entree: Entree) {
@@ -328,7 +331,7 @@ export const nouveauProjet = (type: Projet['type'] = 'voyage'): Projet => ({
 
 export async function enregistrerProjet(projet: Projet) {
   await depot().mettre('projets', projet);
-  annoncer(`Projet « ${projet.nom} » ${ENREGISTRE}`);
+  annoncer(enregistre(`Projet « ${projet.nom} »`));
 }
 
 /** Supprime un projet et ses dépenses ; ses tâches et listes restent, sans rattachement. */
@@ -345,7 +348,7 @@ export async function supprimerProjet(projet: Projet) {
 
 export async function enregistrerDepense(depense: Depense) {
   await depot().mettre('depenses', depense);
-  annoncer(`Dépense ${ENREGISTRE}`);
+  annoncer(enregistre('Dépense', true));
 }
 
 export async function supprimerDepense(depense: Depense) {

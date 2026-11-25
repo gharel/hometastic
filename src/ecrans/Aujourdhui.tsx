@@ -15,6 +15,8 @@ export function Aujourdhui() {
   const bientot = echeancesAVenir(taches.value, projets.value, auj, 30, sorties).slice(0, 8);
   const courses = listes.value.find((l) => l.type === 'courses');
   const aAcheter = courses ? articles.value.filter((a) => a.listeId === courses.id && !a.coche) : [];
+  // Les urgents d’abord, comme sur la liste.
+  const apercu = [...aAcheter].sort((a, b) => Number(!!b.urgent) - Number(!!a.urgent)).slice(0, 6);
   const date = formatLong(auj);
 
   return (
@@ -24,9 +26,23 @@ export function Aujourdhui() {
       </h1>
       <p class="sous-titre">{date.charAt(0).toUpperCase() + date.slice(1)}</p>
       <p class="chapeau">
-        Bonjour {moi.value?.nom}. <strong>{pluriel(urgent.length, 'chose à faire', 'choses à faire')}</strong>
-        {groupes.retard.length ? ` (dont ${groupes.retard.length} en retard)` : ''} et{' '}
-        <strong>{pluriel(aAcheter.length, 'article', 'articles')}</strong> sur la liste de courses.
+        Bonjour {moi.value?.nom}.{' '}
+        {urgent.length ? (
+          <>
+            <strong>{pluriel(urgent.length, 'chose à faire', 'choses à faire')}</strong>
+            {groupes.retard.length ? ` (dont ${groupes.retard.length} en retard)` : ''}
+          </>
+        ) : (
+          'Rien à faire aujourd’hui'
+        )}
+        {aAcheter.length ? (
+          <>
+            {' '}
+            et <strong>{pluriel(aAcheter.length, 'article', 'articles')}</strong> sur la liste de courses.
+          </>
+        ) : (
+          ', et la liste de courses est vide.'
+        )}
       </p>
 
       <section class="bloc" aria-labelledby="t-jour">
@@ -94,19 +110,27 @@ export function Aujourdhui() {
             </a>
           </BlocTete>
           {aAcheter.length ? (
-            <ul class="tuiles apercu">
-              {aAcheter.slice(0, 6).map((a) => (
+            <ul class="tuiles tuiles-jour">
+              {apercu.map((a) => (
                 <li key={a.id}>
                   <a class="tuile sur-liste" href={`#/courses/${courses.id}`}>
                     <IconeArticle article={a} />
                     <span class="tuile-nom">{a.nom}</span>
                     {a.precision && <span class="tuile-precision">{a.precision}</span>}
+                    {a.urgent && <span class="drapeau">Urgent</span>}
                   </a>
                 </li>
               ))}
             </ul>
           ) : (
             <Vide>La liste est vide.</Vide>
+          )}
+          {aAcheter.length > apercu.length && (
+            <p class="aide">
+              <a class="lien" href={`#/courses/${courses.id}`}>
+                Et {pluriel(aAcheter.length - apercu.length, 'autre article', 'autres articles')} sur la liste
+              </a>
+            </p>
           )}
         </section>
       )}

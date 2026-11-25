@@ -6,7 +6,7 @@ import { aller, creerFoyer } from './aide';
 
 test('Nous : la synchronisation attend le projet Firebase, l’app reste locale', async ({ page }) => {
   await creerFoyer(page);
-  await expect(page.locator('header .synchro')).toContainText('Sur ce téléphone');
+  await expect(page.locator('header .synchro')).toContainText('Non partagé');
   await aller(page, 'Nous');
   const synchro = page.getByRole('region', { name: 'Synchronisation' });
   await expect(synchro.getByText('Téléphone d’Hélène')).toBeVisible();

@@ -24,7 +24,7 @@ describe('modèles de fiches', () => {
     expect(taches.map((t) => t.titre)).toEqual([
       'Vaccins chez le vétérinaire',
       'Vermifuge',
-      'Antiparasitaire (puces, tiques)',
+      'Antiparasitaire puces et tiques',
     ]);
     expect(taches.every((t) => t.recurrence.type === 'calendaire' && t.echeance && t.echeance > AUJ)).toBe(
       true,

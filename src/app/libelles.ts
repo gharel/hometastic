@@ -1,3 +1,4 @@
+import { normaliser } from '../domaine/catalogue';
 import type { TypeFiche, TypeProjet } from '../domaine/types';
 
 export const TYPES_FICHE: Record<TypeFiche, { nom: string; icone: string }> = {
@@ -65,8 +66,29 @@ export const CHAMPS_FICHE: Record<TypeFiche, readonly ChampInfo[]> = {
   autre: [{ cle: 'notes', libelle: 'Notes', type: 'textarea' }],
 };
 
-/** Icône d’une fiche : la moto a la sienne. */
+/** Icône d’un animal d’après son espèce (« Chatte », « chiot », « lapin nain »…), sinon des empreintes. */
+const ESPECES: readonly (readonly [RegExp, string])[] = [
+  [/\bchat/, 'cat-face'],
+  [/\bchien|\bchiot/, 'dog-face'],
+  [/lapin/, 'rabbit-face'],
+  [/cheval|poney|jument|ane\b/, 'horse-face'],
+  [/hamster|cochon d.inde|gerbille|souris|\brat\b/, 'hamster'],
+  [/tortue/, 'turtle'],
+  [/poisson/, 'tropical-fish'],
+  [/oiseau|perruche|perroquet|canari|poule/, 'bird'],
+];
+
+export const iconeEspece = (espece: string | undefined): string => {
+  const e = normaliser(espece ?? '');
+  return ESPECES.find(([motif]) => motif.test(e))?.[1] ?? 'paw-prints';
+};
+
+/** Icône d’une fiche : la moto a la sienne, l’animal celle de son espèce. */
 export const iconeFiche = (fiche: { type: TypeFiche; infos?: Record<string, string> }): string =>
-  fiche.type === 'vehicule' && fiche.infos?.genre === 'moto' ? 'motorcycle' : TYPES_FICHE[fiche.type].icone;
+  fiche.type === 'vehicule' && fiche.infos?.genre === 'moto'
+    ? 'motorcycle'
+    : fiche.type === 'animal'
+      ? iconeEspece(fiche.infos?.espece)
+      : TYPES_FICHE[fiche.type].icone;
 
 export const pluriel = (n: number, un: string, plusieurs: string) => `${n} ${n > 1 ? plusieurs : un}`;

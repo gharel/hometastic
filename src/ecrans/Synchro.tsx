@@ -109,7 +109,7 @@ export function BlocSynchro() {
     return (
       <section class="bloc" aria-labelledby="t-synchro">
         <BlocTete titre="Synchronisation" id="t-synchro">
-          <span class="mono">Sur ce téléphone</span>
+          <span class="mono">Non partagé</span>
         </BlocTete>
         <ul class="appareils">
           <Appareil nom="Ce téléphone" detail="Toutes les données, même hors ligne" etat="Enregistré" />
@@ -127,7 +127,7 @@ export function BlocSynchro() {
     return (
       <section class="bloc" aria-labelledby="t-synchro">
         <BlocTete titre="Synchronisation" id="t-synchro">
-          <span class="mono">Sur ce téléphone</span>
+          <span class="mono">Non partagé</span>
         </BlocTete>
         <ul class="appareils">
           <Appareil nom="Ce téléphone" detail="Toutes les données, même hors ligne" etat="Enregistré" />
@@ -171,7 +171,7 @@ export function BlocSynchro() {
             id="lien-saisi"
             class="champ"
             autoComplete="off"
-            placeholder="Ou collez le lien reçu de l’autre téléphone"
+            placeholder="Ou collez le lien reçu"
             value={lienSaisi}
             onInput={(e) => setLienSaisi(e.currentTarget.value)}
           />
