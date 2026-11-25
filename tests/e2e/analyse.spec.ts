@@ -32,16 +32,16 @@ test('Analyse : durée estimée, qui fait quoi, charge mentale, rééquilibrage'
   await expect(page.getByLabel(/^Durée \(min\)\s:\sestimée à 20\smin \(linge\)/)).toBeVisible();
   await page.getByRole('button', { name: 'Fermer' }).click();
 
-  // Sam fait beaucoup : grand ménage (3 h) et lessive ; Alex prépare un repas.
+  // Hélène fait beaucoup : grand ménage (3 h) et lessive ; Guillaume prépare un repas.
   await nouvelleTache(page, 'Grand ménage', { duree: '180' });
-  await nouvelleTache(page, 'Lessive', { pour: 'Sam', repeter: 'semaine' });
-  await nouvelleTache(page, 'Repassage', { pour: 'Sam', repeter: 'semaine' });
+  await nouvelleTache(page, 'Lessive', { pour: 'Hélène', repeter: 'semaine' });
+  await nouvelleTache(page, 'Repassage', { pour: 'Hélène', repeter: 'semaine' });
   await nouvelleTache(page, 'Préparer le repas');
-  await ceTelephoneEst(page, 'Sam');
+  await ceTelephoneEst(page, 'Hélène');
   await aller(page, 'À faire');
   await page.getByRole('button', { name: 'Terminer : Grand ménage' }).click();
   await page.getByRole('button', { name: 'Terminer : Lessive' }).click();
-  await ceTelephoneEst(page, 'Alex');
+  await ceTelephoneEst(page, 'Guillaume');
   await aller(page, 'À faire');
   await page.getByRole('button', { name: 'Terminer : Préparer le repas' }).click();
 
@@ -50,16 +50,16 @@ test('Analyse : durée estimée, qui fait quoi, charge mentale, rééquilibrage'
   await expect(page.getByRole('heading', { level: 1, name: 'Analyse' })).toBeVisible();
 
   const quiFait = page.getByRole('region', { name: 'Qui fait quoi' });
-  await expect(quiFait.getByText(/Sam\s3\sh\s20/)).toBeVisible();
-  await expect(quiFait.getByText(/Alex\s45\smin/)).toBeVisible();
+  await expect(quiFait.getByText(/Hélène\s3\sh\s20/)).toBeVisible();
+  await expect(quiFait.getByText(/Guillaume\s45\smin/)).toBeVisible();
   await expect(
-    page.getByRole('region', { name: 'Charge mentale' }).getByText(/Alex\s4\stâches prévues/),
+    page.getByRole('region', { name: 'Charge mentale' }).getByText(/Guillaume\s4\stâches prévues/),
   ).toBeVisible();
 
   const equilibre = page.getByRole('region', { name: 'Équilibre' });
-  await expect(equilibre.getByText(/Sam a passé 2\sh\s35 de plus que Alex/)).toBeVisible();
-  await equilibre.getByRole('button', { name: 'Confier à Alex' }).first().click();
-  await expect(page.getByRole('status')).toContainText('confiée à Alex');
+  await expect(equilibre.getByText(/Hélène a passé 2\sh\s35 de plus que Guillaume/)).toBeVisible();
+  await equilibre.getByRole('button', { name: 'Confier à Guillaume' }).first().click();
+  await expect(page.getByRole('status')).toContainText('confiée à Guillaume');
 
   await expect(page.getByRole('region', { name: 'Par domaine' }).getByText('Ménage')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Six derniers mois' }).getByRole('link')).toHaveCount(6);

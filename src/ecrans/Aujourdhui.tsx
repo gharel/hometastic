@@ -1,6 +1,6 @@
 import { articles, aujourdhui, fiches, kmParFiche, listes, moi, projets, taches } from '../app/etat';
 import { Icone, IconeArticle, Illustration } from '../app/icones';
-import { TYPES_FICHE, TYPES_PROJET, pluriel } from '../app/libelles';
+import { TYPES_PROJET, iconeFiche, pluriel } from '../app/libelles';
 import { BlocTete, ListeTaches, Vide } from '../composants/communs';
 import { formatCourt, formatLong, relatif } from '../domaine/dates';
 import { CATEGORIES_SORTIE } from '../domaine/sorties';
@@ -51,7 +51,7 @@ export function Aujourdhui() {
                 e.type === 'sortie'
                   ? CATEGORIES_SORTIE[e.categorie ?? 'autre'].icone
                   : fiche
-                    ? TYPES_FICHE[fiche.type].icone
+                    ? iconeFiche(fiche)
                     : projet
                       ? TYPES_PROJET[projet.type].icone
                       : 'pushpin';

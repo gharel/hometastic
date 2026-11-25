@@ -245,7 +245,7 @@ export async function enregistrerFiche(
   aujourdhui = maintenant().slice(0, 10),
 ) {
   await depot().mettre('fiches', fiche);
-  const modele = avecModele ? modelePour(fiche.type) : undefined;
+  const modele = avecModele ? modelePour(fiche.type, fiche.infos.genre) : undefined;
   if (modele) {
     const assignation = fiche.type === 'compte' ? 'nous' : (moi.value?.id ?? 'nous');
     for (const t of tachesDuModele(modele, aujourdhui, assignation, fiche.km?.valeur))

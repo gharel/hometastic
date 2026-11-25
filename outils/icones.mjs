@@ -36,6 +36,7 @@ for (const n of [
   'framed-picture',
   'admission-tickets',
   'popcorn',
+  'motorcycle',
   'broom',
   'basket',
   'pot-of-food',

@@ -16,7 +16,7 @@ async function remplir(page: Page) {
   await enregistrer(page);
   await ouvrirAjout(page, 'Fiche');
   await page.getByRole('radio', { name: 'Véhicule' }).check();
-  await page.getByLabel('Nom').fill('Voiture d’Alex');
+  await page.getByLabel('Nom').fill('Voiture de Guillaume');
   await page.getByLabel('Kilométrage actuel').fill('48250');
   await enregistrer(page);
   await page.getByRole('button', { name: 'Échéance' }).click();
@@ -43,7 +43,7 @@ for (const theme of ['light', 'dark'] as const) {
     }
     // Détail d’une fiche et d’un projet.
     await aller(page, 'Foyer');
-    await page.getByRole('link', { name: /Voiture d’Alex/ }).click();
+    await page.getByRole('link', { name: /Voiture de Guillaume/ }).click();
     await controler(page, `fiche-${theme}`, info.project.name);
     await aller(page, 'Foyer');
     await page.getByRole('link', { name: /Vacances aux îles/ }).click();
@@ -82,8 +82,8 @@ for (const theme of ['light', 'dark'] as const) {
 
     await ouvrirAjout(page, 'Fiche');
     await page.getByRole('radio', { name: 'Animal' }).check();
-    await page.getByLabel('Nom').fill('Filou');
-    await page.getByLabel('Espèce').fill('Chat');
+    await page.getByLabel('Nom').fill('Rookie');
+    await page.getByLabel('Espèce').fill('Chien');
     await enregistrer(page);
     await controler(page, `animal-${theme}`, info.project.name);
 

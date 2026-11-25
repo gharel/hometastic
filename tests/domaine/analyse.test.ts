@@ -14,8 +14,8 @@ import type { Article, Membre, Tache } from '../../src/domaine/types';
 import fluent from '../../src/icones/fluent.json';
 
 const MEMBRES: Membre[] = [
-  { id: 'a', nom: 'Alex', couleur: 'a' },
-  { id: 's', nom: 'Sam', couleur: 'b' },
+  { id: 'a', nom: 'Guillaume', couleur: 'a' },
+  { id: 's', nom: 'Hélène', couleur: 'b' },
 ];
 
 const tache = (t: Partial<Tache>): Tache => ({
@@ -48,7 +48,7 @@ describe('durées estimées', () => {
 
   it('domaine : santé d’abord, puis titre, puis fiche', () => {
     expect(domaineDe({ titre: 'Rendez-vous', sante: true })).toBe('sante');
-    expect(domaineDe({ titre: 'Vermifuge (Filou)' })).toBe('animaux');
+    expect(domaineDe({ titre: 'Vermifuge (Martine)' })).toBe('animaux');
     expect(domaineDe({ titre: 'Truc' }, { type: 'vehicule' })).toBe('voiture');
   });
 

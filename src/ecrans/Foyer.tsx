@@ -1,6 +1,6 @@
 import { aujourdhui, fiches, ouvrir, projets, taches } from '../app/etat';
 import { Icone, Illustration } from '../app/icones';
-import { TYPES_FICHE, TYPES_PROJET, pluriel } from '../app/libelles';
+import { TYPES_PROJET, iconeFiche, pluriel } from '../app/libelles';
 import { BlocTete, Vide } from '../composants/communs';
 import { relatif } from '../domaine/dates';
 import { avancement, compteARebours } from '../domaine/projets';
@@ -16,7 +16,7 @@ function CarteFiche({ fiche }: { fiche: Fiche }) {
   return (
     <li>
       <a class="fiche" href={`#/fiche/${fiche.id}`}>
-        <Illustration nom={TYPES_FICHE[fiche.type].icone} />
+        <Illustration nom={iconeFiche(fiche)} />
         <strong>{fiche.nom}</strong>
         {prochaine ? (
           <span class={`sous${urgente ? ' alerte-texte' : ''}`}>

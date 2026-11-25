@@ -65,4 +65,8 @@ export const CHAMPS_FICHE: Record<TypeFiche, readonly ChampInfo[]> = {
   autre: [{ cle: 'notes', libelle: 'Notes', type: 'textarea' }],
 };
 
+/** Icône d’une fiche : la moto a la sienne. */
+export const iconeFiche = (fiche: { type: TypeFiche; infos?: Record<string, string> }): string =>
+  fiche.type === 'vehicule' && fiche.infos?.genre === 'moto' ? 'motorcycle' : TYPES_FICHE[fiche.type].icone;
+
 export const pluriel = (n: number, un: string, plusieurs: string) => `${n} ${n > 1 ? plusieurs : un}`;

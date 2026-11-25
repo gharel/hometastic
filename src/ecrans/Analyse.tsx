@@ -13,6 +13,7 @@ import {
 } from '../domaine/analyse';
 import { ajouterMois } from '../domaine/dates';
 import { DOMAINES, formatDuree } from '../domaine/durees';
+import { que } from '../domaine/francais';
 import { decrireRecurrence } from '../domaine/recurrence';
 import type { IdMembre, Membre } from '../domaine/types';
 
@@ -181,8 +182,8 @@ export function Analyse({ mois }: { mois?: string | undefined }) {
               <p class="chiffre">
                 <Illustration nom="balance-scale" />
                 <span>
-                  {nom(equilibre.plusCharge)} a passé {formatDuree(equilibre.ecart)} de plus que{' '}
-                  {nom(equilibre.moinsCharge)} ce mois-ci.
+                  {nom(equilibre.plusCharge)} a passé {formatDuree(equilibre.ecart)} de plus{' '}
+                  {que(nom(equilibre.moinsCharge))} ce mois-ci.
                   {equilibre.pistes.length > 0 && moinsCharge
                     ? ` Pour rééquilibrer, ${moinsCharge.nom} pourrait prendre :`
                     : ' Parlez-en au point de la semaine.'}

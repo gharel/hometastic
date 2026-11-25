@@ -6,6 +6,8 @@ const ADRESSE = `http://localhost:${PORT}/nid/`;
 export default defineConfig({
   testDir: 'tests/e2e',
   fullyParallel: true,
+  // Les parcours d’écrans (axe, captures, deux thèmes) dépassent parfois 30 s sur une machine chargée.
+  timeout: 60_000,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',

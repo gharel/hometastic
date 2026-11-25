@@ -46,6 +46,7 @@ import { DOMAINES, estimer, formatDuree } from '../domaine/durees';
 import { modelePour } from '../domaine/modeles';
 import { formatMontant, lireMontant } from '../domaine/montants';
 import { CATEGORIES_SORTIE, dateAchatBillets } from '../domaine/sorties';
+import { trouverProduit } from '../domaine/catalogue';
 import type {
   Article,
   Assignation,
@@ -429,7 +430,7 @@ function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Pa
             class="champ"
             required
             value={nom}
-            placeholder="Marché, Valise de Sam, Bricolage…"
+            placeholder="Marché, Valise d’Hélène, Bricolage…"
             onInput={(e) => setNom(e.currentTarget.value)}
           />
         </Champ>
@@ -485,20 +486,55 @@ function FormListe({ liste, defauts }: { liste?: Liste | undefined; defauts?: Pa
 }
 
 function FormArticle({ article }: { article: Article }) {
+  const liste = listes.value.find((l) => l.id === article.listeId);
+  const memeType = listes.value.filter((l) => l.type === liste?.type);
+  const [nom, setNom] = useState(article.nom);
   const [precision, setPrecision] = useState(article.precision ?? '');
   const [urgent, setUrgent] = useState(!!article.urgent);
+  const [listeId, setListeId] = useState(article.listeId);
   const enregistrer = (e: Event) => {
     e.preventDefault();
+    if (!nom.trim()) return;
+    // Nouveau nom : l’icône et le rayon suivent le produit du catalogue correspondant.
+    const produitTrouve = liste?.type === 'courses' ? trouverProduit(nom) : undefined;
     void modifierArticle({
       ...article,
+      nom: produitTrouve?.nom ?? nom.trim(),
+      produitId: nom.trim() === article.nom ? article.produitId : produitTrouve?.id,
       precision: precision.trim() || undefined,
       urgent: urgent || undefined,
+      listeId,
     });
     fermer();
   };
   return (
-    <Feuille titre={article.nom}>
+    <Feuille titre="Modifier l’article">
       <form class="formulaire" onSubmit={enregistrer}>
+        <Champ id="article-nom" libelle="Nom">
+          <input
+            id="article-nom"
+            class="champ"
+            required
+            value={nom}
+            onInput={(e) => setNom(e.currentTarget.value)}
+          />
+        </Champ>
+        {memeType.length > 1 && (
+          <Champ id="article-liste" libelle="Liste">
+            <select
+              id="article-liste"
+              class="champ"
+              value={listeId}
+              onChange={(e) => setListeId(e.currentTarget.value)}
+            >
+              {memeType.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.nom}
+                </option>
+              ))}
+            </select>
+          </Champ>
+        )}
         <Champ id="article-precision" libelle="Quantité ou précision">
           <input
             id="article-precision"
@@ -530,12 +566,15 @@ function FormFiche({ fiche }: { fiche?: Fiche | undefined }) {
   const [infos, setInfos] = useState<Record<string, string>>(fiche?.infos ?? {});
   const [km, setKm] = useState('');
   const [avecModele, setAvecModele] = useState(true);
-  const modele = fiche ? undefined : modelePour(type);
+  const genre = infos.genre === 'moto' ? 'moto' : 'voiture';
+  const modele = fiche ? undefined : modelePour(type, genre);
   const enregistrer = (e: Event) => {
     e.preventDefault();
     if (!nom.trim()) return;
     const base = fiche ?? nouvelleFiche(type);
-    const propres = Object.fromEntries(Object.entries(infos).filter(([, v]) => v.trim()));
+    const propres = Object.fromEntries(
+      Object.entries(type === 'vehicule' ? { ...infos, genre } : infos).filter(([, v]) => v.trim()),
+    );
     const kmInitial = lireEntier(km);
     const resultat: Fiche = {
       ...base,
@@ -557,9 +596,9 @@ function FormFiche({ fiche }: { fiche?: Fiche | undefined }) {
   };
   const exemples: Record<TypeFiche, string> = {
     maison: 'Maison',
-    vehicule: 'Voiture d’Alex',
+    vehicule: genre === 'moto' ? 'Moto de Guillaume' : 'Voiture d’Hélène',
     personne: 'Léo',
-    animal: 'Filou',
+    animal: 'Martine, Rookie…',
     compte: 'Compte commun',
     papiers: 'Papiers du foyer',
     autre: 'Piscine',
@@ -580,6 +619,30 @@ function FormFiche({ fiche }: { fiche?: Fiche | undefined }) {
               </>,
             ])}
             changer={setType}
+          />
+        )}
+        {type === 'vehicule' && (
+          <Choix
+            nom="fiche-genre"
+            legende="Véhicule"
+            valeur={genre}
+            options={[
+              [
+                'voiture',
+                <>
+                  <Illustration nom="automobile" />
+                  Voiture
+                </>,
+              ],
+              [
+                'moto',
+                <>
+                  <Illustration nom="motorcycle" />
+                  Moto
+                </>,
+              ],
+            ]}
+            changer={(g) => setInfos({ ...infos, genre: g })}
           />
         )}
         <Champ id="fiche-nom" libelle="Nom">

@@ -1,5 +1,5 @@
 import type { ComponentChildren } from 'preact';
-import { useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import { ajouterArticle, ajouterSortie, cocherArticle, decocherArticle, toutDecocher } from '../app/actions';
 import { articles, aujourdhui, fiches, listes, ouvrir, projets } from '../app/etat';
 import { Icone, IconeArticle, Illustration } from '../app/icones';
@@ -10,16 +10,51 @@ import { formatCourt, relatif } from '../domaine/dates';
 import { CATEGORIES_SORTIE, rangerSorties } from '../domaine/sorties';
 import type { Article, Liste } from '../domaine/types';
 
+/** Appui long (ou clic droit) sur une tuile : ouvre la modification au lieu de cocher. */
+function useAppuiLong(action: () => void) {
+  const minuterie = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const declenche = useRef(false);
+  const annuler = () => clearTimeout(minuterie.current);
+  return {
+    declenche,
+    gestes: {
+      onPointerDown: () => {
+        declenche.current = false;
+        annuler();
+        minuterie.current = setTimeout(() => {
+          declenche.current = true;
+          action();
+        }, 500);
+      },
+      onPointerUp: annuler,
+      onPointerLeave: annuler,
+      onPointerCancel: annuler,
+      onContextMenu: (e: Event) => {
+        e.preventDefault();
+        annuler();
+        declenche.current = true;
+        action();
+      },
+    },
+  };
+}
+
 function Tuile({ article, surListe, edition }: { article: Article; surListe: boolean; edition: boolean }) {
   // Nom accessible = texte visible (WCAG 2.5.3), complété par l’action en texte masqué.
   const action = edition ? 'modifier' : surListe ? 'cocher' : 'remettre sur la liste';
+  const { declenche, gestes } = useAppuiLong(() => ouvrir({ type: 'article', article }));
   return (
     <li>
       <button
         type="button"
         class={`tuile ${surListe ? 'sur-liste' : 'recente'}`}
         data-article={article.nom}
+        {...gestes}
         onClick={() => {
+          if (declenche.current) {
+            declenche.current = false;
+            return;
+          }
           if (edition) ouvrir({ type: 'article', article });
           else void (surListe ? cocherArticle(article) : decocherArticle(article));
         }}
@@ -112,9 +147,15 @@ function VueCourses({ liste, contenu }: { liste: Liste; contenu: Article[] }) {
             aria-pressed={edition ? 'true' : 'false'}
             onClick={() => setEdition(!edition)}
           >
+            <Icone nom="crayon" />
             {edition ? 'Terminer' : 'Modifier'}
           </button>
         </BlocTete>
+        <p class="aide astuce">
+          {edition
+            ? 'Touchez un article pour le modifier ou le supprimer.'
+            : 'Touchez pour cocher. Appui long (ou « Modifier ») pour changer un article.'}
+        </p>
         {aAcheter.length === 0 ? (
           <Vide>Rien à acheter. Ajoutez un article ou touchez un récent.</Vide>
         ) : (

@@ -42,10 +42,10 @@ test('Liste : courses à tuiles, cocher, remettre, liste à cocher', async ({ pa
 
   // Liste à cocher.
   await page.getByRole('button', { name: 'Liste', exact: true }).first().click();
-  await page.getByLabel('Nom').fill('Valise de Sam');
+  await page.getByLabel('Nom').fill('Valise d’Hélène');
   await page.getByRole('radio', { name: 'À cocher (valise, préparatifs)' }).check();
   await enregistrer(page);
-  await expect(page.getByRole('heading', { level: 1, name: /Valise de Sam/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /Valise d’Hélène/ })).toBeVisible();
   for (const element of ['Maillot', 'Crème solaire']) {
     await page.getByRole('textbox', { name: 'Ajouter un article' }).fill(element);
     await page.getByRole('textbox', { name: 'Ajouter un article' }).press('Enter');
@@ -58,7 +58,7 @@ test('Tâche : création, récurrence, assignation, filtre', async ({ page }) =>
   await ouvrirAjout(page, 'Tâche');
   await page.getByLabel('Quoi').fill('Payer la facture d’eau');
   await page.getByLabel('Quand').fill(aujourdhui());
-  await page.getByRole('radio', { name: 'Sam' }).check();
+  await page.getByRole('radio', { name: 'Hélène' }).check();
   await page.getByLabel('Répéter').selectOption('mois');
   await enregistrer(page);
 
@@ -68,10 +68,10 @@ test('Tâche : création, récurrence, assignation, filtre', async ({ page }) =>
   await expect(groupeJour.getByText('Payer la facture d’eau')).toBeVisible();
   await expect(groupeJour.getByText('Tous les mois')).toBeVisible();
 
-  // Filtre : visible pour Sam, pas pour Alex seul.
-  await page.getByRole('button', { name: 'Alex', exact: true }).click();
+  // Filtre : visible pour Hélène, pas pour Guillaume seul.
+  await page.getByRole('button', { name: 'Guillaume', exact: true }).click();
   await expect(page.getByText('Payer la facture d’eau')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Sam', exact: true }).click();
+  await page.getByRole('button', { name: 'Hélène', exact: true }).click();
   await expect(page.getByText('Payer la facture d’eau')).toBeVisible();
   await page.getByRole('button', { name: 'Tout', exact: true }).click();
 
@@ -98,13 +98,13 @@ test('Fiche : véhicule (kilométrage, échéance au km, historique) et personne
   await aller(page, 'Foyer');
   await page.getByRole('button', { name: 'Fiche', exact: true }).click();
   await page.getByRole('radio', { name: 'Véhicule' }).check();
-  await page.getByLabel('Nom').fill('Voiture d’Alex');
+  await page.getByLabel('Nom').fill('Voiture de Guillaume');
   await page.getByLabel('Modèle', { exact: true }).fill('Citadine');
   // Ce test crée lui-même ses échéances : sans le modèle « Véhicule ».
   await page.getByRole('checkbox', { name: /Créer les échéances habituelles/ }).uncheck();
   await page.getByLabel('Kilométrage actuel').fill('48250');
   await enregistrer(page);
-  await expect(page.getByRole('heading', { level: 1, name: 'Voiture d’Alex' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Voiture de Guillaume' })).toBeVisible();
   await expect(page.getByText('48 250 km')).toBeVisible();
 
   await page.getByRole('button', { name: 'Échéance' }).click();
@@ -197,9 +197,9 @@ test('Projet : voyage avec tâches, liste rattachée, budget ; données conserv�
   await expect(page.getByText('Dépensé 150 000 F')).toBeVisible();
 
   await page.getByRole('region', { name: 'Listes' }).getByRole('button', { name: 'Liste' }).click();
-  await page.getByLabel('Nom').fill('Valise d’Alex');
+  await page.getByLabel('Nom').fill('Valise de Guillaume');
   await enregistrer(page);
-  await expect(page.getByRole('link', { name: /Valise d’Alex/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Valise de Guillaume/ })).toBeVisible();
 
   await page.reload();
   await expect(page.getByRole('heading', { level: 1, name: 'Vacances aux îles' })).toBeVisible();

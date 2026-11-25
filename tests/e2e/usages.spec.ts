@@ -8,27 +8,27 @@ test.beforeEach(async ({ page }) => {
 test('Animal : fiche créée avec le modèle et ses soins récurrents', async ({ page }) => {
   await ouvrirAjout(page, 'Fiche');
   await page.getByRole('radio', { name: 'Animal' }).check();
-  await page.getByLabel('Nom').fill('Filou');
-  await page.getByLabel('Espèce').fill('Chat');
+  await page.getByLabel('Nom').fill('Martine');
+  await page.getByLabel('Espèce').fill('Chatte');
   await page.getByLabel('Vétérinaire').fill('Clinique du port');
   await expect(page.getByText(/Créer les échéances habituelles/)).toBeVisible();
   await enregistrer(page);
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Filou' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Martine' })).toBeVisible();
   const soins = page.getByRole('region', { name: 'Soins à venir' });
-  await expect(soins.getByText('Vermifuge (Filou)')).toBeVisible();
-  await expect(soins.getByText('Vaccins chez le vétérinaire (Filou)')).toBeVisible();
+  await expect(soins.getByText('Vermifuge (Martine)')).toBeVisible();
+  await expect(soins.getByText('Vaccins chez le vétérinaire (Martine)')).toBeVisible();
   await expect(soins.getByText('Tous les 3 mois')).toBeVisible();
 
   // Un soin fait part au carnet de santé si on lui donne un coût, et se reprogramme.
   await soins.getByRole('button', { name: /^Vermifuge/ }).click();
   await page.getByLabel(/Montant/).fill('2500');
   await enregistrer(page);
-  await page.getByRole('button', { name: 'Terminer\u00a0: Vermifuge (Filou)' }).click();
+  await page.getByRole('button', { name: 'Terminer\u00a0: Vermifuge (Martine)' }).click();
   await expect(
-    page.getByRole('region', { name: 'Carnet de santé' }).getByText('Vermifuge (Filou)'),
+    page.getByRole('region', { name: 'Carnet de santé' }).getByText('Vermifuge (Martine)'),
   ).toBeVisible();
-  await expect(soins.getByText('Vermifuge (Filou)')).toBeVisible();
+  await expect(soins.getByText('Vermifuge (Martine)')).toBeVisible();
 });
 
 test('À voir : sortie avec billets à acheter, rappel en tâche, billets achetés', async ({ page }) => {
@@ -76,7 +76,7 @@ test('Finances : compte commun, virement mensuel avec montant, inscrit à l’hi
   await page.getByRole('radio', { name: 'Compte' }).check();
   await page.getByLabel('Nom').fill('Compte commun');
   await page.getByLabel('Banque').fill('Banque du quartier');
-  await page.getByLabel('Titulaires').fill('Alex et Sam');
+  await page.getByLabel('Titulaires').fill('Guillaume et Hélène');
   await enregistrer(page);
 
   const aFaire = page.getByRole('region', { name: 'Virements à faire' });
@@ -108,4 +108,55 @@ test('Finances : compte commun, virement mensuel avec montant, inscrit à l’hi
   await ouvrirAjout(page, 'Virement');
   await expect(page.getByLabel('Quoi')).toHaveValue('Virement vers compte commun');
   await expect(page.getByLabel('Rattachée à')).toHaveValue(/^f:/);
+});
+
+test('Véhicules : voiture et moto, chacune avec ses échéances habituelles', async ({ page }) => {
+  await ouvrirAjout(page, 'Fiche');
+  await page.getByRole('radio', { name: 'Véhicule' }).check();
+  await page.getByRole('radio', { name: 'Moto' }).check();
+  await page.getByLabel('Nom').fill('Moto de Guillaume');
+  await page.getByLabel('Kilométrage actuel').fill('12000');
+  await expect(page.getByText(/modèle «\sMoto\s»/)).toBeVisible();
+  await enregistrer(page);
+  const aFaire = page.getByRole('region', { name: 'À faire' });
+  await expect(aFaire.getByText('Graisser et tendre la chaîne')).toBeVisible();
+  await expect(aFaire.getByText(/Dans 1\s000\skm/)).toBeVisible();
+  await expect(aFaire.getByText(/Dans 6\s000\skm/)).toBeVisible();
+
+  await ouvrirAjout(page, 'Fiche');
+  await page.getByRole('radio', { name: 'Véhicule' }).check();
+  await page.getByLabel('Nom').fill('Voiture d’Hélène');
+  await page.getByLabel('Kilométrage actuel').fill('48250');
+  await enregistrer(page);
+  await expect(page.getByRole('region', { name: 'À faire' }).getByText('Vérifier les pneus')).toBeVisible();
+
+  await aller(page, 'Foyer');
+  await expect(page.getByRole('link', { name: /Moto de Guillaume/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Voiture d’Hélène/ })).toBeVisible();
+});
+
+test('Courses : modifier un article par appui long (nom, liste, quantité)', async ({ page }) => {
+  await aller(page, 'Courses');
+  const saisie = page.getByRole('textbox', { name: 'Ajouter un article' });
+  await saisie.fill('lait');
+  await saisie.press('Enter');
+  const tuile = page.locator('.tuile.sur-liste[data-article="Lait"]');
+  await tuile.click({ button: 'right' });
+  await expect(page.getByRole('dialog', { name: 'Modifier l’article' })).toBeVisible();
+  await page.getByLabel('Nom').fill('Beurre');
+  await page.getByLabel('Quantité ou précision').fill('x2');
+  await enregistrer(page);
+  await expect(page.locator('.tuile.sur-liste[data-article="Beurre"]')).toContainText('x2');
+  await expect(page.locator('.tuile.sur-liste[data-article="Lait"]')).toHaveCount(0);
+
+  // Une tâche se modifie en touchant son texte.
+  await ouvrirAjout(page, 'Tâche');
+  await page.getByLabel('Quoi').fill('Vaisselle');
+  await enregistrer(page);
+  await aller(page, 'À faire');
+  await page.getByRole('button', { name: /^Vaisselle/ }).click();
+  await expect(page.getByRole('dialog', { name: 'Modifier la tâche' })).toBeVisible();
+  await page.getByLabel('Quoi').fill('Vider le lave-vaisselle');
+  await enregistrer(page);
+  await expect(page.getByText('Vider le lave-vaisselle')).toBeVisible();
 });

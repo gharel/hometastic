@@ -21,6 +21,8 @@ export interface TacheModele {
 export interface Modele {
   id: string;
   type: TypeFiche;
+  /** Pour un véhicule : voiture ou moto. */
+  genre?: string;
   nom: string;
   description: string;
   taches: readonly TacheModele[];
@@ -61,12 +63,40 @@ export const MODELES: readonly Modele[] = [
     ],
   },
   {
-    id: 'vehicule',
+    id: 'voiture',
     type: 'vehicule',
-    nom: 'Véhicule',
-    description: 'Vidange tous les 15 000 km ou 12 mois, assurance chaque année',
+    genre: 'voiture',
+    nom: 'Voiture',
+    description: 'Vidange tous les 15 000 km ou 12 mois, pneus tous les 6 mois, assurance chaque année',
     taches: [
       { titre: 'Vidange', recurrence: { type: 'kilometrage', km: 15000, ouMois: 12 }, auKm: true },
+      {
+        titre: 'Vérifier les pneus',
+        recurrence: { type: 'calendaire', unite: 'mois', intervalle: 6 },
+        dansJours: 30,
+      },
+      {
+        titre: 'Renouveler l’assurance',
+        recurrence: { type: 'calendaire', unite: 'an', intervalle: 1 },
+        dansJours: 365,
+      },
+    ],
+  },
+  {
+    id: 'moto',
+    type: 'vehicule',
+    genre: 'moto',
+    nom: 'Moto',
+    description:
+      'Vidange tous les 6 000 km ou 12 mois, chaîne tous les 1 000 km, pneus chaque mois, assurance chaque année',
+    taches: [
+      { titre: 'Vidange', recurrence: { type: 'kilometrage', km: 6000, ouMois: 12 }, auKm: true },
+      { titre: 'Graisser et tendre la chaîne', recurrence: { type: 'kilometrage', km: 1000 }, auKm: true },
+      {
+        titre: 'Vérifier pression et usure des pneus',
+        recurrence: { type: 'calendaire', unite: 'mois', intervalle: 1 },
+        dansJours: 14,
+      },
       {
         titre: 'Renouveler l’assurance',
         recurrence: { type: 'calendaire', unite: 'an', intervalle: 1 },
@@ -76,7 +106,9 @@ export const MODELES: readonly Modele[] = [
   },
 ];
 
-export const modelePour = (type: TypeFiche): Modele | undefined => MODELES.find((m) => m.type === type);
+/** Modèle d’un type de fiche ; pour un véhicule, celui de son genre (voiture par défaut). */
+export const modelePour = (type: TypeFiche, genre?: string): Modele | undefined =>
+  MODELES.find((m) => m.type === type && (m.genre === undefined || m.genre === (genre || 'voiture')));
 
 export interface TacheCreee {
   titre: string;

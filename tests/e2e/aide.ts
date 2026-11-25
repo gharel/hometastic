@@ -11,11 +11,11 @@ export const dansJours = (n: number) => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-/** Premier lancement : crée le foyer « Alex et Sam » (données fictives). */
+/** Premier lancement : crée le foyer « Guillaume et Hélène » (données fictives). */
 export async function creerFoyer(page: Page) {
   await page.goto('./');
-  await page.getByLabel('Votre prénom').fill('Alex');
-  await page.getByLabel('Prénom de l’autre personne du foyer').fill('Sam');
+  await page.getByLabel('Votre prénom').fill('Guillaume');
+  await page.getByLabel('Prénom de l’autre personne du foyer').fill('Hélène');
   await page.getByRole('button', { name: 'Créer le foyer' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Aujourd’hui' })).toBeVisible();
 }

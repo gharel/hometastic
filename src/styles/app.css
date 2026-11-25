@@ -124,6 +124,9 @@ a.pilule {
 .synchro[data-etat='local'] .voyant {
   background: var(--bientot);
 }
+.synchro[data-etat='erreur'] .voyant {
+  background: var(--alerte);
+}
 .barre-fine.depasse span {
   background: var(--alerte);
 }
@@ -384,6 +387,11 @@ label.bouton {
   font-size: 13px;
   color: var(--texte-doux);
 }
+.lien-invitation {
+  margin-top: 12px;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 13px;
+}
 .code-secours {
   margin: 12px 0 0;
   padding: 12px;
@@ -524,4 +532,76 @@ label.bouton {
 }
 .analyse-carte .partage {
   height: 14px;
+}
+
+/* ---------- Finitions (26 novembre) ---------- */
+/* Pas d’ascenseur horizontal : pastilles et suggestions passent à la ligne. */
+.pilules,
+.propositions {
+  flex-wrap: wrap;
+  overflow-x: visible;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+.pilule,
+.proposition {
+  flex: 0 1 auto;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+}
+/* Focus : contour net au clavier seulement ; champs : bordure et halo, sans double cadre. */
+.champ:focus-visible,
+.saisie-article .champ:focus-visible {
+  outline: none;
+  border-color: var(--primaire);
+  box-shadow: 0 0 0 3px var(--primaire-doux);
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+main:focus,
+[tabindex='-1']:focus {
+  outline: none;
+}
+/* Annonces en bas à gauche, sans couvrir le bouton Ajouter ni les titres. */
+.toast {
+  top: auto;
+  bottom: calc(82px + env(safe-area-inset-bottom));
+  left: 16px;
+  right: 88px;
+  transform: none;
+  width: auto;
+  max-width: 440px;
+}
+@media (min-width: 900px) {
+  .toast {
+    left: auto;
+    right: 104px;
+    bottom: 36px;
+  }
+}
+/* Avatars côte à côte, sans chevauchement. */
+.duo {
+  gap: 3px;
+}
+.duo .avatar + .avatar {
+  margin-left: 0;
+}
+.duo .avatar {
+  width: 26px;
+  height: 26px;
+  box-shadow: none;
+}
+/* Appui long sur une tuile : pas de menu système ni de sélection. */
+.tuile {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.tache-corps,
+.ligne,
+.fiche {
+  overflow-wrap: anywhere;
 }

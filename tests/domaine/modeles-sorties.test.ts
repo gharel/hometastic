@@ -45,9 +45,19 @@ describe('modèles de fiches', () => {
     expect(vidange?.echeance).toBe('2027-11-25');
   });
 
-  it('chaque modèle vise un type de fiche distinct', () => {
-    expect(new Set(MODELES.map((m) => m.type)).size).toBe(MODELES.length);
+  it('un modèle par type de fiche (et par genre de véhicule)', () => {
+    expect(new Set(MODELES.map((m) => `${m.type}/${m.genre ?? ''}`)).size).toBe(MODELES.length);
     expect(modelePour('maison')).toBeUndefined();
+    expect(modelePour('vehicule')?.id).toBe('voiture');
+    expect(modelePour('vehicule', 'moto')?.id).toBe('moto');
+    const moto = modelePour('vehicule', 'moto');
+    if (!moto) throw new Error('Pas de modèle moto');
+    const [, chaine] = tachesDuModele(moto, AUJ, 'm1', 12000);
+    expect(chaine).toMatchObject({
+      titre: 'Graisser et tendre la chaîne',
+      echeanceKm: 13000,
+      echeance: undefined,
+    });
   });
 });
 

@@ -1,6 +1,6 @@
 import { aujourdhui, devise, entrees, fiches, listes, articles, ouvrir, taches } from '../app/etat';
 import { Icone, Illustration } from '../app/icones';
-import { CHAMPS_FICHE, TYPES_FICHE } from '../app/libelles';
+import { CHAMPS_FICHE, TYPES_FICHE, iconeFiche } from '../app/libelles';
 import { BlocTete, ListeTaches, Retour, Vide } from '../composants/communs';
 import { ecartJours, formatCourt } from '../domaine/dates';
 import { formatMontant } from '../domaine/montants';
@@ -122,7 +122,7 @@ export function Fiche({ id }: { id: string }) {
     <section class="vue" aria-labelledby="titre-fiche">
       <Retour href="#/foyer" libelle="Foyer" />
       <div class="titre-avec-icone">
-        <Illustration nom={TYPES_FICHE[fiche.type].icone} />
+        <Illustration nom={iconeFiche(fiche)} />
         <h1 id="titre-fiche" tabIndex={-1}>
           {fiche.nom}
         </h1>

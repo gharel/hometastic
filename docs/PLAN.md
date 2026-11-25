@@ -24,7 +24,7 @@ Une application web installable (PWA), synchronisée en temps réel entre les de
 | **Foyer**       | Les **fiches** (maison, voitures, enfants, papiers) et les **projets** (voyages, travaux, arrivée de bébé), chacun avec son historique, ses documents et ses échéances.                                                      |
 | **Nous**        | Synchronisation et appareils, qui porte quel domaine, point de la semaine, équilibre, modèles, membres et réglages.                                                                                                          |
 
-Un bouton **Ajouter** toujours visible ouvre la **saisie rapide** : une seule ligne qui comprend « 2 l lait, pain, bananes » (trois articles) comme « payer la facture d’eau avant le 5 @Sam » (une tâche assignée avec échéance).
+Un bouton **Ajouter** toujours visible ouvre la **saisie rapide** : une seule ligne qui comprend « 2 l lait, pain, bananes » (trois articles) comme « payer la facture d’eau avant le 5 @Hélène » (une tâche assignée avec échéance).
 
 ### Principes
 
@@ -46,12 +46,12 @@ Tout Nid se construit avec **quatre briques visibles** et **trois briques de sou
 
 ### Briques visibles
 
-| Brique     | Ce que c’est                                                                                                  | Exemples                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| **Liste**  | Des éléments à cocher, avec icône, quantité et rayon pour les courses                                         | Supermarché, marché, valise de Sam, trousse cyclone, liste de naissance |
-| **Tâche**  | Une chose à faire : échéance, rappel, récurrence, assignation, domaine ; rattachable à une fiche ou un projet | Payer l’eau, contrôle technique, rappel de vaccin, réserver l’hôtel     |
-| **Fiche**  | Une chose ou une personne qu’on suit dans le temps : infos clés, historique, documents, échéances             | La maison, la voiture d’Alex, Léo, les papiers du foyer                 |
-| **Projet** | Quelque chose de daté qui se termine : tâches, listes, documents, budget, compte à rebours                    | Vacances aux îles, chambre de bébé, terrasse, déménagement              |
+| Brique     | Ce que c’est                                                                                                  | Exemples                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Liste**  | Des éléments à cocher, avec icône, quantité et rayon pour les courses                                         | Supermarché, marché, valise d’Hélène, trousse cyclone, liste de naissance |
+| **Tâche**  | Une chose à faire : échéance, rappel, récurrence, assignation, domaine ; rattachable à une fiche ou un projet | Payer l’eau, contrôle technique, rappel de vaccin, réserver l’hôtel       |
+| **Fiche**  | Une chose ou une personne qu’on suit dans le temps : infos clés, historique, documents, échéances             | La maison, la voiture de Guillaume, Léo, les papiers du foyer             |
+| **Projet** | Quelque chose de daté qui se termine : tâches, listes, documents, budget, compte à rebours                    | Vacances aux îles, chambre de bébé, terrasse, déménagement                |
 
 ### Briques de soutien
 
@@ -179,7 +179,7 @@ Les rôles changent selon les domaines : c’est le principe de « Nous ».
 
 1. **Ajouter du lait en trois secondes** : ouvrir Nid, Courses, taper la tuile « Lait » dans Récents. Ou « Dis Siri, ajoute du lait dans Nid ».
 2. **Faire les courses** : « Je pars faire les courses » (l’autre est prévenu), mode magasin, cocher dans l’ordre des rayons appris, « Courses terminées ».
-3. **Déléguer une tâche** : « prendre RDV garage avant vendredi @Sam », l’autre reçoit la notification.
+3. **Déléguer une tâche** : « prendre RDV garage avant vendredi @Hélène », l’autre reçoit la notification.
 4. **Noter une réparation** : Foyer, Maison, « Ajouter une réparation », photo de la fuite, contact du plombier ; plus tard, coût et facture ; elle rejoint l’historique.
 5. **Préparer un voyage** : modèle Voyage, dates, Nid crée les préparatifs, les valises de chacun, vérifie les passeports, et compte à rebours dans Aujourd’hui.
 6. **Suivre la santé d’un enfant** : fiche de l’enfant, rendez-vous chez le pédiatre avec rappel « Rappel santé » aux deux parents ; ordonnance en photo, chiffrée.

@@ -89,7 +89,7 @@ export const kmParFiche = computed<Record<string, number>>(() =>
   Object.fromEntries(fiches.value.flatMap((f) => (f.km ? [[f.id, f.km.valeur]] : []))),
 );
 
-/** Nom lisible d’un rattachement (« Voiture d’Alex », « Vacances »). */
+/** Nom lisible d’un rattachement (« Voiture de Guillaume », « Vacances »). */
 export function nomRattachement(r: Rattachement): string | undefined {
   if (r.ficheId) return fiches.value.find((f) => f.id === r.ficheId)?.nom;
   if (r.projetId) return projets.value.find((p) => p.id === r.projetId)?.nom;
