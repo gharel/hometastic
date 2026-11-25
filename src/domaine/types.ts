@@ -73,6 +73,8 @@ export interface Passage {
   par?: IdMembre | undefined;
   le: string;
   km?: number | undefined;
+  /** Minutes passées (durée de la tâche au moment où elle a été faite), pour l’analyse. */
+  duree?: number | undefined;
 }
 
 export interface Tache extends Rattachement {
@@ -91,6 +93,8 @@ export interface Tache extends Rattachement {
   sante?: boolean | undefined;
   /** Montant (virement, facture) : à chaque passage, une entrée est ajoutée à l’historique de la fiche. */
   montant?: number | undefined;
+  /** Durée en minutes ; à défaut, estimée d’après le titre (`durees.ts`). */
+  duree?: number | undefined;
   creeePar?: IdMembre | undefined;
   creeeLe: string;
   faite?: Passage | undefined;

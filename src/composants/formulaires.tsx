@@ -42,6 +42,7 @@ import {
 import { Icone, Illustration } from '../app/icones';
 import { CHAMPS_FICHE, TYPES_FICHE, TYPES_PROJET } from '../app/libelles';
 import { nouvelId } from '../domaine/id';
+import { DOMAINES, estimer, formatDuree } from '../domaine/durees';
 import { modelePour } from '../domaine/modeles';
 import { formatMontant, lireMontant } from '../domaine/montants';
 import { CATEGORIES_SORTIE, dateAchatBillets } from '../domaine/sorties';
@@ -150,6 +151,8 @@ function FormTache({ tache, defauts }: { tache?: Tache | undefined; defauts?: Pa
   );
   const [sante, setSante] = useState(!!base.sante);
   const [montant, setMontant] = useState(base.montant === undefined ? '' : String(base.montant));
+  const [duree, setDuree] = useState(base.duree === undefined ? '' : String(base.duree));
+  const estimation = estimer(titre);
 
   const ficheChoisie = rattache.startsWith('f:')
     ? fiches.value.find((f) => `f:${f.id}` === rattache)
@@ -191,6 +194,7 @@ function FormTache({ tache, defauts }: { tache?: Tache | undefined; defauts?: Pa
       projetId: rattache.startsWith('p:') ? rattache.slice(2) : undefined,
       sante: sante || undefined,
       montant: lireMontant(montant),
+      duree: lireEntier(duree) || undefined,
     });
     fermer();
   };
@@ -337,6 +341,19 @@ function FormTache({ tache, defauts }: { tache?: Tache | undefined; defauts?: Pa
             />
           </Champ>
         )}
+        <Champ
+          id="tache-duree"
+          libelle={`Durée (min) : estimée à ${formatDuree(estimation.minutes)} (${DOMAINES[estimation.domaine].nom.toLowerCase()})`}
+        >
+          <input
+            id="tache-duree"
+            class="champ"
+            inputMode="numeric"
+            value={duree}
+            placeholder={`${estimation.minutes}`}
+            onInput={(e) => setDuree(e.currentTarget.value)}
+          />
+        </Champ>
         <Champ
           id="tache-montant"
           libelle={`Montant (${devise.value === 'XPF' ? 'F' : '€'}), facultatif${ficheChoisie ? ' : noté dans l’historique à chaque fois' : ''}`}

@@ -144,7 +144,7 @@ La partie **santé** d’une fiche Personne (rendez-vous médicaux, vaccins, tra
 - **Synchronisation** : appareils du foyer, état, invitation par lien ou QR code (qui transmet aussi la clé de chiffrement).
 - **Domaines et porteurs** (inspiré de Fair Play) : chaque domaine a un porteur qui _y pense_ ; il reçoit par défaut les tâches du domaine.
 - **Point de la semaine** (10 minutes, guidé) : ce qui a été fait (et un merci), ce qui traîne, la semaine qui vient (échéances, rendez-vous, voyages), repas et courses, on se répartit.
-- **Équilibre** : sur quatre semaines, ce que chacun a **conçu** et **fait**. Présentation neutre, sans classement, désactivable.
+- **Analyse** (livrée le 26 novembre 2026, spec 003) : mois par mois, **qui fait quoi** (temps passé par personne, d’après les tâches cochées et les courses), **charge mentale** (tâches créées, articles ajoutés), temps **par domaine** (repas, courses, linge, ménage, enfants, santé, animaux, administratif, finances, voiture, maison, sorties), **historique** de six mois et **pistes pour rééquilibrer** (tâches récurrentes à confier à l’autre d’un geste). Chaque tâche a une **durée** saisie ou estimée d’après son titre. Présentation neutre, sans classement.
 - **Modèles** du foyer, membres, réglages.
 
 ### 4.9 Intégrations

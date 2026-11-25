@@ -434,3 +434,94 @@ label.bouton {
   width: 30px;
   height: 30px;
 }
+
+/* Analyse */
+.mois-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+.mois-nav strong {
+  font-size: 18px;
+}
+.bouton-icone-vide {
+  width: 40px;
+}
+.analyse-carte {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+.analyse-carte .aide {
+  margin: 0;
+}
+.partage .vide-barre {
+  flex: 1;
+  background: var(--surface-2);
+}
+.legende-membres {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.legende-membres strong {
+  color: var(--texte);
+}
+.pastille-membre {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 50%;
+}
+.pastille-membre.a {
+  background: var(--membre-a);
+}
+.pastille-membre.b {
+  background: var(--membre-b);
+}
+.ligne-domaine .partage {
+  height: 8px;
+  margin-top: 6px;
+}
+.historique-mois .ligne {
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+}
+.historique-mois .ligne[aria-current='true'] .mois-court {
+  color: var(--primaire);
+}
+.barre-histo {
+  display: block;
+  width: var(--l);
+  min-width: 4px;
+}
+.barre-histo .partage {
+  height: 14px;
+}
+.explications {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 14px 14px 14px 32px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--ombre);
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.bloc-tete .ico {
+  width: 28px;
+  height: 28px;
+}
+.lien-analyse {
+  padding: 10px 14px;
+}
+.analyse-carte .partage {
+  height: 14px;
+}

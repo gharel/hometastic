@@ -1,4 +1,5 @@
 import { ajouterJours, ajouterMois } from './dates';
+import { dureeDe } from './durees';
 import type { IdMembre, Recurrence, Tache, UniteCalendaire } from './types';
 
 function ajouterUnite(iso: string, unite: UniteCalendaire, n: number): string {
@@ -50,7 +51,7 @@ export function prochaineEcheance(
 
 /** Marque une tâche faite. Une tâche récurrente garde le passage dans son historique et repart à sa prochaine échéance. */
 export function terminerTache(tache: Tache, faiteLe: string, par?: IdMembre, kmActuel?: number): Tache {
-  const passage = { par, le: faiteLe, km: kmActuel };
+  const passage = { par, le: faiteLe, km: kmActuel, duree: dureeDe(tache) };
   if (!tache.recurrence) return { ...tache, faite: passage };
   const suite = prochaineEcheance(tache.recurrence, tache.echeance, faiteLe, kmActuel);
   return {

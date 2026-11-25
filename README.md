@@ -2,7 +2,7 @@
 
 Application web du foyer : les courses en un tap, les choses à faire sans rien oublier, tout le foyer suivi au même endroit (maison, voitures, enfants, papiers, voyages).
 
-> **Statut : les quatre briques (Liste, Tâche, Fiche, Projet) fonctionnent**, sur un téléphone à la fois (données dans le navigateur, hors ligne). **En ligne : https://gharel.github.io/nid/** (sur iPhone : Partager, puis « Sur l’écran d’accueil »). Prochaine étape : synchronisation entre les deux téléphones (ADR 0002). Specs : [001, les quatre briques](docs/specs/001-quatre-briques.md), [002, animaux, finances, sorties](docs/specs/002-animaux-finances-sorties.md).
+> **Statut : les quatre briques (Liste, Tâche, Fiche, Projet) fonctionnent**, sur un téléphone à la fois (données dans le navigateur, hors ligne). **En ligne : https://gharel.github.io/nid/** (sur iPhone : Partager, puis « Sur l’écran d’accueil »). Prochaine étape : synchronisation entre les deux téléphones (ADR 0002). Specs : [001, les quatre briques](docs/specs/001-quatre-briques.md), [002, animaux, finances, sorties](docs/specs/002-animaux-finances-sorties.md), [003, analyse](docs/specs/003-analyse.md).
 
 ## Lancer l’application
 
@@ -23,7 +23,7 @@ Au premier lancement, Nid demande vos prénoms et crée le foyer (une liste « S
 | Courses     | **Liste** : tuiles à icônes rangées par rayon, saisie qui complète (« 2 l lait »), récents à remettre d’un tap, listes à cocher (valise, préparatifs)            |
 | À faire     | **Tâche** : échéance, heure, assignation (moi, l’autre, nous deux, au premier libre), récurrence (calendaire, après la dernière fois, au kilométrage)            |
 | Foyer       | **Fiche** (maison, véhicule, personne, papiers) avec infos, kilométrage, santé chiffrée, échéances, historique et coûts ; **Projet** avec tâches, listes, budget |
-| Nous        | Membre de ce téléphone, état de la synchronisation, code de secours de la santé chiffrée, sauvegarde (export et import JSON)                                     |
+| Nous        | **Analyse** (qui fait quoi, charge mentale, temps par domaine, historique, rééquilibrage), membre de ce téléphone, synchronisation, code de secours, sauvegarde  |
 
 Sans publicité ni télémétrie. **Santé chiffrée sur le téléphone** avant tout enregistrement (ADR 0004). Charte propre à Nid (DM Sans, crème, bleu nuit, miel), thème clair, sombre ou système, installable (PWA).
 

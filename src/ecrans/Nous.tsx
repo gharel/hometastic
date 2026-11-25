@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { annoncer, autre, choisirMembre, depot, foyer, membreCourant, membres, ouvrir } from '../app/etat';
-import { Icone } from '../app/icones';
+import { Icone, Illustration } from '../app/icones';
 import { BlocTete } from '../composants/communs';
 
 async function exporter() {
@@ -35,6 +35,20 @@ export function Nous() {
         Nous
       </h1>
       <p class="chapeau">{f?.nom}</p>
+
+      <section class="bloc" aria-labelledby="t-analyse-lien">
+        <BlocTete titre="Analyse" id="t-analyse-lien" />
+        <a class="ligne carte lien-analyse" href="#/analyse">
+          <Illustration nom="balance-scale" />
+          <span>
+            <strong>Qui fait quoi, charge mentale, équilibre</strong>
+            <span class="sous">
+              Temps passé ce mois-ci par domaine, historique et pistes pour rééquilibrer
+            </span>
+          </span>
+          <Icone nom="chevronDroite" />
+        </a>
+      </section>
 
       <section class="bloc" aria-labelledby="t-membres">
         <BlocTete titre="Ce téléphone est celui de" id="t-membres">

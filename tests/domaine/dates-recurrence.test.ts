@@ -117,7 +117,7 @@ describe('récurrences', () => {
     const suite = terminerTache(t, '2026-11-25', 'm1');
     expect(suite.faite).toBeUndefined();
     expect(suite.echeance).toBe('2026-12-02');
-    expect(suite.historique).toEqual([{ par: 'm1', le: '2026-11-25', km: undefined }]);
+    expect(suite.historique).toEqual([{ par: 'm1', le: '2026-11-25', km: undefined, duree: 30 }]);
   });
 
   it('terminer puis rouvrir une tâche simple', () => {

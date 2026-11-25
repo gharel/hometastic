@@ -36,6 +36,11 @@ for (const n of [
   'framed-picture',
   'admission-tickets',
   'popcorn',
+  'broom',
+  'basket',
+  'pot-of-food',
+  'balance-scale',
+  'stopwatch',
 ]) {
   noms.add(n);
 }

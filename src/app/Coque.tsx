@@ -5,6 +5,7 @@ import { Aujourdhui } from '../ecrans/Aujourdhui';
 import { Courses } from '../ecrans/Courses';
 import { Fiche } from '../ecrans/Fiche';
 import { Foyer } from '../ecrans/Foyer';
+import { Analyse } from '../ecrans/Analyse';
 import { Nous } from '../ecrans/Nous';
 import { Projet } from '../ecrans/Projet';
 import { BoutonTheme } from './BoutonTheme';
@@ -54,6 +55,8 @@ function Ecran({ r }: { r: Route }) {
       return <Projet id={r.id} />;
     case 'nous':
       return <Nous />;
+    case 'analyse':
+      return <Analyse mois={r.id} />;
   }
 }
 
