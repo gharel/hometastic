@@ -150,8 +150,25 @@ export function LigneTache({ tache, avecRattachement = true }: { tache: Tache; a
         <span class="tache-titre">{tache.titre}</span>
         {details.length > 0 && <span class="tache-meta">{details}</span>}
       </button>
-      <Avatar pour={tache.assignation} />
+      <span class="tache-fin">
+        <Avatar pour={tache.assignation} />
+        <BoutonModifier nom={tache.titre} onClick={() => ouvrir({ type: 'tache', tache })} />
+      </span>
     </li>
+  );
+}
+
+/** Crayon visible au bout d’une ligne : « Modifier : <nom> » pour les lecteurs d’écran. */
+export function BoutonModifier({ nom, onClick }: { nom: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      class="bouton-modifier"
+      aria-label={`Modifier${INSECABLE}: ${nom}`}
+      onClick={onClick}
+    >
+      <Icone nom="crayon" />
+    </button>
   );
 }
 

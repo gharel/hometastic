@@ -8,7 +8,8 @@ export type Route =
   | { ecran: 'projet'; id: string }
   | { ecran: 'nous' }
   | { ecran: 'analyse'; id?: string | undefined }
-  | { ecran: 'rejoindre'; code: string };
+  | { ecran: 'rejoindre'; code: string }
+  | { ecran: 'catalogue'; id?: string | undefined };
 
 export type Onglet = 'aujourdhui' | 'courses' | 'a-faire' | 'foyer' | 'nous';
 
@@ -28,6 +29,8 @@ export function lireAncre(ancre: string): Route {
       return { ecran: 'analyse', id: id && /^\d{4}-\d{2}$/.test(id) ? id : undefined };
     case 'rejoindre':
       return { ecran: 'rejoindre', code: id ?? '' };
+    case 'catalogue':
+      return { ecran: 'catalogue', id: id || undefined };
     default:
       return { ecran: 'aujourdhui' };
   }
@@ -37,6 +40,8 @@ export function ancre(route: Route): string {
   switch (route.ecran) {
     case 'courses':
       return route.id ? `#/courses/${encodeURIComponent(route.id)}` : '#/courses';
+    case 'catalogue':
+      return route.id ? `#/catalogue/${encodeURIComponent(route.id)}` : '#/catalogue';
     case 'analyse':
       return route.id ? `#/analyse/${route.id}` : '#/analyse';
     case 'rejoindre':
@@ -51,6 +56,7 @@ export function ancre(route: Route): string {
 
 export function ongletDe(route: Route): Onglet {
   if (route.ecran === 'fiche' || route.ecran === 'projet') return 'foyer';
+  if (route.ecran === 'catalogue') return 'courses';
   if (route.ecran === 'analyse' || route.ecran === 'rejoindre') return 'nous';
   return route.ecran;
 }

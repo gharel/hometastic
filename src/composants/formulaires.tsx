@@ -11,6 +11,7 @@ import {
   enregistrerTache,
   modifierArticle,
   modifierFoyer,
+  retenirHabillage,
   nouveauProjet,
   nouvelleFiche,
   nouvelleListe,
@@ -39,14 +40,15 @@ import {
   taches,
   type Feuille as TypeFeuille,
 } from '../app/etat';
-import { Icone, Illustration } from '../app/icones';
+import { Icone, IconeArticle, Illustration } from '../app/icones';
 import { CHAMPS_FICHE, TYPES_FICHE, TYPES_PROJET } from '../app/libelles';
 import { nouvelId } from '../domaine/id';
 import { DOMAINES, estimer, formatDuree } from '../domaine/durees';
 import { modelePour } from '../domaine/modeles';
 import { formatMontant, lireMontant } from '../domaine/montants';
 import { CATEGORIES_SORTIE, dateAchatBillets } from '../domaine/sorties';
-import { trouverProduit } from '../domaine/catalogue';
+import { RAYONS, iconeDe, normaliser, produit, rayonDe, trouverProduit } from '../domaine/catalogue';
+import { ChoixIcones } from './icones-choix';
 import type {
   Article,
   Assignation,
@@ -492,19 +494,35 @@ function FormArticle({ article }: { article: Article }) {
   const [precision, setPrecision] = useState(article.precision ?? '');
   const [urgent, setUrgent] = useState(!!article.urgent);
   const [listeId, setListeId] = useState(article.listeId);
+  const [icone, setIcone] = useState(article.icone);
+  const [rayon, setRayon] = useState(article.rayon);
+  const [habillageTouche, setHabillageTouche] = useState(false);
+  const [choixOuvert, setChoixOuvert] = useState(false);
+  const courses = liste?.type === 'courses';
+  // Nouveau nom : l’icône et le rayon suivent le produit du catalogue correspondant (ou ce qui a été retenu).
+  const nomChange = nom.trim() !== article.nom;
+  const produitId = nomChange ? (courses ? trouverProduit(nom)?.id : undefined) : article.produitId;
+  const appris = foyer.value?.appris?.[normaliser(nom)];
+  const iconeFinale = habillageTouche || !nomChange ? icone : appris?.icone;
+  const rayonFinal = habillageTouche || !nomChange ? rayon : appris?.rayon;
+  const apercu = { produitId, icone: iconeFinale, rayon: rayonFinal, nom: nom || article.nom };
+  const rayonParDefaut = rayonDe({ produitId });
   const enregistrer = (e: Event) => {
     e.preventDefault();
     if (!nom.trim()) return;
-    // Nouveau nom : l’icône et le rayon suivent le produit du catalogue correspondant.
-    const produitTrouve = liste?.type === 'courses' ? trouverProduit(nom) : undefined;
+    const nomFinal = (nomChange ? produit(produitId)?.nom : undefined) ?? nom.trim();
     void modifierArticle({
       ...article,
-      nom: produitTrouve?.nom ?? nom.trim(),
-      produitId: nom.trim() === article.nom ? article.produitId : produitTrouve?.id,
+      nom: nomFinal,
+      produitId,
+      icone: iconeFinale,
+      rayon: rayonFinal,
       precision: precision.trim() || undefined,
       urgent: urgent || undefined,
       listeId,
     });
+    // Retenu pour les prochains ajouts du même article, sur les deux téléphones.
+    if (habillageTouche) void retenirHabillage(nomFinal, { icone: iconeFinale, rayon: rayonFinal });
     fermer();
   };
   return (
@@ -548,6 +566,71 @@ function FormArticle({ article }: { article: Article }) {
           <input type="checkbox" checked={urgent} onChange={(e) => setUrgent(e.currentTarget.checked)} />
           <span>Urgent</span>
         </label>
+        {courses && (
+          <>
+            <div class="champ-groupe">
+              <span class="etiquette" id="article-icone">
+                Icône
+              </span>
+              <div class="icone-actuelle" aria-labelledby="article-icone">
+                <IconeArticle article={apercu} />
+                <button
+                  type="button"
+                  class="bouton"
+                  aria-expanded={choixOuvert ? 'true' : 'false'}
+                  onClick={() => setChoixOuvert(!choixOuvert)}
+                >
+                  {choixOuvert ? 'Fermer le choix' : 'Changer l’icône'}
+                </button>
+                {iconeFinale && (
+                  <button
+                    type="button"
+                    class="lien-bouton"
+                    onClick={() => {
+                      setIcone(undefined);
+                      setHabillageTouche(true);
+                    }}
+                  >
+                    Icône d’origine
+                  </button>
+                )}
+              </div>
+              {choixOuvert && (
+                <ChoixIcones
+                  choisie={iconeDe(apercu)}
+                  choisir={(i) => {
+                    setIcone(i);
+                    setRayon(rayonFinal);
+                    setHabillageTouche(true);
+                    setChoixOuvert(false);
+                  }}
+                />
+              )}
+            </div>
+            <Champ id="article-rayon" libelle="Rayon">
+              <select
+                id="article-rayon"
+                class="champ"
+                value={rayonFinal ?? rayonParDefaut}
+                onChange={(e) => {
+                  const v = e.currentTarget.value;
+                  setRayon(v === rayonParDefaut ? undefined : v);
+                  setIcone(iconeFinale);
+                  setHabillageTouche(true);
+                }}
+              >
+                {RAYONS.map(([cle, titre]) => (
+                  <option key={cle} value={cle}>
+                    {titre}
+                  </option>
+                ))}
+              </select>
+            </Champ>
+            {habillageTouche && (
+              <p class="aide">Nid s’en souviendra la prochaine fois que vous ajouterez « {nom.trim()} ».</p>
+            )}
+          </>
+        )}
         <Boutons
           supprimer={() => {
             void supprimerArticle(article);

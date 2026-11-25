@@ -4,34 +4,57 @@ import { ajouterArticle, ajouterSortie, cocherArticle, decocherArticle, toutDeco
 import { articles, aujourdhui, fiches, listes, ouvrir, projets } from '../app/etat';
 import { Icone, IconeArticle, Illustration } from '../app/icones';
 import { pluriel } from '../app/libelles';
-import { BlocTete, Vide } from '../composants/communs';
+import { BlocTete, BoutonModifier, Vide } from '../composants/communs';
 import { RAYONS, analyserArticle, chercherProduits, rayonDe } from '../domaine/catalogue';
 import { formatCourt, relatif } from '../domaine/dates';
 import { CATEGORIES_SORTIE, rangerSorties } from '../domaine/sorties';
 import type { Article, Liste } from '../domaine/types';
 
-/** Appui long (ou clic droit) sur une tuile : ouvre la modification au lieu de cocher. */
+/**
+ * Appui long (ou clic droit) sur une tuile : ouvre la modification au lieu de cocher.
+ * La feuille s’ouvre au relâcher, pas pendant l’appui : sur iPhone, le doigt encore posé
+ * toucherait sinon la feuille qui vient de s’ouvrir.
+ */
 function useAppuiLong(action: () => void) {
   const minuterie = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const arme = useRef(false);
   const declenche = useRef(false);
-  const annuler = () => clearTimeout(minuterie.current);
+  const relacher = (e: Event) => {
+    clearTimeout(minuterie.current);
+    (e.currentTarget as HTMLElement).classList.remove('appui-long');
+  };
   return {
     declenche,
     gestes: {
-      onPointerDown: () => {
+      onPointerDown: (e: Event) => {
         declenche.current = false;
-        annuler();
+        arme.current = false;
+        clearTimeout(minuterie.current);
+        const tuile = e.currentTarget as HTMLElement;
         minuterie.current = setTimeout(() => {
-          declenche.current = true;
-          action();
-        }, 500);
+          arme.current = true;
+          tuile.classList.add('appui-long');
+        }, 450);
       },
-      onPointerUp: annuler,
-      onPointerLeave: annuler,
-      onPointerCancel: annuler,
+      onPointerUp: (e: Event) => {
+        relacher(e);
+        if (!arme.current) return;
+        arme.current = false;
+        declenche.current = true;
+        action();
+      },
+      onPointerLeave: (e: Event) => {
+        relacher(e);
+        arme.current = false;
+      },
+      onPointerCancel: (e: Event) => {
+        relacher(e);
+        arme.current = false;
+      },
       onContextMenu: (e: Event) => {
         e.preventDefault();
-        annuler();
+        relacher(e);
+        arme.current = false;
         declenche.current = true;
         action();
       },
@@ -59,7 +82,12 @@ function Tuile({ article, surListe, edition }: { article: Article; surListe: boo
           else void (surListe ? cocherArticle(article) : decocherArticle(article));
         }}
       >
-        <IconeArticle produitId={article.produitId} nom={article.nom} />
+        <IconeArticle article={article} />
+        {edition && (
+          <span class="tuile-crayon" aria-hidden="true">
+            <Icone nom="crayon" />
+          </span>
+        )}
         <span class="tuile-nom">{article.nom}</span>
         {article.precision && <span class="tuile-precision">{article.precision}</span>}
         {article.urgent && surListe && <span class="drapeau">Urgent</span>}
@@ -118,12 +146,18 @@ function SaisieArticle({ liste }: { liste: Liste }) {
           {propositions.map((p) => (
             <li key={p.id}>
               <button type="button" class="proposition" onClick={() => void ajouter(p.id, p.nom)}>
-                <IconeArticle produitId={p.id} nom={p.nom} />
+                <IconeArticle article={{ produitId: p.id, nom: p.nom }} />
                 {p.nom}
               </button>
             </li>
           ))}
         </ul>
+      )}
+      {liste.type === 'courses' && (
+        <a class="lien-bouton lien-catalogue" href={`#/catalogue/${liste.id}`}>
+          <Icone nom="grille" />
+          Toutes les icônes du catalogue
+        </a>
       )}
     </div>
   );
@@ -147,21 +181,21 @@ function VueCourses({ liste, contenu }: { liste: Liste; contenu: Article[] }) {
             aria-pressed={edition ? 'true' : 'false'}
             onClick={() => setEdition(!edition)}
           >
-            <Icone nom="crayon" />
-            {edition ? 'Terminer' : 'Modifier'}
+            <Icone nom={edition ? 'valider' : 'crayon'} />
+            {edition ? 'Terminer' : 'Modifier les articles'}
           </button>
         </BlocTete>
         <p class="aide astuce">
           {edition
-            ? 'Touchez un article pour le modifier ou le supprimer.'
-            : 'Touchez pour cocher. Appui long (ou « Modifier ») pour changer un article.'}
+            ? 'Touchez un article pour changer son nom, sa quantité, son icône ou son rayon, ou pour le supprimer.'
+            : 'Touchez un article pour le cocher. Pour le changer : « Modifier les articles », ou appui long sur l’article.'}
         </p>
         {aAcheter.length === 0 ? (
           <Vide>Rien à acheter. Ajoutez un article ou touchez un récent.</Vide>
         ) : (
           RAYONS.map(([cle, titre]) => {
             const duRayon = aAcheter
-              .filter((a) => rayonDe(a.produitId) === cle)
+              .filter((a) => rayonDe(a) === cle)
               .sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
             if (!duRayon.length) return null;
             return (
@@ -234,7 +268,7 @@ function VueChecklist({ liste, contenu }: { liste: Liste; contenu: Article[] }) 
                   <span class="tache-titre">{a.nom}</span>
                   {a.precision && <span class="tache-meta">{a.precision}</span>}
                 </button>
-                <span />
+                <BoutonModifier nom={a.nom} onClick={() => ouvrir({ type: 'article', article: a })} />
               </li>
             ))}
           </ul>
@@ -277,7 +311,13 @@ function LigneSortie({ sortie }: { sortie: Article }) {
         <span class="tache-titre">{sortie.nom}</span>
         <span class="tache-meta">{details}</span>
       </button>
-      <Illustration nom={categorie.icone} />
+      <span class="tache-fin">
+        <Illustration nom={categorie.icone} />
+        <BoutonModifier
+          nom={sortie.nom}
+          onClick={() => ouvrir({ type: 'sortie', listeId: sortie.listeId, sortie })}
+        />
+      </span>
     </li>
   );
 }

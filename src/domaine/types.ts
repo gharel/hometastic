@@ -17,6 +17,8 @@ export interface Foyer {
   membres: Membre[];
   devise: 'XPF' | 'EUR';
   creeLe: string;
+  /** Illustration et rayon retenus par nom d’article (nom normalisé), réappliqués à chaque ajout. */
+  appris?: Record<string, { icone?: string | undefined; rayon?: string | undefined }> | undefined;
 }
 
 /** Une liste, une tâche peut être rattachée à une fiche ou à un projet. */
@@ -42,6 +44,10 @@ export interface Article {
   nom: string;
   /** Identifiant du produit du catalogue (icône, rayon), absent pour un article libre. */
   produitId?: string | undefined;
+  /** Illustration choisie à la main (sinon celle du produit). */
+  icone?: string | undefined;
+  /** Rayon choisi à la main (sinon celui du produit, ou « Divers »). */
+  rayon?: string | undefined;
   precision?: string | undefined;
   urgent?: boolean | undefined;
   ajoutePar?: IdMembre | undefined;

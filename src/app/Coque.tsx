@@ -6,6 +6,7 @@ import { Courses } from '../ecrans/Courses';
 import { Fiche } from '../ecrans/Fiche';
 import { Foyer } from '../ecrans/Foyer';
 import { Analyse } from '../ecrans/Analyse';
+import { Catalogue } from '../ecrans/Catalogue';
 import { Nous } from '../ecrans/Nous';
 import { Projet } from '../ecrans/Projet';
 import { Rejoindre } from '../ecrans/Rejoindre';
@@ -61,6 +62,8 @@ function Ecran({ r }: { r: Route }) {
       return <Analyse mois={r.id} />;
     case 'rejoindre':
       return <Rejoindre code={r.code} />;
+    case 'catalogue':
+      return <Catalogue listeId={r.id} />;
   }
 }
 

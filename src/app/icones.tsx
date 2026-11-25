@@ -1,6 +1,7 @@
 import type { JSX } from 'preact';
 import fluent from '../icones/fluent.json';
-import { initiales, produit } from '../domaine/catalogue';
+import { iconeDe, initiales, type Habillage } from '../domaine/catalogue';
+import { ICONES_NID } from '../icones/nid';
 
 /** Icônes d’interface : dessins Lucide (licence ISC), toujours décoratives. */
 const TRACES = {
@@ -95,6 +96,14 @@ const TRACES = {
       <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
     </>
   ),
+  grille: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </>
+  ),
   cloche: <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0" />,
   nuage: <path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z" />,
 } satisfies Record<string, JSX.Element>;
@@ -109,13 +118,17 @@ export function Icone({ nom, classe }: { nom: NomIcone; classe?: string }) {
   );
 }
 
-const ICONES_FLUENT = fluent.icones as Record<string, string>;
+/** Illustrations Fluent Emoji Flat (Microsoft, MIT) et celles dessinées pour Nid, toutes en 32 × 32. */
+const ILLUSTRATIONS: Record<string, string> = { ...(fluent.icones as Record<string, string>), ...ICONES_NID };
 
-/** Ajoute une fois au document le sprite des illustrations Fluent Emoji Flat (Microsoft, MIT). */
+export const illustrationExiste = (nom: string | null | undefined): nom is string =>
+  !!nom && nom in ILLUSTRATIONS;
+
+/** Ajoute une fois au document le sprite des illustrations. */
 export function installerSprite(): void {
   if (document.getElementById('sprite-fluent')) return;
   const taille = fluent.taille;
-  const symboles = Object.entries(ICONES_FLUENT)
+  const symboles = Object.entries(ILLUSTRATIONS)
     .map(([nom, corps]) => `<symbol id="f-${nom}" viewBox="0 0 ${taille} ${taille}">${corps}</symbol>`)
     .join('');
   document.body.insertAdjacentHTML(
@@ -133,13 +146,13 @@ export function Illustration({ nom, classe = 'ico' }: { nom: string; classe?: st
   );
 }
 
-/** Icône d’un article : celle du produit, sinon une pastille à initiales. */
-export function IconeArticle({ produitId, nom }: { produitId?: string | undefined; nom: string }) {
-  const icone = produit(produitId)?.icone;
-  if (icone && icone in ICONES_FLUENT) return <Illustration nom={icone} />;
+/** Icône d’un article : celle choisie, sinon celle du produit, sinon une pastille à initiales. */
+export function IconeArticle({ article }: { article: Habillage & { nom: string } }) {
+  const icone = iconeDe(article);
+  if (illustrationExiste(icone)) return <Illustration nom={icone} />;
   return (
     <span class="monogramme" aria-hidden="true">
-      {initiales(nom)}
+      {initiales(article.nom)}
     </span>
   );
 }

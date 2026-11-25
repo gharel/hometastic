@@ -4,7 +4,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const catalogue = readFileSync(new URL('../src/domaine/catalogue.ts', import.meta.url), 'utf8');
-const noms = new Set([...catalogue.matchAll(/\['[^']+', '[^']+', '([a-z-]+)'/g)].map((m) => m[1]));
+// Les illustrations « nid-… » sont dessinées dans src/icones/nid.ts : pas à télécharger.
+const noms = new Set(
+  [...catalogue.matchAll(/\[\s*'[^']+',\s*'[^']+',\s*'([a-z-]+)'/g)]
+    .map((m) => m[1])
+    .filter((n) => !n.startsWith('nid-')),
+);
 
 // Icônes de l’interface (types de fiches et de projets, écrans vides).
 for (const n of [

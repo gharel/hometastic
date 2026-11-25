@@ -195,6 +195,59 @@ a.pilule {
   outline: 2px dashed var(--miel);
   outline-offset: -5px;
 }
+.tuile {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+/* Appui long reconnu : on relâche pour modifier. */
+.tuile.appui-long {
+  transform: scale(0.92);
+  box-shadow: 0 0 0 3px var(--miel);
+}
+.tuile-crayon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--miel);
+  color: var(--sur-miel);
+}
+.tuile-crayon svg {
+  width: 14px;
+  height: 14px;
+}
+/* Fin de ligne d’une tâche ou d’un élément : personne assignée, illustration, crayon. */
+.tache-fin {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.bouton-modifier {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: none;
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+.bouton-modifier svg {
+  width: 20px;
+  height: 20px;
+}
+.bouton-modifier:hover {
+  background: var(--primaire-doux);
+  color: var(--primaire);
+}
 .tuiles.apercu .tuile {
   text-decoration: none;
 }
@@ -247,6 +300,7 @@ dialog.feuille {
   min-width: 0;
 }
 .champ-groupe > label,
+.champ-groupe > .etiquette,
 .legende {
   font-size: 14px;
   font-weight: 700;
@@ -604,4 +658,90 @@ main:focus,
 .ligne,
 .fiche {
   overflow-wrap: anywhere;
+}
+
+/* ---------- Icônes : choix et galerie (27 novembre) ---------- */
+.lien-catalogue {
+  margin-top: 6px;
+}
+.icone-actuelle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.icone-actuelle > .ico,
+.icone-actuelle > .monogramme {
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+.choix-icones {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.choix-rayon h3 {
+  margin: 8px 4px 6px;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.choix-rayon h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.grille-icones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.icone-choix {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: 88px;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--ombre);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+button.icone-choix {
+  cursor: pointer;
+}
+.icone-choix .ico {
+  width: 40px;
+  height: 40px;
+  flex: none;
+}
+.icone-choix[aria-pressed='true'] {
+  box-shadow: 0 0 0 3px var(--primaire);
+}
+dialog .icone-choix {
+  background: var(--surface-2);
+  box-shadow: none;
+}
+.tuile-nom {
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }

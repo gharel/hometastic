@@ -5,6 +5,7 @@ import { avancement, compteARebours, etape, totalDepenses } from '../../src/doma
 import { echeancesAVenir, filtrer, groupeDe, prochaineTacheDe, regrouper } from '../../src/domaine/taches';
 import type { Fiche, Projet, Tache } from '../../src/domaine/types';
 import fluent from '../../src/icones/fluent.json';
+import { ICONES_NID } from '../../src/icones/nid';
 import { CATALOGUE } from '../../src/domaine/catalogue';
 
 const tache = (t: Partial<Tache>): Tache => ({
@@ -27,7 +28,9 @@ const AUJ = '2026-11-25';
 
 describe('Liste : catalogue et saisie', () => {
   it('chaque icône du catalogue existe dans le sprite', () => {
-    const manquantes = CATALOGUE.filter((p) => p.icone && !(p.icone in fluent.icones)).map((p) => p.icone);
+    const manquantes = CATALOGUE.filter(
+      (p) => p.icone && !(p.icone in fluent.icones) && !(p.icone in ICONES_NID),
+    ).map((p) => p.icone);
     expect(manquantes).toEqual([]);
   });
 

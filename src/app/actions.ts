@@ -12,6 +12,7 @@ import {
   depot,
   entrees,
   fiches,
+  foyer,
   listes,
   moi,
   taches,
@@ -87,10 +88,14 @@ export async function ajouterArticle(
     } else annoncer(`${nomFinal} est déjà sur la liste`);
     return existant;
   }
+  // Illustration et rayon choisis une fois pour ce nom : réappliqués à chaque ajout.
+  const appris = foyer.value?.appris?.[normaliser(nomFinal)];
   const article: Article = {
     ...(existant ?? { id: nouvelId(), listeId }),
     nom: nomFinal,
     produitId: p?.id,
+    icone: appris?.icone ?? existant?.icone,
+    rayon: appris?.rayon ?? existant?.rayon,
     precision: precision ?? existant?.precision,
     ajoutePar: moi.value?.id,
     ajouteLe: maintenant(),
@@ -116,6 +121,21 @@ export async function decocherArticle(article: Article) {
 
 export async function modifierArticle(article: Article) {
   await depot().mettre('articles', article);
+}
+
+/** Retient l’illustration et le rayon choisis pour ce nom d’article (partagé avec l’autre téléphone). */
+export async function retenirHabillage(
+  nom: string,
+  habillage: { icone?: string | undefined; rayon?: string | undefined },
+) {
+  const f = foyer.value;
+  if (!f) return;
+  const cle = normaliser(nom);
+  // Revenir à l’icône et au rayon d’origine efface ce qui avait été retenu.
+  const autres = Object.entries(f.appris ?? {}).filter(([k]) => k !== cle);
+  const garde =
+    habillage.icone || habillage.rayon ? [[cle, { icone: habillage.icone, rayon: habillage.rayon }]] : [];
+  await depot().ecrireFoyer({ ...f, appris: Object.fromEntries([...autres, ...garde]) });
 }
 
 export async function supprimerArticle(article: Article) {

@@ -92,4 +92,33 @@ test('finitions à 360 px : ni ascenseur horizontal, ni contour qui traîne, ni 
   }
   await page.getByRole('link', { name: /Qui fait quoi, charge mentale/ }).click();
   await controlerFinitions(page, 'analyse');
+
+  await aller(page, 'Courses');
+  await page.getByRole('link', { name: 'Toutes les icônes du catalogue' }).click();
+  await controlerFinitions(page, 'toutes les icônes');
+  await page.getByRole('searchbox', { name: 'Chercher une icône' }).fill('liquide');
+  await controlerFinitions(page, 'toutes les icônes, recherche');
+});
+
+test('choix d’icône à 360 px : ni ascenseur horizontal ni débordement dans la feuille', async ({ page }) => {
+  await creerFoyer(page);
+  await aller(page, 'Courses');
+  const saisie = page.getByRole('textbox', { name: 'Ajouter un article' });
+  await saisie.fill('liquide de refroidissement');
+  await saisie.press('Enter');
+  await page.getByRole('button', { name: 'Modifier les articles' }).click();
+  await page.locator('.tuile.sur-liste').first().click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Changer l’icône' }).click();
+  const debordements = await page.evaluate(() => {
+    const d = document.querySelector('dialog');
+    if (!d) return ['pas de feuille'];
+    const largeur = d.getBoundingClientRect().right;
+    return [...d.querySelectorAll<HTMLElement>('*:not(.vh)')]
+      .filter((e) => e.getBoundingClientRect().right > largeur + 1 || e.scrollWidth > e.clientWidth + 1)
+      .filter(
+        (e) => getComputedStyle(e).overflowX !== 'visible' || e.getBoundingClientRect().right > largeur + 1,
+      )
+      .map((e) => `${e.tagName.toLowerCase()}.${[...e.classList].join('.')}`);
+  });
+  expect(debordements).toEqual([]);
 });

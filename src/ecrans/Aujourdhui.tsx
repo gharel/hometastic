@@ -98,7 +98,7 @@ export function Aujourdhui() {
               {aAcheter.slice(0, 6).map((a) => (
                 <li key={a.id}>
                   <a class="tuile sur-liste" href={`#/courses/${courses.id}`}>
-                    <IconeArticle produitId={a.produitId} nom={a.nom} />
+                    <IconeArticle article={a} />
                     <span class="tuile-nom">{a.nom}</span>
                     {a.precision && <span class="tuile-precision">{a.precision}</span>}
                   </a>
