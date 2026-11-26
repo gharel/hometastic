@@ -2,13 +2,19 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { aller, enregistrer, ouvrirAjout } from './aide';
 
-test('foyer « couple et ado » : trois personnes, une tâche pour l’ado', async ({ page }) => {
+test('premier lancement : seul au départ, puis « Ajouter une personne » ; une tâche pour l’ado', async ({
+  page,
+}) => {
   await page.goto('./');
   await page.getByLabel('Votre prénom').fill('Guillaume');
-  await page.getByText('Couple et ado', { exact: true }).click();
-  await page.getByLabel('Prénom de l’autre parent').fill('Hélène');
-  await page.getByLabel('Prénom de l’ado').fill('Léo');
-  await expect(page.getByLabel('Nom du foyer (facultatif)')).toHaveAttribute('placeholder', 'Notre famille');
+  // Aucun champ « autre personne » d’office.
+  await expect(page.getByLabel(/^Prénom de la personne/)).toHaveCount(0);
+  const ajouter = page.getByRole('button', { name: 'Ajouter une personne' });
+  await ajouter.click();
+  await expect(page.getByLabel('Prénom de la personne 2')).toBeFocused();
+  await page.getByLabel('Prénom de la personne 2').fill('Hélène');
+  await ajouter.click();
+  await page.getByLabel('Prénom de la personne 3').fill('Léo');
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.getByRole('button', { name: 'Créer le foyer' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Aujourd’hui' })).toBeVisible();
@@ -36,14 +42,26 @@ test('foyer « couple et ado » : trois personnes, une tâche pour l’ado', asy
   await expect(page.getByText('Pour Léo')).toBeAttached();
 });
 
+test('seul : le foyer se crée avec une personne', async ({ page }) => {
+  await page.goto('./');
+  await page.getByLabel('Votre prénom').fill('Camille');
+  await page.getByRole('button', { name: 'Créer le foyer' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Aujourd’hui' })).toBeVisible();
+  await expect(page.locator('.barre .duo .avatar')).toHaveText(['C']);
+});
+
 test('colocation : quatre personnes, en retirer une puis en ajouter une', async ({ page }) => {
   await page.goto('./');
   await page.getByLabel('Votre prénom').fill('Sam');
-  await page.getByText('Colocation', { exact: true }).click();
-  await page.getByLabel('Prénom d’un colocataire').fill('Alex');
-  await page.getByLabel('Prénom d’un autre colocataire').fill('Charlie');
-  await page.getByRole('button', { name: 'Ajouter une personne' }).click();
-  await page.getByLabel('Prénom de la personne 4').fill('Dominique');
+  const ajouter = page.getByRole('button', { name: 'Ajouter une personne' });
+  for (const [n, prenom] of [
+    [2, 'Alex'],
+    [3, 'Charlie'],
+    [4, 'Dominique'],
+  ] as const) {
+    await ajouter.click();
+    await page.getByLabel(`Prénom de la personne ${n}`).fill(prenom);
+  }
   const largeur = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );

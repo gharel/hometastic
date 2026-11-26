@@ -15,7 +15,8 @@ export const dansJours = (n: number) => {
 export async function creerFoyer(page: Page) {
   await page.goto('./');
   await page.getByLabel('Votre prénom').fill('Guillaume');
-  await page.getByLabel('Prénom de l’autre personne du foyer').fill('Hélène');
+  await page.getByRole('button', { name: 'Ajouter une personne' }).click();
+  await page.getByLabel('Prénom de la personne 2').fill('Hélène');
   await page.getByRole('button', { name: 'Créer le foyer' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Aujourd’hui' })).toBeVisible();
 }

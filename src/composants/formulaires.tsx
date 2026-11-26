@@ -1,5 +1,5 @@
 import type { ComponentChildren } from 'preact';
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import {
   creerFoyer,
   enregistrerDepense,
@@ -44,15 +44,7 @@ import {
 import { Icone, IconeArticle, Illustration } from '../app/icones';
 import { CHAMPS_FICHE, ICONES_LISTE, TYPES_FICHE, TYPES_PROJET, iconeListe } from '../app/libelles';
 import { nouvelId } from '../domaine/id';
-import {
-  COMPOSITIONS,
-  MEMBRES_MAX,
-  couleurLibre,
-  libelleEnsemble,
-  libellePlace,
-  listeNoms,
-  type Composition,
-} from '../domaine/membres';
+import { MEMBRES_MAX, couleurLibre, libelleEnsemble, listeNoms } from '../domaine/membres';
 import { DOMAINES, estimer, formatDuree } from '../domaine/durees';
 import { modelePour } from '../domaine/modeles';
 import { formatMontant, lireMontant } from '../domaine/montants';
@@ -1259,10 +1251,23 @@ function FormDepense({ projetId, depense }: { projetId: string; depense?: Depens
 }
 
 // ---------- Foyer et menu ----------
+/**
+ * Quand une ligne de personne s’ajoute, son champ reçoit le curseur (l’attribut `autofocus` n’agit
+ * pas sur un champ ajouté après le chargement). Rien à l’ouverture, rien quand une ligne s’en va.
+ */
+function useCurseurSurAjout(nombre: number, idDernier: () => string) {
+  const avant = useRef(nombre);
+  useEffect(() => {
+    if (nombre > avant.current) document.getElementById(idDernier())?.focus();
+    avant.current = nombre;
+  }, [nombre]);
+}
+
 function FormFoyer() {
   const f = foyer.value;
   const [nom, setNom] = useState(f?.nom ?? '');
   const [liste, setListe] = useState<Membre[]>(f?.membres ?? []);
+  useCurseurSurAjout(liste.length, () => `foyer-membre-${liste.at(-1)?.id ?? ''}`);
   const [dev, setDev] = useState(f?.devise ?? 'XPF');
   if (!f) return null;
   const moiId = moi.value?.id;
@@ -1569,29 +1574,22 @@ export function Feuilles() {
   }
 }
 
-/** Premier lancement : créer le foyer. */
-/** Premier lancement : votre prénom, la composition du foyer et les autres personnes (spec 007). */
+/**
+ * Premier lancement : votre prénom, puis « Ajouter une personne » autant de fois que le foyer
+ * compte de membres (conjoint, ado, colocataires…), six au plus (spec 007).
+ */
 export function FormAccueil() {
   const [moiNom, setMoiNom] = useState('');
-  const [composition, setComposition] = useState<Composition>('couple');
-  const [autresNoms, setAutresNoms] = useState<string[]>(['']);
+  const [autresNoms, setAutresNoms] = useState<string[]>([]);
+  useCurseurSurAjout(autresNoms.length, () => `accueil-autre-${autresNoms.length - 1}`);
   const [nom, setNom] = useState('');
   const [dev, setDev] = useState<'XPF' | 'EUR'>('XPF');
-  const composer = (c: Composition) => {
-    setComposition(c);
-    const n = COMPOSITIONS[c].places.length;
-    // Autant de champs que la composition en propose, sans perdre un prénom déjà saisi.
-    const gardes = autresNoms.filter((x, i) => i < n || x.trim());
-    while (gardes.length < n) gardes.push('');
-    setAutresNoms(gardes);
-  };
   return (
     <form
       class="formulaire"
       onSubmit={(e) => {
         e.preventDefault();
-        if (moiNom.trim())
-          void creerFoyer(nom, [moiNom, ...autresNoms], dev, COMPOSITIONS[composition].nomFoyer);
+        if (moiNom.trim()) void creerFoyer(nom, [moiNom, ...autresNoms], dev);
       }}
     >
       <Champ id="accueil-moi" libelle="Votre prénom">
@@ -1604,18 +1602,9 @@ export function FormAccueil() {
           onInput={(e) => setMoiNom(e.currentTarget.value)}
         />
       </Champ>
-      <Choix
-        nom="accueil-composition"
-        legende="Qui vit dans le foyer ?"
-        valeur={composition}
-        options={(Object.keys(COMPOSITIONS) as Composition[]).map(
-          (c) => [c, COMPOSITIONS[c].libelle] as const,
-        )}
-        changer={composer}
-      />
       {autresNoms.map((v, i) => (
         <div key={i} class="ligne-personne">
-          <Champ id={`accueil-autre-${i}`} libelle={libellePlace(composition, i)}>
+          <Champ id={`accueil-autre-${i}`} libelle={`Prénom de la personne ${i + 2}`}>
             <input
               id={`accueil-autre-${i}`}
               class="champ"
@@ -1623,16 +1612,14 @@ export function FormAccueil() {
               onInput={(e) => setAutresNoms(autresNoms.map((x, j) => (j === i ? e.currentTarget.value : x)))}
             />
           </Champ>
-          {autresNoms.length > 1 && (
-            <button
-              type="button"
-              class="bouton bouton-icone"
-              aria-label={`Retirer ${v.trim() || `la personne ${i + 2}`}`}
-              onClick={() => setAutresNoms(autresNoms.filter((_, j) => j !== i))}
-            >
-              <Icone nom="croix" />
-            </button>
-          )}
+          <button
+            type="button"
+            class="bouton bouton-icone"
+            aria-label={`Retirer ${v.trim() || `la personne ${i + 2}`}`}
+            onClick={() => setAutresNoms(autresNoms.filter((_, j) => j !== i))}
+          >
+            <Icone nom="croix" />
+          </button>
         </div>
       ))}
       {autresNoms.length < MEMBRES_MAX - 1 && (
@@ -1645,7 +1632,7 @@ export function FormAccueil() {
         <input
           id="accueil-foyer"
           class="champ"
-          placeholder={COMPOSITIONS[composition].nomFoyer}
+          placeholder="Notre foyer"
           value={nom}
           onInput={(e) => setNom(e.currentTarget.value)}
         />

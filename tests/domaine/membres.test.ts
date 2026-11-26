@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { equilibrer, type BilanMois } from '../../src/domaine/analyse';
-import {
-  couleurLibre,
-  libelleEnsemble,
-  libellePlace,
-  listeNoms,
-  membresDepuisPrenoms,
-} from '../../src/domaine/membres';
+import { couleurLibre, libelleEnsemble, listeNoms, membresDepuisPrenoms } from '../../src/domaine/membres';
 
 let n = 0;
 const id = () => `m${++n}`;
@@ -27,14 +21,12 @@ describe('membres du foyer (spec 007)', () => {
     expect(couleurLibre([])).toBe('a');
   });
 
-  it('libellés : « Nous deux » ou « Tout le monde », liste de prénoms, champs par composition', () => {
+  it('libellés : « Nous deux » ou « Tout le monde », liste de prénoms', () => {
     expect(libelleEnsemble(2)).toBe('Nous deux');
     expect(libelleEnsemble(3)).toBe('Tout le monde');
     expect(listeNoms(['Hélène'])).toBe('Hélène');
     expect(listeNoms(['Hélène', 'Léo'])).toBe('Hélène et Léo');
     expect(listeNoms(['Hélène', 'Léo', 'Sam'])).toBe('Hélène, Léo et Sam');
-    expect(libellePlace('famille', 1)).toBe('Prénom de l’ado');
-    expect(libellePlace('famille', 2)).toBe('Prénom de la personne 4');
   });
 
   it('équilibre à plusieurs : le plus chargé face au moins chargé', () => {

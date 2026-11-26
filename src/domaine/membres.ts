@@ -36,32 +36,3 @@ export function listeNoms(noms: readonly string[]): string {
   if (noms.length <= 1) return noms[0] ?? '';
   return `${noms.slice(0, -1).join(', ')} et ${noms.at(-1) ?? ''}`;
 }
-
-export type Composition = 'couple' | 'famille' | 'colocation';
-
-/** Compositions proposées à la création du foyer : libellé, champs de prénoms, nom par défaut. */
-export const COMPOSITIONS: Record<
-  Composition,
-  { libelle: string; places: readonly string[]; nomFoyer: string }
-> = {
-  couple: {
-    libelle: 'En couple',
-    places: ['Prénom de l’autre personne du foyer'],
-    nomFoyer: 'Notre foyer',
-  },
-  famille: {
-    libelle: 'Couple et ado',
-    places: ['Prénom de l’autre parent', 'Prénom de l’ado'],
-    nomFoyer: 'Notre famille',
-  },
-  colocation: {
-    libelle: 'Colocation',
-    places: ['Prénom d’un colocataire', 'Prénom d’un autre colocataire'],
-    nomFoyer: 'Notre coloc',
-  },
-};
-
-/** Libellé du champ n (0 = première personne après soi) : celui de la composition, sinon générique. */
-export function libellePlace(composition: Composition, n: number): string {
-  return COMPOSITIONS[composition].places[n] ?? `Prénom de la personne ${n + 2}`;
-}

@@ -37,12 +37,7 @@ const enregistre = (quoi: string, feminin = false) =>
 
 // ---------- Foyer ----------
 /** Crée le foyer ; le premier prénom est celui de la personne qui tient ce téléphone (spec 007). */
-export async function creerFoyer(
-  nom: string,
-  prenoms: readonly string[],
-  devise: Foyer['devise'],
-  nomParDefaut = 'Notre foyer',
-) {
+export async function creerFoyer(nom: string, prenoms: readonly string[], devise: Foyer['devise']) {
   const membres = membresDepuisPrenoms(prenoms, nouvelId);
   const m1 = membres[0];
   if (!m1) return;
@@ -51,7 +46,7 @@ export async function creerFoyer(
   await depot().mettre('listes', { id: nouvelId(), nom: 'Supermarché', type: 'courses', ordre: 0, creeLe });
   await depot().mettre('listes', { id: nouvelId(), nom: 'À voir', type: 'sorties', ordre: 1, creeLe });
   await depot().mettre('fiches', { id: nouvelId(), type: 'maison', nom: 'Maison', infos: {}, creeLe });
-  await depot().ecrireFoyer({ id: 'foyer', nom: nom.trim() || nomParDefaut, membres, devise, creeLe });
+  await depot().ecrireFoyer({ id: 'foyer', nom: nom.trim() || 'Notre foyer', membres, devise, creeLe });
 }
 
 /** Enregistre le foyer ; les tâches des personnes retirées passent « au premier libre ». */
