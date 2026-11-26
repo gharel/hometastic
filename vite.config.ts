@@ -3,7 +3,7 @@ import preact from '@preact/preset-vite';
 import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-/** La maquette reste en ligne sous /nid/maquette/ : référence visuelle. */
+/** La maquette reste en ligne sous /hometastic/maquette/ : référence visuelle. */
 function copierMaquette(): Plugin {
   return {
     name: 'copier-maquette',
@@ -14,9 +14,9 @@ function copierMaquette(): Plugin {
   };
 }
 
-// Publié sous https://gharel.github.io/nid/ : même chemin pour le build et son aperçu (tests e2e).
+// Publié sous https://gharel.github.io/hometastic/ : même chemin pour le build et son aperçu (tests e2e).
 export default defineConfig(({ command, isPreview }) => ({
-  base: command === 'build' || isPreview ? '/nid/' : '/',
+  base: command === 'build' || isPreview ? '/hometastic/' : '/',
   plugins: [
     preact(),
     VitePWA({
@@ -24,8 +24,8 @@ export default defineConfig(({ command, isPreview }) => ({
       injectRegister: false,
       pwaAssets: { config: true, overrideManifestIcons: true, injectThemeColor: false },
       manifest: {
-        name: 'Nid',
-        short_name: 'Nid',
+        name: 'Hometastic',
+        short_name: 'Hometastic',
         description: 'Le foyer : courses, tâches, maison, voitures, enfants, voyages.',
         lang: 'fr',
         start_url: './',

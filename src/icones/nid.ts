@@ -1,5 +1,5 @@
 /**
- * Illustrations propres à Nid, dessinées dans le style Fluent Emoji Flat (aplats, 32 × 32) pour les
+ * Illustrations propres à Hometastic, dessinées dans le style Fluent Emoji Flat (aplats, 32 × 32) pour les
  * objets sans emoji : quincaillerie, bricolage, ménage, hygiène et beauté. Même licence que le dépôt.
  * Préfixe « nid- » ; elles rejoignent le sprite des illustrations Fluent (`installerSprite`).
  */
@@ -408,5 +408,5 @@ export const ICONES_NID: Record<string, string> = {
     `<rect x="11" y="27.5" width="10" height="2.5" rx="1" fill="${BRUN}"/>`,
 };
 
-/** Toutes les illustrations propres à Nid (nom, corps SVG), pour la galerie et les tests. */
+/** Toutes les illustrations propres à Hometastic (nom, corps SVG), pour la galerie et les tests. */
 export const NOMS_ICONES_NID = Object.keys(ICONES_NID);

@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Règles d’accès de Nid (ADR 0002) : un membre ne lit et n’écrit que dans son foyer.
+// Règles d’accès de Hometastic (ADR 0002) : un membre ne lit et n’écrit que dans son foyer.
 // Chaque téléphone a un compte anonyme ; il devient membre en créant le foyer ou avec le lien
 // d’invitation (secret du foyer). À coller dans la console Firebase, Firestore, onglet Règles.
 service cloud.firestore {

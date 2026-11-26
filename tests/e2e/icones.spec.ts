@@ -33,7 +33,7 @@ test('Article : « Modifier les articles », icône et rayon changés puis reten
   await feuille.getByRole('searchbox', { name: 'Chercher une icône' }).fill('colle');
   await feuille.getByRole('button', { name: 'Colle', exact: true }).click();
   await feuille.getByLabel('Rayon').selectOption({ label: 'Divers' });
-  await expect(feuille.getByText(/Nid s’en souviendra/)).toBeVisible();
+  await expect(feuille.getByText(/Hometastic s’en souviendra/)).toBeVisible();
   await enregistrer(page);
 
   await expect(tuile(page, 'Mastic').locator('use')).toHaveAttribute('href', '#f-nid-colle');

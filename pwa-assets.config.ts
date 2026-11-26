@@ -7,7 +7,8 @@ export default defineConfig({
   preset: {
     ...minimal2023Preset,
     maskable: { ...minimal2023Preset.maskable, resizeOptions: fond },
-    apple: { ...minimal2023Preset.apple, resizeOptions: fond },
+    // Icône iPhone : peu de marge (l’iPhone arrondit les coins lui-même), la maison reste lisible.
+    apple: { ...minimal2023Preset.apple, padding: 0.12, resizeOptions: fond },
   },
   images: ['public/favicon.svg'],
 });

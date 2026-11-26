@@ -96,6 +96,15 @@ const TRACES = {
       <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
     </>
   ),
+  // Partager comme sur iPhone (Lucide « share ») et menu du navigateur (Lucide « ellipsis-vertical »).
+  partagerIos: <path d="M12 2v13M16 6l-4-4-4 4M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />,
+  plusOptions: (
+    <>
+      <circle cx="12" cy="5" r="1" />
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="12" cy="19" r="1" />
+    </>
+  ),
   grille: (
     <>
       <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -187,7 +196,7 @@ export function Icone({ nom, classe }: { nom: NomIcone; classe?: string }) {
   );
 }
 
-/** Illustrations Fluent Emoji Flat (Microsoft, MIT) et celles dessinées pour Nid, toutes en 32 × 32. */
+/** Illustrations Fluent Emoji Flat (Microsoft, MIT) et celles dessinées pour Hometastic, toutes en 32 × 32. */
 const ILLUSTRATIONS: Record<string, string> = { ...(fluent.icones as Record<string, string>), ...ICONES_NID };
 
 export const illustrationExiste = (nom: string | null | undefined): nom is string =>

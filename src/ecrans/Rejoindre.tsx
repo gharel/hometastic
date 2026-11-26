@@ -31,8 +31,8 @@ export function Rejoindre({ code }: { code: string }) {
   if (!configFirebase) {
     contenu = (
       <p class="vide">
-        La synchronisation n’est pas encore branchée sur cette version de Nid. Réessayez une fois qu’elle le
-        sera.
+        La synchronisation n’est pas encore branchée sur cette version de Hometastic. Réessayez une fois
+        qu’elle le sera.
       </p>
     );
   } else if (!invitation) {
@@ -121,7 +121,7 @@ export function Rejoindre({ code }: { code: string }) {
           </p>
         ) : null}
         <p class="aide">
-          <a href="#/aujourdhui">Retour à Nid</a>
+          <a href="#/aujourdhui">Retour à Hometastic</a>
         </p>
       </section>
     </main>

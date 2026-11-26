@@ -1,5 +1,5 @@
 /*
- * Rappels de Nid (importé dans le service worker généré par Workbox).
+ * Rappels de Hometastic (importé dans le service worker généré par Workbox).
  * Messages « data » de Firebase Cloud Messaging envoyés par outils/rappels.mjs :
  * { titre, corps, lien, tag }. Un rappel de santé n’a jamais de détail (ADR 0004).
  */
@@ -12,7 +12,7 @@ self.addEventListener('push', (evenement) => {
   }
   const d = message.data || message;
   evenement.waitUntil(
-    self.registration.showNotification(d.titre || 'Nid', {
+    self.registration.showNotification(d.titre || 'Hometastic', {
       body: d.corps || '',
       tag: d.tag || undefined,
       icon: 'pwa-192x192.png',

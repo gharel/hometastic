@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { Feuilles, FormAccueil } from '../composants/formulaires';
+import { CarteInstallation } from '../composants/installation';
 import { AFaire } from '../ecrans/AFaire';
 import { Aujourdhui } from '../ecrans/Aujourdhui';
 import { Courses } from '../ecrans/Courses';
@@ -14,6 +15,7 @@ import { etatSynchro, type EtatSynchro } from '../donnees/synchro/synchro';
 import { BoutonTheme } from './BoutonTheme';
 import { annoncer, annonce, depot, foyer, membres, ouvrir, pret, route } from './etat';
 import { Icone, type NomIcone } from './icones';
+import { Logo } from './Logo';
 import { TITRES, ongletDe, type Onglet, type Route } from './routage';
 
 const ONGLETS: readonly (readonly [Onglet, NomIcone])[] = [
@@ -23,24 +25,6 @@ const ONGLETS: readonly (readonly [Onglet, NomIcone])[] = [
   ['foyer', 'maison'],
   ['nous', 'nous'],
 ];
-
-export function Logo({ classe = 'logo' }: { classe?: string }) {
-  return (
-    <svg class={classe} viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-      <rect width="64" height="64" rx="16" fill="#22416a" />
-      <ellipse cx="25" cy="27" rx="7.5" ry="9.5" fill="#fff6e6" />
-      <ellipse cx="39.5" cy="25.5" rx="7.5" ry="9.5" fill="#f7e2bc" />
-      <path d="M10 31h44a22 17 0 0 1-44 0z" fill="#f2b33d" />
-      <path
-        d="M15 38q17 6 34 0M20 45q12 4 24 0"
-        fill="none"
-        stroke="#c98a1b"
-        stroke-width="3"
-        stroke-linecap="round"
-      />
-    </svg>
-  );
-}
 
 function Ecran({ r }: { r: Route }) {
   switch (r.ecran) {
@@ -117,11 +101,12 @@ function Accueil() {
   return (
     <main class="accueil" id="contenu">
       <Logo classe="logo-grand" />
-      <h1>Bienvenue dans Nid</h1>
+      <h1>Bienvenue dans Hometastic</h1>
       <p class="chapeau">
         Les courses en un tap, les choses à faire sans rien oublier, et tout le foyer suivi au même endroit :
         maison, voitures, enfants, voyages.
       </p>
+      <CarteInstallation lieu="accueil" />
       <FormAccueil />
       <details class="repli">
         <summary>Restaurer une sauvegarde</summary>
@@ -156,7 +141,7 @@ export function Coque() {
   const premier = useRef(true);
 
   useEffect(() => {
-    document.title = `${TITRES[onglet]} · Nid`;
+    document.title = `${TITRES[onglet]} · Hometastic`;
     if (premier.current) {
       premier.current = false;
       return;
@@ -187,7 +172,7 @@ export function Coque() {
         <a class="nav-marque" href="#/aujourdhui">
           <span class="marque">
             <Logo />
-            Nid
+            Hometastic
           </span>
           <span class="doux">{f.nom}</span>
         </a>
@@ -211,9 +196,9 @@ export function Coque() {
 
       <div class="colonne">
         <header class="barre">
-          <a class="marque" href="#/aujourdhui" aria-label="Nid, aujourd’hui">
+          <a class="marque" href="#/aujourdhui" aria-label="Hometastic, aujourd’hui">
             <Logo />
-            <span class="marque-nom">Nid</span>
+            <span class="marque-nom">Hometastic</span>
           </a>
           <a class="synchro" href="#/nous" data-etat={pastille.etat}>
             <span class="duo" aria-hidden="true">

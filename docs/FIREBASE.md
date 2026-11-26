@@ -1,13 +1,13 @@
 # Brancher Firebase (synchronisation et rappels)
 
-Guide pas à pas pour relier Nid à **votre** projet Firebase, formule **Spark** (gratuite, sans carte bancaire). Compter 15 minutes. Tout se fait dans la console Firebase (https://console.firebase.google.com) avec votre compte Google.
+Guide pas à pas pour relier Hometastic à **votre** projet Firebase, formule **Spark** (gratuite, sans carte bancaire). Compter 15 minutes. Tout se fait dans la console Firebase (https://console.firebase.google.com) avec votre compte Google.
 
 Ce que vous m’envoyez ensuite : la configuration web (étape 4) et la clé Web Push (étape 5). Ce sont des valeurs **publiques** (elles finissent dans l’app en ligne ; la sécurité vient des règles de l’étape 3). Le compte de service (étape 6) est **secret** : ne me l’envoyez pas, déposez-le vous-même dans GitHub.
 
 ## 1. Créer le projet
 
-1. « Créer un projet », nom : `nid`.
-2. **Désactiver Google Analytics** (Nid n’a aucune télémétrie).
+1. « Créer un projet », nom : `hometastic`.
+2. **Désactiver Google Analytics** (Hometastic n’a aucune télémétrie).
 3. Rester en formule **Spark** : ne jamais passer à Blaze (il demanderait une carte bancaire).
 
 ## 2. Connexion anonyme
@@ -28,7 +28,7 @@ Chaque téléphone a un compte anonyme, invisible pour vous ; il devient membre 
 ## 4. Application web (configuration publique)
 
 1. Roue dentée → Paramètres du projet → Général → « Vos applications » → icône Web `</>`.
-2. Surnom : `Nid`. Ne pas cocher Firebase Hosting (l’app reste sur GitHub Pages).
+2. Surnom : `Hometastic`. Ne pas cocher Firebase Hosting (l’app reste sur GitHub Pages).
 3. Copier l’objet `firebaseConfig` affiché (apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId) et me l’envoyer.
 
 ## 5. Notifications (clé Web Push publique)
@@ -42,14 +42,14 @@ Chaque téléphone a un compte anonyme, invisible pour vous ; il devient membre 
 La tâche GitHub Actions qui envoie les rappels a besoin d’un accès serveur.
 
 1. Paramètres du projet → onglet **Comptes de service** → « Générer une nouvelle clé privée » → un fichier JSON se télécharge.
-2. Sur GitHub, dépôt `gharel/nid` → Settings → Secrets and variables → Actions → **New repository secret** :
+2. Sur GitHub, dépôt `gharel/hometastic` → Settings → Secrets and variables → Actions → **New repository secret** :
    - Name : `FIREBASE_SERVICE_ACCOUNT`
    - Secret : tout le contenu du fichier JSON.
 
    Ou, dans un terminal où `gh` est connecté :
 
    ```powershell
-   gh secret set FIREBASE_SERVICE_ACCOUNT --repo gharel/nid --body (Get-Content -Raw "$HOME\Downloads\nid-xxxx.json")
+   gh secret set FIREBASE_SERVICE_ACCOUNT --repo gharel/hometastic --body (Get-Content -Raw "$HOME\Downloads\hometastic-xxxx.json")
    ```
 
 3. **Supprimer le fichier JSON** téléchargé.
@@ -63,7 +63,7 @@ Avec vos valeurs publiques, je crée les variables du dépôt `FIREBASE_CONFIG`,
 1. **Téléphone de Guillaume** : Nous → **Activer la synchronisation**. Le foyer est copié dans Firestore (la santé part chiffrée).
 2. Nous → **Inviter Hélène** : la feuille de partage s’ouvre ; envoyer le lien par Messages ou WhatsApp. Ce lien donne accès au foyer **et à la clé de santé** : à n’envoyer qu’à Hélène.
 3. **Téléphone d’Hélène** : ouvrir le lien dans Brave → **Rejoindre le foyer** → toucher son prénom. Ce qui était déjà sur ce téléphone n’est plus affiché (exporter avant si besoin).
-4. **Rappels**, sur chaque téléphone : dans Brave, Partager → « Sur l’écran d’accueil », ouvrir Nid **depuis l’icône**, puis Nous → **Recevoir les rappels** et accepter les notifications. Sur iPhone, les notifications web ne marchent que depuis l’icône de l’écran d’accueil (iOS 16.4 ou plus).
+4. **Rappels**, sur chaque téléphone : dans Brave, Partager → « Sur l’écran d’accueil », ouvrir Hometastic **depuis l’icône**, puis Nous → **Recevoir les rappels** et accepter les notifications. Sur iPhone, les notifications web ne marchent que depuis l’icône de l’écran d’accueil (iOS 16.4 ou plus).
 
 ## Bon à savoir
 

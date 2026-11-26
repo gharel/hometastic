@@ -2,6 +2,7 @@ import { articles, aujourdhui, fiches, kmParFiche, listes, moi, projets, taches 
 import { Icone, IconeArticle, Illustration } from '../app/icones';
 import { TYPES_PROJET, iconeFiche, pluriel } from '../app/libelles';
 import { BlocTete, ListeTaches, Vide } from '../composants/communs';
+import { CarteInstallation } from '../composants/installation';
 import { formatCourt, formatLong, relatif } from '../domaine/dates';
 import { CATEGORIES_SORTIE } from '../domaine/sorties';
 import { echeancesAVenir, regrouper } from '../domaine/taches';
@@ -44,6 +45,7 @@ export function Aujourdhui() {
           ', et la liste de courses est vide.'
         )}
       </p>
+      <CarteInstallation lieu="aujourdhui" />
 
       <section class="bloc" aria-labelledby="t-jour">
         <BlocTete titre="À faire aujourd’hui" id="t-jour">

@@ -674,7 +674,9 @@ function FormArticle({ article }: { article: Article }) {
               </select>
             </Champ>
             {habillageTouche && (
-              <p class="aide">Nid s’en souviendra la prochaine fois que vous ajouterez « {nom.trim()} ».</p>
+              <p class="aide">
+                Hometastic s’en souviendra la prochaine fois que vous ajouterez « {nom.trim()} ».
+              </p>
             )}
           </>
         )}
@@ -882,8 +884,8 @@ function FormSante({ fiche }: { fiche: Fiche }) {
         <p class="chiffre">
           <Icone nom="cadenas" />
           <span>
-            Chiffré sur ce téléphone avant d’être enregistré. Informations saisies par vous : Nid n’est pas un
-            avis médical.
+            Chiffré sur ce téléphone avant d’être enregistré. Informations saisies par vous : Hometastic n’est
+            pas un avis médical.
           </span>
         </p>
         {champs.map(([cle, libelle]) => (

@@ -28,7 +28,7 @@ describe('Catalogue et illustrations', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('chaque illustration dessinée pour Nid sert à un produit, sans script', () => {
+  it('chaque illustration dessinée pour Hometastic sert à un produit, sans script', () => {
     const utilisees = new Set(CATALOGUE.map((p) => p.icone));
     for (const nom of NOMS_ICONES_NID) {
       expect(utilisees.has(nom), nom).toBe(true);

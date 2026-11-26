@@ -1,4 +1,4 @@
-// Télécharge les icônes Fluent Emoji Flat (Microsoft, licence MIT) utilisées par Nid depuis l’API Iconify,
+// Télécharge les icônes Fluent Emoji Flat (Microsoft, licence MIT) utilisées par Hometastic depuis l’API Iconify,
 // et écrit src/icones/fluent.json (corps SVG seulement). À relancer après un ajout au catalogue :
 //   node outils/icones.mjs
 import { readFileSync, writeFileSync } from 'node:fs';

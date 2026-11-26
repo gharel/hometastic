@@ -1,6 +1,6 @@
-# Plan produit et technique : Nid
+# Plan produit et technique : Hometastic
 
-> Statut : **validé le 25 novembre 2026** (plan, conception, charte). « Nid » est le nom de travail (le foyer d’un couple qui s’agrandira). Analyse préalable : `docs/BENCHMARK.md`. Maquette de référence : `maquette/index.html` (captures dans `docs/captures/`). Registre des décisions : `docs/DECISIONS.md`.
+> Statut : **validé le 25 novembre 2026** (plan, conception, charte). « Hometastic » est le nom de travail (le foyer d’un couple qui s’agrandira). Analyse préalable : `docs/BENCHMARK.md`. Maquette de référence : `maquette/index.html` (captures dans `docs/captures/`). Registre des décisions : `docs/DECISIONS.md`.
 >
 > **Exigence n°1** : la liste de courses et les tâches sont **synchronisées entre les deux téléphones** du couple, dès le premier lot livré.
 
@@ -33,16 +33,16 @@ Un bouton **Ajouter** toujours visible ouvre la **saisie rapide** : une seule li
 - **Santé chiffrée** : tout ce qui touche à la santé est chiffré sur les téléphones avant d’être envoyé ; le serveur ne stocke que des données illisibles (section 5).
 - **Sans publicité ni pistage** : aucune revente d’intention d’achat, aucune télémétrie, export JSON complet du foyer.
 - **Bienveillant** : l’équilibre est montré, jamais transformé en compétition ou en reproche. Pas de classement par défaut.
-- **Charte propre à Nid**, validée le 25 novembre 2026 (comme Fournée a la sienne ; la charte « gh. » de `www/perso` convient à une page vitrine, pas à une app de tous les jours) : DM Sans, fond crème, cartes blanches arrondies à ombre douce, bleu nuit en couleur principale (boutons, onglet actif, tuiles à acheter façon Bring!), miel en accent (nouveautés, urgent). Une couleur par membre du foyer (vert sapin, terre cuite), toujours accompagnée de l’initiale. Pas de capitales ni de grain. Thème clair, sombre ou système, verrouillé contre le mode nuit de Brave (Dark Reader).
+- **Charte propre à Hometastic**, validée le 25 novembre 2026 (comme Fournée a la sienne ; la charte « gh. » de `www/perso` convient à une page vitrine, pas à une app de tous les jours) : DM Sans, fond crème, cartes blanches arrondies à ombre douce, bleu nuit en couleur principale (boutons, onglet actif, tuiles à acheter façon Bring!), miel en accent (nouveautés, urgent). Une couleur par membre du foyer (vert sapin, terre cuite), toujours accompagnée de l’initiale. Pas de capitales ni de grain. Thème clair, sombre ou système, verrouillé contre le mode nuit de Brave (Dark Reader).
 - **Accessible** (WCAG 2.2 AA, testé avec VoiceOver) et en français soigné.
 
 ### Hors périmètre
 
-Calendrier complet (on garde l’agenda partagé existant ; Nid exporte ses échéances en flux ICS), messagerie, localisation des membres, offres et prospectus, commande en drive, comptabilité (seulement des coûts et budgets simples), dossier médical officiel ou conseil de santé, suivi de bébé minute par minute (tétées, sommeil), IA générative au MVP.
+Calendrier complet (on garde l’agenda partagé existant ; Hometastic exporte ses échéances en flux ICS), messagerie, localisation des membres, offres et prospectus, commande en drive, comptabilité (seulement des coûts et budgets simples), dossier médical officiel ou conseil de santé, suivi de bébé minute par minute (tétées, sommeil), IA générative au MVP.
 
 ## 3. Les briques
 
-Tout Nid se construit avec **quatre briques visibles** et **trois briques de soutien**. Une nouvelle fonctionnalité doit d’abord s’exprimer avec ces briques ; en créer une nouvelle demande un ADR (ADR 0003).
+Tout Hometastic se construit avec **quatre briques visibles** et **trois briques de soutien**. Une nouvelle fonctionnalité doit d’abord s’exprimer avec ces briques ; en créer une nouvelle demande un ADR (ADR 0003).
 
 ### Briques visibles
 
@@ -84,10 +84,10 @@ La partie **santé** d’une fiche Personne (rendez-vous médicaux, vaccins, tra
 - **Ajout** : recherche qui complète (catalogue + historique du foyer), plusieurs articles séparés par des virgules, quantité et unité comprises (« 2 l lait », « lait x2 »), précisions suggérées sous l’article ajouté. Rangée « Récents » pour réajouter en un tap ce qui vient d’être acheté.
 - **Détails** : quantité, unité, note, photo, priorité (urgent, en promo, quand ça arrange), « ajouté par » et « coché par ».
 - **Rayons** : rangement automatique qui **retient les corrections**.
-- **Magasins et ordre appris** : en mode magasin, l’ordre dans lequel on coche est enregistré ; après trois passages, Nid propose l’ordre des rayons de _ce_ magasin.
+- **Magasins et ordre appris** : en mode magasin, l’ordre dans lequel on coche est enregistré ; après trois passages, Hometastic propose l’ordre des rayons de _ce_ magasin.
 - **Mode magasin** : grandes tuiles, écran maintenu allumé, articles cochés masqués, annulation du dernier geste, ajouts de l’autre mis en évidence, bouton « pas trouvé ».
 - **Signaux utiles plutôt que bruit** : « Je pars faire les courses » prévient l’autre, « Courses terminées » envoie le bilan. Les ajouts isolés ne notifient pas, sauf réglage contraire.
-- **« Il manque sûrement »** : à partir des dates d’achat, Nid propose (sans ajouter tout seul) les produits qui arrivent à échéance.
+- **« Il manque sûrement »** : à partir des dates d’achat, Hometastic propose (sans ajouter tout seul) les produits qui arrivent à échéance.
 - **Prix et budget (facultatif)** : prix mémorisé par produit et par magasin, total estimé, dépenses du mois. Devise XPF par défaut, réglable.
 - **Liens** : une tâche, un projet ou une fiche peut verser des articles dans une liste (peinture pour la chambre, crème solaire pour le voyage, couches quand le stock baisse).
 
@@ -109,7 +109,7 @@ La partie **santé** d’une fiche Personne (rendez-vous médicaux, vaccins, tra
 
 ### 4.4 Foyer : véhicules
 
-- **Kilométrage** relevé à la main ; Nid le demande une fois par mois (notification facultative) et l’utilise pour les échéances au kilométrage.
+- **Kilométrage** relevé à la main ; Hometastic le demande une fois par mois (notification facultative) et l’utilise pour les échéances au kilométrage.
 - **Échéances** : contrôle technique, vidange, pneus, assurance, avec la règle « date ou kilométrage, au premier atteint ».
 - **Carnet** : chaque entretien ou réparation (date, kilométrage, coût, garage, facture). Coût total par an.
 - **Documents** : carte grise, assurance, factures.
@@ -117,7 +117,7 @@ La partie **santé** d’une fiche Personne (rendez-vous médicaux, vaccins, tra
 ### 4.5 Foyer : personnes et enfants
 
 - **Fiche par personne** sans compte (les enfants n’ont pas de compte ; les adultes peuvent avoir la leur).
-- **Santé (chiffrée)** : rendez-vous médicaux avec rappels, vaccins faits et prochains **saisis par les parents** (jamais un calendrier officiel), traitements en cours, allergies, ordonnances en photo, contacts des soignants, mesures (taille, poids). Nid n’est jamais présenté comme un avis médical.
+- **Santé (chiffrée)** : rendez-vous médicaux avec rappels, vaccins faits et prochains **saisis par les parents** (jamais un calendrier officiel), traitements en cours, allergies, ordonnances en photo, contacts des soignants, mesures (taille, poids). Hometastic n’est jamais présenté comme un avis médical.
 - **Vie quotidienne** : école ou crèche (réunions, inscriptions, fournitures versées aux courses), activités (horaires, paiements), tailles de vêtements et pointure, anniversaires.
 - **Stocks bébé** : couches, lait infantile, lingettes ; consommation estimée, article versé aux courses sous un seuil.
 - **Plus tard** : tâches au nom des enfants, points et récompenses, mode tablette familiale.
@@ -149,9 +149,9 @@ La partie **santé** d’une fiche Personne (rendez-vous médicaux, vaccins, tra
 
 ### 4.9 Intégrations
 
-- **Raccourcis Apple** : « Dis Siri, ajoute du lait dans Nid » via un raccourci qui appelle l’API du foyer avec un jeton personnel révocable.
+- **Raccourcis Apple** : « Dis Siri, ajoute du lait dans Hometastic » via un raccourci qui appelle l’API du foyer avec un jeton personnel révocable.
 - **Flux ICS** des tâches datées et des projets, abonnable depuis Calendrier ou Google Agenda (sans le contenu santé : « Rendez-vous santé » seulement).
-- **Fournée** (`www/cooking`) : verser la liste de courses de la fournée de la semaine dans la liste Courses de Nid.
+- **Fournée** (`www/cooking`) : verser la liste de courses de la fournée de la semaine dans la liste Courses de Hometastic.
 - **Export et import JSON** du foyer, versionnés (la partie santé exportée chiffrée, ou en clair sur demande explicite).
 
 ## 5. Santé chiffrée de bout en bout
@@ -177,11 +177,11 @@ Les rôles changent selon les domaines : c’est le principe de « Nous ».
 
 ## 7. Parcours clés
 
-1. **Ajouter du lait en trois secondes** : ouvrir Nid, Courses, taper la tuile « Lait » dans Récents. Ou « Dis Siri, ajoute du lait dans Nid ».
+1. **Ajouter du lait en trois secondes** : ouvrir Hometastic, Courses, taper la tuile « Lait » dans Récents. Ou « Dis Siri, ajoute du lait dans Hometastic ».
 2. **Faire les courses** : « Je pars faire les courses » (l’autre est prévenu), mode magasin, cocher dans l’ordre des rayons appris, « Courses terminées ».
 3. **Déléguer une tâche** : « prendre RDV garage avant vendredi @Hélène », l’autre reçoit la notification.
 4. **Noter une réparation** : Foyer, Maison, « Ajouter une réparation », photo de la fuite, contact du plombier ; plus tard, coût et facture ; elle rejoint l’historique.
-5. **Préparer un voyage** : modèle Voyage, dates, Nid crée les préparatifs, les valises de chacun, vérifie les passeports, et compte à rebours dans Aujourd’hui.
+5. **Préparer un voyage** : modèle Voyage, dates, Hometastic crée les préparatifs, les valises de chacun, vérifie les passeports, et compte à rebours dans Aujourd’hui.
 6. **Suivre la santé d’un enfant** : fiche de l’enfant, rendez-vous chez le pédiatre avec rappel « Rappel santé » aux deux parents ; ordonnance en photo, chiffrée.
 7. **Point du dimanche** : 10 minutes guidées, la semaine est claire et répartie.
 
@@ -359,7 +359,7 @@ Fonctions pures du domaine (testées avec Vitest et fast-check) : `analyserSaisi
 - **Photos** : compressées sur le téléphone avant envoi (largeur maximale 1 600 px).
 - **Icônes** : Fluent Emoji Flat (MIT) extraites au build dans un sprite ; Lucide (ISC) pour l’interface.
 - **PWA** : vite-plugin-pwa, hors ligne complet, badge, push web (iOS 16.4+ depuis l’écran d’accueil).
-- **Hébergement** : GitHub Pages (`gharel.github.io/nid`).
+- **Hébergement** : GitHub Pages (`gharel.github.io/hometastic`).
 - **Tests** : Vitest + fast-check (domaine, chiffrement), Playwright + axe-core (5 écrans × 2 thèmes × 390 et 1280 px), essai manuel sur iPhone avec VoiceOver.
 
 ## 10. Lots et critères d’acceptation

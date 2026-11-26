@@ -1,4 +1,4 @@
-/* Composants propres à l’application (formulaires, feuilles, listes à cocher), dans la charte de Nid. */
+/* Composants propres à l’application (formulaires, feuilles, listes à cocher), dans la charte de Hometastic. */
 
 .chargement {
   min-height: 100dvh;
@@ -807,4 +807,50 @@ dialog .icone-choix {
 .picto-choix[aria-pressed='true'] {
   background: var(--primaire);
   color: var(--sur-primaire);
+}
+
+/* Carte « Installer sur l’écran d’accueil » (spec 006) */
+.installation {
+  margin-top: 18px;
+  padding: 16px;
+}
+.installation-tete {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.installation-tete .logo {
+  width: 44px;
+  height: 44px;
+}
+.installation h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+.installation .sous {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.installation .actions {
+  margin-top: 12px;
+}
+.marche {
+  margin: 12px 0 0;
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.marche li + li {
+  margin-top: 6px;
+}
+.marche svg.en-ligne {
+  width: 18px;
+  height: 18px;
+  vertical-align: -3px;
+}
+.bloc > .installation {
+  margin-top: 0;
 }

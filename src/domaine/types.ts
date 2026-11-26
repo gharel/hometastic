@@ -1,4 +1,4 @@
-/** Modèle de données de Nid : quatre briques (Liste, Tâche, Fiche, Projet) et leurs compléments (ADR 0003). */
+/** Modèle de données de Hometastic : quatre briques (Liste, Tâche, Fiche, Projet) et leurs compléments (ADR 0003). */
 
 export type IdMembre = string;
 /** Un membre précis, les deux ensemble, ou le premier qui s’en charge. */

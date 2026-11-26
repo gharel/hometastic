@@ -11,6 +11,6 @@ css = css
   .trim();
 writeFileSync(
   new URL('../src/styles/nid.css', import.meta.url),
-  `/* Charte propre à Nid (validée le 25 novembre 2026), reprise de la maquette de référence. */\n${css}\n`,
+  `/* Charte propre à Hometastic (validée le 25 novembre 2026), reprise de la maquette de référence. */\n${css}\n`,
 );
 console.log(`${css.length} caractères ; police : ${/--police:[^;]+/.exec(css)?.[0]}`);

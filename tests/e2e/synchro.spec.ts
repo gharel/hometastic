@@ -22,7 +22,7 @@ test('Lien d’invitation ouvert avant le branchement : message clair, sans plan
   const resultats = await new AxeBuilder({ page }).analyze();
   expect(resultats.violations).toEqual([]);
 
-  // Retour à Nid : premier lancement habituel.
-  await page.getByRole('link', { name: 'Retour à Nid' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Bienvenue dans Nid' })).toBeVisible();
+  // Retour à Hometastic : premier lancement habituel.
+  await page.getByRole('link', { name: 'Retour à Hometastic' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Bienvenue dans Hometastic' })).toBeVisible();
 });

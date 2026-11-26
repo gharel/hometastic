@@ -25,7 +25,7 @@ describe('invitation', () => {
 
   it('accepte le lien complet', () => {
     const code = encoderInvitation({ foyerId: 'AbCdEfGhIjKlMnOpQrSt', secret: nouveauSecret(), cle });
-    expect(decoderInvitation(` https://gharel.github.io/nid/#/rejoindre/${code} `)?.foyerId).toBe(
+    expect(decoderInvitation(` https://gharel.github.io/hometastic/#/rejoindre/${code} `)?.foyerId).toBe(
       'AbCdEfGhIjKlMnOpQrSt',
     );
   });

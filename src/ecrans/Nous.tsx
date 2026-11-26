@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import { annoncer, choisirMembre, depot, foyer, membreCourant, membres, ouvrir } from '../app/etat';
 import { Icone, Illustration } from '../app/icones';
 import { BlocTete } from '../composants/communs';
+import { CarteInstallation } from '../composants/installation';
 import { estRelie, quitter } from '../donnees/synchro/synchro';
 import { BlocSynchro } from './Synchro';
 
@@ -10,7 +11,7 @@ async function exporter() {
   const fichier = new Blob([JSON.stringify(sauvegarde, null, 2)], { type: 'application/json' });
   const lien = document.createElement('a');
   lien.href = URL.createObjectURL(fichier);
-  lien.download = `nid-${sauvegarde.exporteLe.slice(0, 10)}.json`;
+  lien.download = `hometastic-${sauvegarde.exporteLe.slice(0, 10)}.json`;
   lien.click();
   setTimeout(() => URL.revokeObjectURL(lien.href), 1000);
   annoncer('Sauvegarde téléchargée (la santé y reste chiffrée)');
@@ -137,6 +138,10 @@ export function Nous() {
         </form>
       </section>
 
+      <div class="bloc">
+        <CarteInstallation lieu="nous" />
+      </div>
+
       <section class="bloc" aria-labelledby="t-sauvegarde">
         <BlocTete titre="Sauvegarde" id="t-sauvegarde" />
         <div class="actions" style={{ marginTop: 0 }}>
@@ -166,7 +171,7 @@ export function Nous() {
           onClick={async () => {
             if (
               window.confirm(
-                'Effacer toutes les données de Nid sur ce téléphone ? Exportez d’abord une sauvegarde si besoin.',
+                'Effacer toutes les données de Hometastic sur ce téléphone ? Exportez d’abord une sauvegarde si besoin.',
               )
             ) {
               await depot().toutEffacer();

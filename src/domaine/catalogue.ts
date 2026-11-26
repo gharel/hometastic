@@ -1,6 +1,6 @@
 /**
  * Catalogue de base des courses : nom, illustration et rayon.
- * Illustrations Fluent Emoji Flat (Microsoft, MIT) ou propres à Nid (préfixe « nid- »,
+ * Illustrations Fluent Emoji Flat (Microsoft, MIT) ou propres à Hometastic (préfixe « nid- »,
  * `src/icones/nid.ts`) pour les objets sans emoji.
  */
 

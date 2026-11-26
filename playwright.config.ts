@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.PORT_E2E ?? 4183);
-const ADRESSE = `http://localhost:${PORT}/nid/`;
+const ADRESSE = `http://localhost:${PORT}/hometastic/`;
 
 export default defineConfig({
   testDir: 'tests/e2e',

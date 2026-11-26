@@ -1,7 +1,7 @@
 /**
  * Rappels par notification (Firebase Cloud Messaging, gratuit) : ce téléphone enregistre son jeton dans
  * foyers/{foyerId}/appareils ; une tâche GitHub Actions programmée envoie les rappels (ADR 0005).
- * Sur iPhone, il faut d’abord ajouter Nid à l’écran d’accueil et l’ouvrir depuis l’icône.
+ * Sur iPhone, il faut d’abord ajouter Hometastic à l’écran d’accueil et l’ouvrir depuis l’icône.
  */
 import { cleVapid, configFirebase, foyerRelie } from './config';
 
@@ -25,7 +25,7 @@ export async function activerRappels(membreId: string | undefined): Promise<void
   const { getMessaging, getToken, isSupported } = await import('firebase/messaging');
   if (!(await isSupported()) || !('Notification' in window))
     throw new Error(
-      'Notifications indisponibles ici. Sur iPhone : Partager, « Sur l’écran d’accueil », puis ouvrir Nid depuis l’icône.',
+      'Notifications indisponibles ici. Sur iPhone : Partager, « Sur l’écran d’accueil », puis ouvrir Hometastic depuis l’icône.',
     );
   if ((await Notification.requestPermission()) !== 'granted')
     throw new Error('Notifications refusées dans les réglages.');

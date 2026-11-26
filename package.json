@@ -1,8 +1,8 @@
 {
-  "name": "nid",
+  "name": "hometastic",
   "version": "0.1.0",
   "private": true,
-  "description": "Nid : l’application du foyer (courses, tâches, fiches, projets)",
+  "description": "Hometastic : l’application du foyer (courses, tâches, fiches, projets)",
   "type": "module",
   "engines": {
     "node": ">=24"

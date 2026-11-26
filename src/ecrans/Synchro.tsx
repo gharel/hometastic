@@ -41,8 +41,8 @@ async function inviter(): Promise<string | undefined> {
   try {
     if (navigator.share) {
       await navigator.share({
-        title: 'Nid',
-        text: `Rejoins notre foyer sur Nid${nom ? `, ${nom}` : ''} :`,
+        title: 'Hometastic',
+        text: `Rejoins notre foyer sur Hometastic${nom ? `, ${nom}` : ''} :`,
         url: lien,
       });
       return lien;
@@ -267,7 +267,7 @@ export function BlocSynchro() {
         Le lien ouvre le foyer et sa santé chiffrée : envoyez-le seulement{' '}
         {autre.value ? `à ${autre.value.nom}` : 'à l’autre membre du foyer'}.
         {cleVapid
-          ? ' Rappels sur iPhone : ajoutez d’abord Nid à l’écran d’accueil (Partager, « Sur l’écran d’accueil ») et ouvrez-le depuis l’icône. Un rappel de santé dit seulement « Rappel santé ».'
+          ? ' Rappels sur iPhone : ajoutez d’abord Hometastic à l’écran d’accueil (Partager, « Sur l’écran d’accueil ») et ouvrez-la depuis l’icône. Un rappel de santé dit seulement « Rappel santé ».'
           : ''}
       </p>
       <details class="repli">

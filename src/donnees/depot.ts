@@ -172,7 +172,7 @@ export class Depot {
       s.version !== VERSION_SAUVEGARDE ||
       typeof s.tables !== 'object'
     )
-      throw new Error('Ce fichier n’est pas une sauvegarde de Nid lisible par cette version.');
+      throw new Error('Ce fichier n’est pas une sauvegarde de Hometastic lisible par cette version.');
     const noms: NomTable[] = ['foyer', ...COLLECTIONS];
     for (const n of noms) {
       const docs = s.tables[n] ?? [];

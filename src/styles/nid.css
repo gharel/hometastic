@@ -1,5 +1,5 @@
-/* Charte propre à Nid (validée le 25 novembre 2026), reprise de la maquette de référence. */
-/* ---------- Jetons : seul endroit où une couleur est écrite (charte propre à Nid) ---------- */
+/* Charte propre à Hometastic (validée le 25 novembre 2026), reprise de la maquette de référence. */
+/* ---------- Jetons : seul endroit où une couleur est écrite (charte propre à Hometastic) ---------- */
 :root {
   --fond: #f6f3ee;
   --surface: #ffffff;
@@ -317,7 +317,8 @@ h1:focus {
   }
 }
 
-@media (max-width: 359px) {
+/* « Hometastic » et la pastille de synchronisation ne tiennent ensemble qu’à partir de 440 px : logo seul en dessous. */
+@media (max-width: 439px) {
   .barre .marque-nom {
     display: none;
   }

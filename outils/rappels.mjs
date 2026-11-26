@@ -1,5 +1,5 @@
 /**
- * Envoi des rappels de Nid (ADR 0005), lancé toutes les 15 minutes par .github/workflows/rappels.yml.
+ * Envoi des rappels de Hometastic (ADR 0005), lancé toutes les 15 minutes par .github/workflows/rappels.yml.
  * Pour chaque foyer : tâches non faites arrivées à échéance (fuseau du foyer), notification aux
  * téléphones concernés par Firebase Cloud Messaging, rappel noté pour ne partir qu’une fois.
  *

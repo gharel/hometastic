@@ -6,6 +6,7 @@ import { registerSW } from 'virtual:pwa-register';
 import { Coque } from './app/Coque';
 import { demarrer, route } from './app/etat';
 import { installerSprite } from './app/icones';
+import { ecouterInstallation } from './app/installation';
 import { lireAncre } from './app/routage';
 import { demarrerTypographie } from './app/typographie-dom';
 import { Depot } from './donnees/depot';
@@ -17,6 +18,7 @@ const montage = document.getElementById('app');
 if (!montage) throw new Error('Point de montage #app introuvable');
 
 installerSprite();
+ecouterInstallation();
 route.value = lireAncre(location.hash);
 addEventListener('hashchange', () => {
   route.value = lireAncre(location.hash);
