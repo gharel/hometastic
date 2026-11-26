@@ -58,12 +58,17 @@ La tâche GitHub Actions qui envoie les rappels a besoin d’un accès serveur.
 
 Avec vos valeurs publiques, je crée les variables du dépôt `FIREBASE_CONFIG`, `FIREBASE_VAPID` et `RAPPELS_ACTIFS` (`oui`), puis je relance la publication : l’app en ligne sait alors se synchroniser, et la tâche « Rappels » tourne toutes les 15 minutes.
 
-## 8. Sur les deux téléphones
+## 8. Sur les téléphones
 
-1. **Téléphone de Guillaume** : Nous → **Activer la synchronisation**. Le foyer est copié dans Firestore (la santé part chiffrée).
-2. Nous → **Inviter Hélène** : la feuille de partage s’ouvre ; envoyer le lien par Messages ou WhatsApp. Ce lien donne accès au foyer **et à la clé de santé** : à n’envoyer qu’à Hélène.
-3. **Téléphone d’Hélène** : ouvrir le lien dans Brave → **Rejoindre le foyer** → toucher son prénom. Ce qui était déjà sur ce téléphone n’est plus affiché (exporter avant si besoin).
-4. **Rappels**, sur chaque téléphone : dans Brave, Partager → « Sur l’écran d’accueil », ouvrir Hometastic **depuis l’icône**, puis Nous → **Recevoir les rappels** et accepter les notifications. Sur iPhone, les notifications web ne marchent que depuis l’icône de l’écran d’accueil (iOS 16.4 ou plus).
+Sur iPhone, Hometastic ajoutée à l’écran d’accueil a **son propre stockage**, séparé de celui de Brave. Tout se fait donc **depuis l’icône**, jamais dans le navigateur : sinon le lien avec le foyer, la clé de santé et les rappels resteraient dans Brave, invisibles pour l’app installée.
+
+1. **Installer d’abord**, sur chaque téléphone : dans Brave, ouvrir https://gharel.github.io/hometastic/, Partager → « Sur l’écran d’accueil » → Ajouter. Ouvrir ensuite Hometastic **depuis l’icône**.
+2. **Téléphone de Guillaume**, depuis l’icône : Nous → **Activer la synchronisation**. Si ses données sont restées dans Brave, les exporter d’abord depuis Brave, puis « Restaurer une sauvegarde » au premier lancement de l’app installée. Le foyer est copié dans Firestore (la santé part chiffrée).
+3. Nous → **Inviter Hélène** : la feuille de partage s’ouvre ; envoyer le lien par Messages ou WhatsApp. Ce lien donne accès au foyer **et à la clé de santé** : à n’envoyer qu’aux membres du foyer. Au-delà de deux personnes, le bouton s’appelle « Inviter » et le même lien sert pour chacune.
+4. **Téléphone d’Hélène** : dans Messages, **appui long sur le lien → Copier**. Ne pas le toucher : il s’ouvrirait dans Brave, pas dans l’app installée.
+5. Ouvrir Hometastic **depuis l’icône**. Au premier lancement, taper son prénom et valider : ce foyer provisoire sert seulement à entrer dans l’app et ne sera plus affiché.
+6. Nous → champ « Ou collez le lien reçu » → coller → **Rejoindre** → **Rejoindre le foyer** → toucher son prénom. Ce qui était déjà dans l’app de ce téléphone n’est plus affiché (exporter avant si besoin).
+7. **Rappels**, sur chaque téléphone, toujours depuis l’icône : Nous → **Recevoir les rappels** et accepter les notifications. Sur iPhone, les notifications web ne marchent que dans l’app installée (iOS 16.4 ou plus).
 
 ## Bon à savoir
 
