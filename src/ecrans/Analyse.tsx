@@ -179,7 +179,7 @@ export function Analyse({ mois }: { mois?: string | undefined }) {
                 {equilibre.ecart > 0 &&
                 bilan.membres.find((m) => m.membreId === equilibre.moinsCharge)?.minutes === 0
                   ? 'Encore peu de temps compté ce mois-ci : trop tôt pour parler d’équilibre.'
-                  : 'Plutôt équilibré ce mois-ci. Merci à vous deux.'}
+                  : `Plutôt équilibré ce mois-ci. Merci à ${ms.length > 2 ? 'tous' : 'vous deux'}.`}
               </span>
             </p>
           ) : (

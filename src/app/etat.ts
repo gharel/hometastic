@@ -82,7 +82,8 @@ export const membres = computed<Membre[]>(() => foyer.value?.membres ?? []);
 export const moi = computed(
   () => membres.value.find((m) => m.id === membreCourant.value) ?? membres.value[0],
 );
-export const autre = computed(() => membres.value.find((m) => m.id !== moi.value?.id));
+/** Les autres membres du foyer (un seul en couple, plusieurs en famille ou en colocation). */
+export const autres = computed(() => membres.value.filter((m) => m.id !== moi.value?.id));
 export const devise = computed(() => foyer.value?.devise ?? 'XPF');
 
 export const kmParFiche = computed<Record<string, number>>(() =>

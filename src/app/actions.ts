@@ -1,9 +1,20 @@
 import { analyserArticle, normaliser, produit, trouverProduit } from '../domaine/catalogue';
 import { nouvelId } from '../domaine/id';
+import { membresDepuisPrenoms } from '../domaine/membres';
 import { modelePour, tachesDuModele } from '../domaine/modeles';
 import { rouvrirTache, terminerTache } from '../domaine/recurrence';
 import { dateAchatBillets, devinerCategorie } from '../domaine/sorties';
-import type { Article, Depense, Entree, Fiche, Foyer, Liste, Membre, Projet, Tache } from '../domaine/types';
+import type {
+  Article,
+  Depense,
+  Entree,
+  Fiche,
+  Foyer,
+  IdMembre,
+  Liste,
+  Projet,
+  Tache,
+} from '../domaine/types';
 import {
   annoncer,
   articles,
@@ -25,24 +36,28 @@ const enregistre = (quoi: string, feminin = false) =>
   `${quoi} enregistré${feminin ? 'e' : ''}${['indisponible', 'locale'].includes(etatSynchro.value) ? ' sur ce téléphone' : ''}`;
 
 // ---------- Foyer ----------
+/** Crée le foyer ; le premier prénom est celui de la personne qui tient ce téléphone (spec 007). */
 export async function creerFoyer(
   nom: string,
-  prenomMoi: string,
-  prenomAutre: string,
+  prenoms: readonly string[],
   devise: Foyer['devise'],
+  nomParDefaut = 'Notre foyer',
 ) {
-  const m1: Membre = { id: nouvelId(), nom: prenomMoi.trim(), couleur: 'a' };
-  const membres: Membre[] = [m1];
-  if (prenomAutre.trim()) membres.push({ id: nouvelId(), nom: prenomAutre.trim(), couleur: 'b' });
+  const membres = membresDepuisPrenoms(prenoms, nouvelId);
+  const m1 = membres[0];
+  if (!m1) return;
   choisirMembre(m1.id);
   const creeLe = maintenant();
   await depot().mettre('listes', { id: nouvelId(), nom: 'Supermarché', type: 'courses', ordre: 0, creeLe });
   await depot().mettre('listes', { id: nouvelId(), nom: 'À voir', type: 'sorties', ordre: 1, creeLe });
   await depot().mettre('fiches', { id: nouvelId(), type: 'maison', nom: 'Maison', infos: {}, creeLe });
-  await depot().ecrireFoyer({ id: 'foyer', nom: nom.trim() || 'Notre foyer', membres, devise, creeLe });
+  await depot().ecrireFoyer({ id: 'foyer', nom: nom.trim() || nomParDefaut, membres, devise, creeLe });
 }
 
-export async function modifierFoyer(foyer: Foyer) {
+/** Enregistre le foyer ; les tâches des personnes retirées passent « au premier libre ». */
+export async function modifierFoyer(foyer: Foyer, retires: readonly IdMembre[] = []) {
+  for (const t of taches.value)
+    if (retires.includes(t.assignation)) await depot().mettre('taches', { ...t, assignation: 'libre' });
   await depot().ecrireFoyer(foyer);
   annoncer('Foyer mis à jour');
 }

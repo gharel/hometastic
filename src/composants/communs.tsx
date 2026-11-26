@@ -14,11 +14,13 @@ const milliers = (n: number) => n.toLocaleString('fr-FR').replace(/[\u202f\u00a0
 
 export function Avatar({ pour, classe = '' }: { pour: Assignation | undefined; classe?: string }) {
   if (pour === 'nous') {
-    const initiales = membres.value.map((m) => m.nom.charAt(0).toUpperCase()).join('+') || '2';
+    // Au-delà de deux, les initiales ne tiendraient plus : « Tous ».
+    const ms = membres.value;
+    const initiales = ms.length > 2 ? 'Tous' : ms.map((m) => m.nom.charAt(0).toUpperCase()).join('+') || '2';
     return (
       <span class={`avatar nous ${classe}`}>
         <span aria-hidden="true">{initiales}</span>
-        <span class="vh">Pour vous deux</span>
+        <span class="vh">{ms.length > 2 ? 'Pour tout le monde' : 'Pour vous deux'}</span>
       </span>
     );
   }

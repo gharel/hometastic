@@ -27,13 +27,14 @@ import {
 } from '../app/actions';
 import {
   aujourdhui,
-  autre,
+  autres,
   devise,
   feuille,
   fermer,
   fiches,
   foyer,
   listes,
+  membres,
   moi,
   ouvrir,
   projets,
@@ -43,6 +44,15 @@ import {
 import { Icone, IconeArticle, Illustration } from '../app/icones';
 import { CHAMPS_FICHE, ICONES_LISTE, TYPES_FICHE, TYPES_PROJET, iconeListe } from '../app/libelles';
 import { nouvelId } from '../domaine/id';
+import {
+  COMPOSITIONS,
+  MEMBRES_MAX,
+  couleurLibre,
+  libelleEnsemble,
+  libellePlace,
+  listeNoms,
+  type Composition,
+} from '../domaine/membres';
 import { DOMAINES, estimer, formatDuree } from '../domaine/durees';
 import { modelePour } from '../domaine/modeles';
 import { formatMontant, lireMontant } from '../domaine/montants';
@@ -58,6 +68,7 @@ import type {
   Entree,
   Fiche,
   Liste,
+  Membre,
   Projet,
   Recurrence,
   Sante,
@@ -163,8 +174,8 @@ function FormTache({ tache, defauts }: { tache?: Tache | undefined; defauts?: Pa
   const vehicule = ficheChoisie?.type === 'vehicule';
   const options: (readonly [Assignation, string])[] = [];
   if (moi.value) options.push([moi.value.id, moi.value.nom]);
-  if (autre.value) options.push([autre.value.id, autre.value.nom]);
-  options.push(['nous', 'Nous deux'], ['libre', 'Au premier libre']);
+  for (const m of autres.value) options.push([m.id, m.nom]);
+  options.push(['nous', libelleEnsemble(membres.value.length)], ['libre', 'Au premier libre']);
 
   const enregistrer = (e: Event) => {
     e.preventDefault();
@@ -1251,35 +1262,84 @@ function FormDepense({ projetId, depense }: { projetId: string; depense?: Depens
 function FormFoyer() {
   const f = foyer.value;
   const [nom, setNom] = useState(f?.nom ?? '');
-  const [noms, setNoms] = useState<string[]>([f?.membres[0]?.nom ?? '', f?.membres[1]?.nom ?? '']);
+  const [liste, setListe] = useState<Membre[]>(f?.membres ?? []);
   const [dev, setDev] = useState(f?.devise ?? 'XPF');
   if (!f) return null;
+  const moiId = moi.value?.id;
+  const changerNom = (id: string, n: string) =>
+    setListe(liste.map((m) => (m.id === id ? { ...m, nom: n } : m)));
   return (
     <Feuille titre="Le foyer">
       <form
         class="formulaire"
         onSubmit={(e) => {
           e.preventDefault();
-          const membres = f.membres.map((m, i) => ({ ...m, nom: noms[i]?.trim() || m.nom }));
-          if (membres.length < 2 && noms[1]?.trim())
-            membres.push({ id: nouvelId(), nom: noms[1].trim(), couleur: 'b' });
-          void modifierFoyer({ ...f, nom: nom.trim() || f.nom, membres, devise: dev });
+          // Un prénom effacé garde l’ancien ; une personne ajoutée sans prénom est ignorée.
+          const membres = liste.flatMap((m) => {
+            const n = m.nom.trim();
+            const avant = f.membres.find((x) => x.id === m.id);
+            return n ? [{ ...m, nom: n }] : avant ? [avant] : [];
+          });
+          const retires = f.membres.filter((m) => !liste.some((x) => x.id === m.id));
+          if (
+            retires.length &&
+            !window.confirm(
+              `Retirer ${listeNoms(retires.map((m) => m.nom))} du foyer ? Ses tâches passeront « au premier libre ».`,
+            )
+          )
+            return;
+          void modifierFoyer(
+            { ...f, nom: nom.trim() || f.nom, membres, devise: dev },
+            retires.map((m) => m.id),
+          );
           fermer();
         }}
       >
         <Champ id="foyer-nom" libelle="Nom du foyer">
           <input id="foyer-nom" class="champ" value={nom} onInput={(e) => setNom(e.currentTarget.value)} />
         </Champ>
-        {[0, 1].map((i) => (
-          <Champ key={i} id={`foyer-membre-${i}`} libelle={i === 0 ? 'Premier prénom' : 'Second prénom'}>
-            <input
-              id={`foyer-membre-${i}`}
-              class="champ"
-              value={noms[i] ?? ''}
-              onInput={(e) => setNoms(noms.map((n, j) => (j === i ? e.currentTarget.value : n)))}
-            />
-          </Champ>
-        ))}
+        <fieldset class="personnes">
+          <legend class="legende">Les personnes du foyer</legend>
+          {liste.map((m, i) => (
+            <div key={m.id} class="ligne-personne">
+              <span class={`avatar ${m.couleur}`} aria-hidden="true">
+                {m.nom.trim().charAt(0).toUpperCase() || i + 1}
+              </span>
+              <label class="vh" for={`foyer-membre-${m.id}`}>
+                {`Prénom de la personne ${i + 1}`}
+              </label>
+              <input
+                id={`foyer-membre-${m.id}`}
+                class="champ"
+                value={m.nom}
+                onInput={(e) => changerNom(m.id, e.currentTarget.value)}
+              />
+              {m.id !== moiId && (
+                <button
+                  type="button"
+                  class="bouton bouton-icone"
+                  aria-label={`Retirer ${m.nom.trim() || `la personne ${i + 1}`}`}
+                  onClick={() => setListe(liste.filter((x) => x.id !== m.id))}
+                >
+                  <Icone nom="croix" />
+                </button>
+              )}
+            </div>
+          ))}
+          {liste.length < MEMBRES_MAX && (
+            <button
+              type="button"
+              class="lien-bouton"
+              onClick={() => setListe([...liste, { id: nouvelId(), nom: '', couleur: couleurLibre(liste) }])}
+            >
+              <Icone nom="plus" />
+              Ajouter une personne
+            </button>
+          )}
+          <p class="aide">
+            Ado, colocataire… : six personnes au plus. Les jeunes enfants ont plutôt leur fiche dans Foyer.
+          </p>
+        </fieldset>
         <Choix
           nom="foyer-devise"
           legende="Devise"
@@ -1510,17 +1570,28 @@ export function Feuilles() {
 }
 
 /** Premier lancement : créer le foyer. */
+/** Premier lancement : votre prénom, la composition du foyer et les autres personnes (spec 007). */
 export function FormAccueil() {
   const [moiNom, setMoiNom] = useState('');
-  const [autreNom, setAutreNom] = useState('');
+  const [composition, setComposition] = useState<Composition>('couple');
+  const [autresNoms, setAutresNoms] = useState<string[]>(['']);
   const [nom, setNom] = useState('');
   const [dev, setDev] = useState<'XPF' | 'EUR'>('XPF');
+  const composer = (c: Composition) => {
+    setComposition(c);
+    const n = COMPOSITIONS[c].places.length;
+    // Autant de champs que la composition en propose, sans perdre un prénom déjà saisi.
+    const gardes = autresNoms.filter((x, i) => i < n || x.trim());
+    while (gardes.length < n) gardes.push('');
+    setAutresNoms(gardes);
+  };
   return (
     <form
       class="formulaire"
       onSubmit={(e) => {
         e.preventDefault();
-        if (moiNom.trim()) void creerFoyer(nom, moiNom, autreNom, dev);
+        if (moiNom.trim())
+          void creerFoyer(nom, [moiNom, ...autresNoms], dev, COMPOSITIONS[composition].nomFoyer);
       }}
     >
       <Champ id="accueil-moi" libelle="Votre prénom">
@@ -1533,19 +1604,48 @@ export function FormAccueil() {
           onInput={(e) => setMoiNom(e.currentTarget.value)}
         />
       </Champ>
-      <Champ id="accueil-autre" libelle="Prénom de l’autre personne du foyer">
-        <input
-          id="accueil-autre"
-          class="champ"
-          value={autreNom}
-          onInput={(e) => setAutreNom(e.currentTarget.value)}
-        />
-      </Champ>
+      <Choix
+        nom="accueil-composition"
+        legende="Qui vit dans le foyer ?"
+        valeur={composition}
+        options={(Object.keys(COMPOSITIONS) as Composition[]).map(
+          (c) => [c, COMPOSITIONS[c].libelle] as const,
+        )}
+        changer={composer}
+      />
+      {autresNoms.map((v, i) => (
+        <div key={i} class="ligne-personne">
+          <Champ id={`accueil-autre-${i}`} libelle={libellePlace(composition, i)}>
+            <input
+              id={`accueil-autre-${i}`}
+              class="champ"
+              value={v}
+              onInput={(e) => setAutresNoms(autresNoms.map((x, j) => (j === i ? e.currentTarget.value : x)))}
+            />
+          </Champ>
+          {autresNoms.length > 1 && (
+            <button
+              type="button"
+              class="bouton bouton-icone"
+              aria-label={`Retirer ${v.trim() || `la personne ${i + 2}`}`}
+              onClick={() => setAutresNoms(autresNoms.filter((_, j) => j !== i))}
+            >
+              <Icone nom="croix" />
+            </button>
+          )}
+        </div>
+      ))}
+      {autresNoms.length < MEMBRES_MAX - 1 && (
+        <button type="button" class="lien-bouton" onClick={() => setAutresNoms([...autresNoms, ''])}>
+          <Icone nom="plus" />
+          Ajouter une personne
+        </button>
+      )}
       <Champ id="accueil-foyer" libelle="Nom du foyer (facultatif)">
         <input
           id="accueil-foyer"
           class="champ"
-          placeholder="Notre foyer"
+          placeholder={COMPOSITIONS[composition].nomFoyer}
           value={nom}
           onInput={(e) => setNom(e.currentTarget.value)}
         />

@@ -1,14 +1,16 @@
 /** Modèle de données de Hometastic : quatre briques (Liste, Tâche, Fiche, Projet) et leurs compléments (ADR 0003). */
 
 export type IdMembre = string;
-/** Un membre précis, les deux ensemble, ou le premier qui s’en charge. */
+/** Un membre précis, tout le monde ensemble (« nous »), ou le premier qui s’en charge. */
 export type Assignation = IdMembre | 'nous' | 'libre';
+
+/** Couleur d’avatar : a vert sapin, b terre cuite, c prune, d bleu canard, e ocre, f framboise. */
+export type CouleurMembre = 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
 
 export interface Membre {
   id: IdMembre;
   nom: string;
-  /** Couleur d’avatar : a = vert sapin, b = terre cuite. */
-  couleur: 'a' | 'b';
+  couleur: CouleurMembre;
 }
 
 export interface Foyer {

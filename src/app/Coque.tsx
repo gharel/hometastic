@@ -56,7 +56,7 @@ const PASTILLES: Record<EtatSynchro, { etat: string; texte: string; detail: stri
   indisponible: {
     etat: 'local',
     texte: 'Non partagé',
-    detail: 'Tout fonctionne hors ligne. La synchronisation entre vos deux téléphones est à brancher (Nous).',
+    detail: 'Tout fonctionne hors ligne. La synchronisation entre vos téléphones est à brancher (Nous).',
   },
   locale: {
     etat: 'local',
@@ -202,11 +202,12 @@ export function Coque() {
           </a>
           <a class="synchro" href="#/nous" data-etat={pastille.etat}>
             <span class="duo" aria-hidden="true">
-              {membres.value.map((m) => (
+              {membres.value.slice(0, membres.value.length > 3 ? 2 : 3).map((m) => (
                 <span key={m.id} class={`avatar ${m.couleur}`}>
                   {m.nom.charAt(0).toUpperCase()}
                 </span>
               ))}
+              {membres.value.length > 3 && <span class="avatar plus">+{membres.value.length - 2}</span>}
             </span>
             <span class="voyant" aria-hidden="true" />
             <span class="synchro-texte">{pastille.texte}</span>

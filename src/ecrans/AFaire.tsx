@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
-import { aujourdhui, autre, kmParFiche, moi, ouvrir, taches } from '../app/etat';
+import { aujourdhui, autres, kmParFiche, membres, moi, ouvrir, taches } from '../app/etat';
 import { BlocTete, ListeTaches, Vide } from '../composants/communs';
+import { libelleEnsemble } from '../domaine/membres';
 import { ORDRE_GROUPES, TITRES_GROUPES, filtrer, regrouper, type Filtre } from '../domaine/taches';
 
 export function AFaire() {
@@ -14,8 +15,8 @@ export function AFaire() {
     .slice(0, 20);
   const filtres: (readonly [Filtre, string])[] = [['tout', 'Tout']];
   if (moi.value) filtres.push([moi.value.id, moi.value.nom]);
-  if (autre.value) filtres.push([autre.value.id, autre.value.nom]);
-  filtres.push(['nous', 'Nous deux'], ['libre', 'Au premier libre']);
+  for (const m of autres.value) filtres.push([m.id, m.nom]);
+  filtres.push(['nous', libelleEnsemble(membres.value.length)], ['libre', 'Au premier libre']);
 
   return (
     <section class="vue" aria-labelledby="titre-a-faire">

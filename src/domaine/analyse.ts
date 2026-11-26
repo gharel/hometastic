@@ -162,12 +162,16 @@ export interface Equilibre {
 }
 
 /**
- * Équilibre à deux : écart jugé notable au-delà de 20 % du temps total (et d’une heure).
+ * Équilibre entre le plus chargé et le moins chargé (à deux comme à plusieurs, spec 007) : écart
+ * jugé notable au-delà de 20 % du temps total (et d’une heure).
  * Pistes : tâches récurrentes confiées au plus chargé (ou « au premier libre »), dont le temps mensuel
  * comble le mieux la moitié de l’écart. Rien n’est imposé : ce sont des propositions.
  */
 export function equilibrer(bilan: BilanMois, taches: readonly Tache[]): Equilibre {
-  const [a, b] = [...bilan.membres].sort((x, y) => y.minutes - x.minutes);
+  const tries = [...bilan.membres].sort((x, y) => y.minutes - x.minutes);
+  const a = tries[0];
+  const b = tries.at(-1);
+  if (a === b) return { ecart: 0, equilibre: true, pistes: [] };
   if (!a || !b) return { ecart: 0, equilibre: true, pistes: [] };
   const ecart = a.minutes - b.minutes;
   const equilibre = ecart <= Math.max(60, 0.2 * bilan.totalMinutes);

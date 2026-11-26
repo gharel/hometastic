@@ -18,6 +18,11 @@
   --sur-miel: #2a1e05;
   --membre-a: #2b7a66;
   --membre-b: #c4471f;
+  /* Membres au-delà de deux (spec 007) : texte blanc au moins 4,8:1, au moins 3,2:1 sur le fond sombre. */
+  --membre-c: #7f58ba;
+  --membre-d: #21789c;
+  --membre-e: #976716;
+  --membre-f: #b93c6c;
   --sur-membre: #ffffff;
   --ok: #2b7a66;
   --bientot: #e39b2b;

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
-import { annoncer, autre, depot, moi } from '../app/etat';
+import { annoncer, autres, depot, moi } from '../app/etat';
 import { Icone } from '../app/icones';
 import { BlocTete } from '../composants/communs';
 import { de } from '../domaine/francais';
+import { listeNoms } from '../domaine/membres';
 import { cleVapid } from '../donnees/synchro/config';
 import { decoderInvitation, encoderInvitation } from '../donnees/synchro/invitation';
 import {
@@ -37,7 +38,7 @@ function message(e: unknown, defaut: string): string {
 /** Partage du lien d’invitation : feuille de partage du téléphone, sinon copie. */
 async function inviter(): Promise<string | undefined> {
   const lien = await lienInvitation(depot());
-  const nom = autre.value?.nom;
+  const nom = autres.value.length === 1 ? autres.value[0]?.nom : undefined;
   try {
     if (navigator.share) {
       await navigator.share({
@@ -90,7 +91,12 @@ export function BlocSynchro() {
   const [telephones, setTelephones] = useState<number | undefined>();
   const etat = etatSynchro.value;
   const relie = estRelie() && etat !== 'indisponible';
-  const nomAutre = autre.value ? `Téléphone ${de(autre.value.nom)}` : 'Téléphone de l’autre membre';
+  const noms = listeNoms(autres.value.map((m) => m.nom));
+  const nomAutre = !noms
+    ? 'Téléphone de l’autre membre'
+    : autres.value.length > 1
+      ? `Téléphones ${de(noms)}`
+      : `Téléphone ${de(noms)}`;
 
   useEffect(() => {
     if (relie) void nombreDeTelephones().then(setTelephones, () => undefined);
@@ -135,7 +141,7 @@ export function BlocSynchro() {
         </ul>
         <p class="aide">
           Le foyer est copié sur votre espace Firebase (gratuit) ; la santé y part chiffrée. Vous enverrez
-          ensuite un lien {autre.value ? `à ${autre.value.nom}` : 'à l’autre membre'}.
+          ensuite un lien {noms ? `à ${noms}` : 'à l’autre membre'}.
         </p>
         <div class="actions">
           <button
@@ -227,7 +233,7 @@ export function BlocSynchro() {
           })}
         >
           <Icone nom="partager" />
-          {autre.value ? `Inviter ${autre.value.nom}` : 'Inviter'}
+          {autres.value.length === 1 ? `Inviter ${autres.value[0]?.nom ?? ''}` : 'Inviter'}
         </button>
         {cleVapid ? (
           <button
@@ -265,7 +271,7 @@ export function BlocSynchro() {
       ) : null}
       <p class="aide">
         Le lien ouvre le foyer et sa santé chiffrée : envoyez-le seulement{' '}
-        {autre.value ? `à ${autre.value.nom}` : 'à l’autre membre du foyer'}.
+        {noms ? `à ${noms}` : 'à l’autre membre du foyer'}.
         {cleVapid
           ? ' Rappels sur iPhone : ajoutez d’abord Hometastic à l’écran d’accueil (Partager, « Sur l’écran d’accueil ») et ouvrez-la depuis l’icône. Un rappel de santé dit seulement « Rappel santé ».'
           : ''}
